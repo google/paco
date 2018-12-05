@@ -54,8 +54,12 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
       var now = new Date().getTime();
       var cutoffDateTimeMs = now - timeout;
 
-      for (var i = 0; i < $scope.allEvents.length; i++) {
-        var event = $scope.allEvents[i];
+      var eventCount = 0;
+      if ($scope.allEvents.events) {
+        eventCount = $scope.allEvents.events.length;
+      }
+      for (var i = 0; i < eventCount; i++) {
+        var event = $scope.allEvents.events[i];
 
         event.responsePairs = {};
         for (var j = 0; j < event.responses.length; j++) {

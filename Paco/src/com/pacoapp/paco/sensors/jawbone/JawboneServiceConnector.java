@@ -7,6 +7,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bodymedia.mobile.jrs.JawboneDataService;
+import com.pacoapp.paco.sensors.StepSensor;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -15,11 +21,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
-
-import com.bodymedia.mobile.jrs.JawboneDataService;
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.sensors.StepSensor;
 
 /**
  * This is a one-shot connector used by a script to retrieve the current step count from the JRS service.
@@ -27,6 +28,8 @@ import com.pacoapp.paco.sensors.StepSensor;
  *This is based on the example app from Jawbone research showing how to use the JRS service.
  */
 public class JawboneServiceConnector implements StepSensor {
+
+  private static Logger Log = LoggerFactory.getLogger(JawboneServiceConnector.class);
 
   private static final String JAWBONE_SERVICE_DOMAIN = "com.bodymedia.mobile.jrs.service.JawboneService";
 
@@ -51,7 +54,7 @@ public class JawboneServiceConnector implements StepSensor {
     public void onServiceConnected(ComponentName className, IBinder service) {
       jawboneService = JawboneDataService.Stub.asInterface(service);
       bound = true;
-      Log.i(PacoConstants.TAG, "Jawbone service connected");
+      Log.info("Jawbone service connected");
       //showKeys();
     }
 
@@ -65,15 +68,15 @@ public class JawboneServiceConnector implements StepSensor {
 
   public void showKeys() {
     if (!bound) {
-      Log.e(PacoConstants.TAG, "Showkeys can't. Service not bound");
+      Log.error("Showkeys can't. Service not bound");
     } else {
       try {
         List<String> keys = jawboneService.getKeys();
         for (String string : keys) {
-          Log.i(PacoConstants.TAG, "key: " + string);
+          Log.info("key: " + string);
         }
       } catch (RemoteException e) {
-        Log.e(PacoConstants.TAG, "Remote exception getting keys: " + e.getMessage());
+        Log.error("Remote exception getting keys: " + e.getMessage());
         e.printStackTrace();
       }
     }
@@ -96,7 +99,7 @@ public class JawboneServiceConnector implements StepSensor {
     if (!bound)
       return -1;
 
-    Log.i(PacoConstants.TAG, "Calling service for data");
+    Log.info("Calling service for data");
 
     final StepCountSensorFuture future = new StepCountSensorFuture(jawboneService, key);
     new Thread(new Runnable() {
@@ -105,12 +108,12 @@ public class JawboneServiceConnector implements StepSensor {
 //        try {
 //          final int value = jawboneService.getValue(key);
 //          if (isErrorCode(value)) {
-//            Log.e(PacoConstants.TAG, "Error code received: " + value);
-//            Log.e(PacoConstants.TAG, "Error message: " + getErrorMessage(value));
+//            Log.error("Error code received: " + value);
+//            Log.error("Error message: " + getErrorMessage(value));
 //            return;
 //          }
 //
-//          Log.i(PacoConstants.TAG, "Received response: " + String.valueOf(value));
+//          Log.info("Received response: " + String.valueOf(value));
 //        } catch (RemoteException e) {
 //          e.printStackTrace();
 //        }
@@ -136,7 +139,7 @@ public class JawboneServiceConnector implements StepSensor {
   private void unbindState(String string) {
     jawboneService = null;
     bound = false;
-    Log.i(PacoConstants.TAG, string);
+    Log.info(string);
   }
 
   private void bindService() {
@@ -144,13 +147,13 @@ public class JawboneServiceConnector implements StepSensor {
 
     // check if service exists
     if (context.getPackageManager().queryIntentServices(intent, 0).isEmpty()) {
-      Log.e(PacoConstants.TAG, "message service not found");
+      Log.error("message service not found");
       return;
     }
 
     // bind to service and wait binder in ServiceConnection interface
     context.bindService(createExplicitFromImplicitIntent(context, intent), mConnection, Context.BIND_AUTO_CREATE);
-    Log.i(PacoConstants.TAG, "Binding");
+    Log.info("Binding");
   }
 
     private boolean isErrorCode(int value) {
@@ -236,12 +239,12 @@ public class JawboneServiceConnector implements StepSensor {
       try {
         int value = jawboneService.getValue(key);
         if (isErrorCode(value)) {
-          Log.e(PacoConstants.TAG, "Error code received: " + value);
-          Log.e(PacoConstants.TAG, "Error message: " + getErrorMessage(value));
+          Log.error("Error code received: " + value);
+          Log.error("Error message: " + getErrorMessage(value));
         }
         onResult(value);
       } catch (RemoteException e) {
-        Log.e(PacoConstants.TAG, "RemoteException received: " + e);
+        Log.error("RemoteException received: " + e);
         onResult(-1);
       }
     }

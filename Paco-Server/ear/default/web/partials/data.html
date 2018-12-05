@@ -20,6 +20,16 @@
         </md-select>
       </md-input-container>
 
+      <span>
+        <img src="/img/ic_chevron_right_24px.svg">
+        <md-input-container class="viewSelector">
+          <md-select ng-model="showGroup" aria-label="Filter data by group" ng-change="loadEvents(true)" >
+            <md-option value="all">All Groups</md-option>
+            <md-option ng-repeat="group in groupNames" value="{{group}}">{{group}}</md-option>
+          </md-select>
+        </md-input-container>
+      </span>
+
       <md-chips ng-if="userChips" ng-model="userChips" md-on-remove="removeUserChip()" placeholder=""></md-chips>
 
       <md-menu md-offset="108 4" ng-if="table">
@@ -27,7 +37,7 @@
           Columns
         </md-button>
         <md-menu-content>
-          <md-menu-item ng-repeat="cell in table.header track by $index">
+          <md-menu-item ng-repeat="cell in table.header| orderBy:'toString()' track by $index">
             <md-checkbox ng-model="showColumn[cell]">
               {{cell}}
             </md-checkbox>
@@ -54,7 +64,14 @@
 
               <div ng-if="table.header[$index]!='who' || users || anon"
                 ng-switch="isPhotoData(cell)">
-                <img ng-switch-when="true" ng-src="{{photoHeader}}{{cell}}">
+                <img ng-switch-when="true" ng-src="{{photoHeader}}{{cell}}">                
+              </div>
+              <div ng-if="table.header[$index]!='who' || users || anon"
+                ng-switch="isAudioData(cell)">
+                <audio controls class="audio" ng-switch-when="true" ng-src="{{makeAudioSrc(cell)}}">                
+              </div>
+              <div ng-if="table.header[$index]!='who' || users || anon"
+                ng-switch="isPhotoData(cell) || isAudioData(cell)">
                 <span ng-switch-when="false">{{cell}}&nbsp;</span>
               </div>
             </td>
@@ -76,11 +93,13 @@
           Show More
         </md-button>
         <div class="actions">
+        <!-- 
           <a ng-href="#/data/{{experiment.id}}/#{{columnString}}">
             <md-button>Column View</md-button>
           </a>
+           -->
           <a ng-href="" ng-click="showReportOptions(experiment)" class="download">
-            <md-button>Report Options</md-button>
+            <md-button>Generate Report</md-button>
           </a>
 
         <a class="button" id="downloadButton" download="report.{{reportType}}" href="{{reportData}}" ng-if="reportData">

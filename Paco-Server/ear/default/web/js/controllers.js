@@ -1,17 +1,16 @@
-pacoApp.controller('HomeCtrl', ['$scope', '$http', '$location',
-  'experimentService',
-  function($scope, $http, $location, experimentService) {
+pacoApp.controller('HomeCtrl', ['$scope', '$http', '$location', 'experimentService',
+  function ($scope, $http, $location, experimentService) {
     $scope.newExperiment = false;
     $scope.experimentId = false;
     $scope.tabIndex = -1;
     $scope.loaded = false;
     $scope.edit = false;
 
-    $scope.home = function() {
-       document.location = '/';
+    $scope.home = function () {
+      document.location = '/';
     };
 
-    $scope.scrolling = function(flag) {
+    $scope.scrolling = function (flag) {
       if (flag) {
         angular.element(document.body).removeClass('no-scroll');
       } else {
@@ -19,9 +18,8 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$location',
       }
     };
 
-    $scope.forceHttps = function() {
-      var devMode = ($location.host() === 'localhost' ||
-        $location.host() === '127.0.0.1');
+    $scope.forceHttps = function () {
+      var devMode = ($location.host() === 'localhost' || $location.host() === '127.0.0.1');
       var insecure = ($location.protocol() === 'http');
 
       if (!devMode && insecure) {
@@ -32,43 +30,56 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$location',
 
     $scope.forceHttps();
 
-    $scope.$on('$viewContentLoaded',
-      function(event){
-        $scope.scrolling(true);
-      });
+    $scope.$on('$viewContentLoaded', function (event) {
+      $scope.scrolling(true);
+    });
 
     $http.get('/userinfo').success(function(data) {
 
-      $scope.loaded = true;
+        $scope.loaded = true;
 
-      // Make sure email isn't the dev email address
-      if (data.user && data.user !== 'bobevans999@gmail.com') {
-        $scope.user = data.user;
-      } else {
-        $scope.loginURL = data.login;
-      }
-      $scope.logoutURL = data.logout;
+        // Make sure email isn't the dev email address
+        if (data.user && data.user !== 'bobevans999@gmail.com') {
+          $scope.user = data.user;
+        } else {
+          $scope.loginURL = data.login;
+        }
+        $scope.logoutURL = data.logout;
 
-    }).error(function(data) {
-      console.log(data);
-    });
-  }
-]);
+      }).error(function(data) {
+        console.log(data);
+      });
+    } ]);
 
-
-pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
-  'config', 'template', '$routeParams', '$location', 'experimentService',
-  function($scope, $mdDialog, $filter, config, template, $routeParams,
-    $location, experimentService) {
+pacoApp.controller('ExperimentCtrl', [
+  '$scope',
+  '$mdDialog',
+  '$filter',
+  'config',
+  'template',
+  '$routeParams',
+  '$location',
+  'experimentService',
+  function ($scope, $mdDialog, $filter, config, template, $routeParams, $location, experimentService) {
     $scope.ace = {};
     $scope.feedbackTypes = config.feedbackTypes;
     $scope.ringtones = config.ringtones;
     $scope.tabs = config.editTabs;
+    $scope.dataDeclarations = config.dataDeclarations;
+    $scope.declared = [];
 
     $scope.state = {
       tabId: 0,
       groupIndex: null
     };
+
+    // temporarily comment this because it prevents loading experiments
+    // directly
+    // fix for bug https://github.com/google/paco/issues/1448
+    // regresses bug https://github.com/google/paco/issues/1272
+    // if ($scope.user === undefined) {
+    // $location.path('/');
+    // }
 
     if ($location.hash()) {
       var newTabId = config.editTabs.indexOf($location.hash());
@@ -115,29 +126,29 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
         $scope.experiment.admins = [$scope.user];
       }
     } else if ($scope.experimentId) {
-      experimentService.getExperiment($scope.experimentId).then(
-        function(response) {
-          var data = response.data.results;
-          $scope.experiment = data[0];
-          $scope.experiment0 = angular.copy(data[0]);
-          $scope.prepareSourceAce();
+      experimentService.getExperiment($scope.experimentId).then(function (response) {
+        var data = response.data.results;
+        $scope.experiment = data[0];
+        $scope.experiment0 = angular.copy(data[0]);
+        $scope.prepareSourceAce();
 
-          if ($scope.newExperiment) {
-            $scope.experiment.title = 'Copy of ' + $scope.experiment.title;
-            $scope.experiment.id = null;
-            $scope.experiment.version = 1;
+        if ($scope.newExperiment) {
+          $scope.experiment.title = 'Copy of ' + $scope.experiment.title;
+          $scope.experiment.id = null;
+          $scope.experiment.version = 1;
 
-            if ($scope.user) {
-              $scope.experiment.creator = $scope.user;
-              $scope.experiment.contactEmail = $scope.user;
-              $scope.experiment.admins = [$scope.user];
-            }
+          if ($scope.user) {
+            $scope.experiment.creator = $scope.user;
+            $scope.experiment.contactEmail = $scope.user;
+            $scope.experiment.admins = [$scope.user];
+            $scope.experiment.publishedUsers = [];
+            $scope.experiment.published = false;
           }
-        });
+        }
+      });
     }
 
-
-    $scope.$watch('user', function(newValue, oldValue) {
+    $scope.$watch('user', function (newValue, oldValue) {
       if (newValue && $scope.newExperiment && $scope.experiment) {
         $scope.experiment.creator = $scope.user;
         $scope.experiment.contactEmail = $scope.user;
@@ -145,7 +156,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       }
     });
 
-    $scope.$watch('state.tabId', function(newValue, oldValue) {
+    $scope.$watch('state.tabId', function (newValue, oldValue) {
       if (config.editTabs[$scope.state.tabId] === 'source') {
         $scope.prepareSourceAce();
       }
@@ -157,12 +168,12 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       }
     });
 
-    $scope.lineCount = function(str) {
+    $scope.lineCount = function (str) {
       var lines = str.split('\n');
       return lines.length;
     }
 
-    $scope.$watch('experiment.groups', function(newValue, oldValue) {
+    $scope.$watch('experiment.groups', function (newValue, oldValue) {
       if (newValue) {
 
         $scope.admin = ($scope.experiment.admins.indexOf($scope.user) !== -1);
@@ -181,15 +192,16 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       }
     });
 
-    // Need to set blockScrolling to Infinity to supress Ace deprecation warning
-    $scope.aceInfinity = function(editor) {
+    // Need to set blockScrolling to Infinity to supress Ace deprecation
+    // warning
+    $scope.aceInfinity = function (editor) {
       if (editor) {
         editor.$blockScrolling = 'Infinity';
       }
     };
 
     // Ace is loaded when the Source tab is selected so get pretty JSON here
-    $scope.prepareSourceAce = function(editor) {
+    $scope.prepareSourceAce = function (editor) {
       $scope.aceInfinity(editor);
 
       $scope.ace = {
@@ -198,7 +210,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       };
     };
 
-    $scope.$watch('ace.JSON', function(newValue, oldValue) {
+    $scope.$watch('ace.JSON', function (newValue, oldValue) {
       if (!oldValue || oldValue == newValue) {
         return;
       }
@@ -213,7 +225,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       $scope.ace.height = $scope.lineCount(newValue) * 16;
     });
 
-    $scope.discardChanges = function() {
+    $scope.discardChanges = function () {
       if ($scope.newExperiment) {
         $location.path('/experiments/');
       } else {
@@ -221,81 +233,112 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       }
     }
 
-    $scope.saveExperiment = function() {
+    $scope.saveExperiment = function () {
       $scope.cancelSave = false;
       $mdDialog.show(
-        $mdDialog.alert()
-        .title('Save Status')
-        .content('Saving to remote PACO server')
-        .ariaLabel('Save Status')
-        .ok('Cancel')
-      ).then(function() {
+          $mdDialog.alert().title('Save Status').content('Saving to remote PACO server').ariaLabel('Save Status').ok(
+              'Cancel')).then(function () {
         $scope.cancelSave = true;
       });
 
-      experimentService.saveExperiment($scope.experiment)
-        .then(function(response) {
+      experimentService.saveExperiment($scope.experiment).then(function (response) {
 
-          var data = response.data;
+        var data = response.data;
 
-          // Save may succeed if post request was in flight when canceled
-          if ($scope.cancelSave) {
-            return;
-          }
-          $mdDialog.cancel();
-          if (data.length > 0) {
-            if (data[0].status === true) {
+        // Save may succeed if post request was in flight when canceled
+        if ($scope.cancelSave) {
+          return;
+        }
+        $mdDialog.cancel();
+        if (data.length > 0) {
+          if (data[0].status === true) {
 
-              $scope.experiment.version++;
+            $scope.experiment.version++;
 
-              // Need to manually update the Ace content after version change
-              // in case the user modified the experiment via source view.
-              // Otherwise, Ace will retain a stale version number and any
-              // subsequent saves will fail.
-              $scope.prepareSourceAce();
+            // Need to manually update the Ace content after version change
+            // in case the user modified the experiment via source view.
+            // Otherwise, Ace will retain a stale version number and any
+            // subsequent saves will fail.
+            $scope.prepareSourceAce();
 
-              $scope.experiment0 = angular.copy($scope.experiment);
+            $scope.experiment0 = angular.copy($scope.experiment);
 
-              if ($scope.newExperiment) {
-                $location.path('/edit/' + data[0].experimentId);
-              }
-            } else {
-              var errorMessage = data[0].errorMessage;
-              $mdDialog.show({
-                templateUrl: 'partials/error.html',
-                locals: {
-                  errorMessage: errorMessage
-                },
-                controller: 'ErrorCtrl'
-              });
+            if ($scope.newExperiment) {
+              $location.path('/edit/' + data[0].experimentId);
             }
+          } else {
+            var errorMessage = data[0].errorMessage;
+            $mdDialog.show({
+              templateUrl: 'partials/error.html',
+              locals: {
+                errorMessage: errorMessage
+              },
+              controller: 'ErrorCtrl'
+            });
           }
-        });
+        }
+      });
     };
 
-    $scope.addGroup = function() {
+    $scope.addGroup = function () {
       $scope.experiment.groups.push(angular.copy(template.group));
     };
 
-    $scope.remove = function(arr, idx) {
-      arr.splice(idx, 1);
+    $scope.remove = function (arr, index) {
+      arr.splice(index, 1);
     };
 
-    $scope.convertBack = function(event) {
+    $scope.swap = function (arr, index1, index2) {
+      var temp = arr[index2];
+      arr[index2] = arr[index1];
+      arr[index1] = temp;
+    };
+
+    $scope.convertBack = function (event) {
       var json = event.target.value;
       $scope.experiment = JSON.parse(json);
     };
-  }
-]);
 
+    $scope.inList = function (item, list) {
+      if ($scope.experiment && $scope.experiment.extraDataCollectionDeclarations) {
+        var id = parseInt(item);
+        if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !== -1) {
+          return true;
+        }
+      }
+      return false;
+    }
 
+    $scope.toggleDeclaration = function (item, list) {
+      var id = parseInt(item);
+      var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(id);
 
-pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
-  'experimentService', 'config',
-  function($scope, $mdDialog, $location, experimentService, config) {
+      if (find === -1) {
+        $scope.experiment.extraDataCollectionDeclarations.push(id);
+      } else {
+        $scope.experiment.extraDataCollectionDeclarations.splice(find, 1);
+      }
+    };
+  }]);
+
+pacoApp.controller('ListCtrl', [
+  '$scope',
+  '$mdDialog',
+  '$location',
+  'experimentService',
+  'config',
+  function ($scope, $mdDialog, $location, experimentService, config) {
 
     $scope.cursor = {};
-    $scope.list = {'admin':[], 'joined':[], 'mine':[]};
+    $scope.list = {
+      'admin': [],
+      'joined': [],
+      'mine': [],
+      'popular': [],
+      'new': [],
+      'public': []
+    };
+    $scope.currentAdminSortOrder = 'title_asc';
     $scope.loading = {};
     $scope.state = {};
 
@@ -306,7 +349,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       }
     }
 
-    $scope.$watch('state.listTab', function(newValue, oldValue) {
+    $scope.$watch('state.listTab', function (newValue, oldValue) {
       if ($scope.state.listTab === 0) {
         $location.hash('');
       } else if ($scope.state.listTab > 0) {
@@ -315,31 +358,37 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       }
     });
 
-    $scope.$watch('user', function(newValue, oldValue) {
+    $scope.$watch('user', function (newValue, oldValue) {
       if ($scope.user) {
         $scope.loadLists(true);
       }
     });
 
-    $scope.loadLists = function(reset) {
+    $scope.loadLists = function (reset) {
       $scope.loadAdminList(reset);
       $scope.loadJoinedList(reset);
       $scope.loadJoinableList(reset);
+      $scope.loadPopularList(reset);
+      $scope.loadNewList(reset);
+      $scope.loadAllPublicList(reset);
     };
 
-    $scope.loadList = function(listName, reset) {
+    $scope.loadList = function (listName, reset, sortName) {
       var cursor = $scope.cursor[listName];
       if (reset === undefined) {
         reset = false;
+      } else if (reset) {
+        cursor = null;
+        $scope.list[listName] = [];
       }
 
       $scope.loading[listName] = true;
-      experimentService.getExperimentList(listName, true, cursor).then(function(response) {
+      experimentService.getExperimentList(listName, true, cursor, sortName).then(function (response) {
 
-      if (reset) {
-        $scope.cursor[listName] = null;
-        $scope.list[listName] = [];
-      }
+        if (reset) {
+          $scope.cursor[listName] = null;
+          $scope.list[listName] = [];
+        }
 
         if (response.data.results.length < response.data.limit) {
           $scope.cursor[listName] = null;
@@ -361,70 +410,77 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       });
     }
 
-    $scope.loadJoinedList = function(reset) {
+    $scope.loadJoinedList = function (reset) {
       $scope.loadList('joined', reset);
     };
 
-    $scope.loadAdminList = function(reset) {
-      $scope.loadList('admin', reset);
+    $scope.loadAdminList = function (reset) {
+      $scope.loadList('admin', reset, this.currentAdminSortOrder);
     }
 
-    $scope.loadJoinableList = function(reset) {
+    $scope.loadJoinableList = function (reset) {
       $scope.loadList('mine', reset);
     };
 
-    $scope.deleteExperiment = function(ev, exp) {
-      var confirm = $mdDialog.confirm()
-        .parent(angular.element(document.body))
-        .title('Confirm experiment deletion')
-        .content('Would you like to delete experiment ' + exp.id + '? (' + exp.title + ')')
-        .ariaLabel('Confirm experiment deletion')
-        .ok('Delete')
-        .cancel('Cancel')
-        .targetEvent(ev);
-      $mdDialog.show(confirm).then(function() {
+    $scope.loadAllPublicList = function (reset) {
+      $scope.loadList('public', reset);
+    };
+
+    $scope.loadPopularList = function (reset) {
+      $scope.loadList('popular', reset);
+    };
+
+    $scope.loadNewList = function (reset) {
+      $scope.loadList('new', reset);
+    };
+
+    $scope.sortAdminList = function () {
+      $scope.currentAdminSortOrder = this.currentAdminSortOrder;
+      $scope.loadList('admin', true, this.currentAdminSortOrder);
+    }
+
+    $scope.deleteExperiment = function (ev, exp) {
+      var confirm = $mdDialog.confirm().parent(angular.element(document.body)).title('Confirm experiment deletion')
+          .content('Would you like to delete experiment ' + exp.id + '? (' + exp.title + ')').ariaLabel(
+              'Confirm experiment deletion').ok('Delete').cancel('Cancel').targetEvent(ev);
+      $mdDialog.show(confirm).then(function () {
         exp.deleting = true;
-        experimentService.deleteExperiment(exp.id).
-        then(function(response) {
+        experimentService.deleteExperiment(exp.id).then(function (response) {
           $scope.cursor = {};
           $scope.loadLists(true);
 
           // If we're on the experiment or edit page, change location to home
-          if ($location.path().indexOf('/experiment/') === 0 ||
-              $location.path().indexOf('/edit/') === 0) {
+          if ($location.path().indexOf('/experiment/') === 0 || $location.path().indexOf('/edit/') === 0) {
             $location.path('/');
           }
         });
       });
     };
 
-    $scope.joinExperiment = function($event, exp) {
-      experimentService.joinExperiment(exp)
-        .then(function(result) {
-          if (result.data && result.data[0].status === true) {
-            experimentService.invalidateCachedList('joined');
-            $scope.loadJoinedList();
+    $scope.joinExperiment = function ($event, exp) {
+      experimentService.joinExperiment(exp).then(function (result) {
+        if (result.data && result.data[0].status === true) {
+          experimentService.invalidateCachedList('joined');
+          $scope.loadJoinedList();
 
-            $mdDialog.show(
-              $mdDialog.alert()
-              .title('Join Status')
-              .content('Success!')
-              .ariaLabel('Success')
-              .ok('OK')
-            );
-          }
-        });
+          $mdDialog.show($mdDialog.alert().title('Join Status').content('Success!').ariaLabel('Success').ok('OK'));
+        }
+      });
 
       $event.stopPropagation();
     };
-  }
-]);
+  }]);
 
-
-pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
-  '$routeParams','dataService', 'experimentService', 'config',
-  function($scope, $mdDialog, $location, $filter, $routeParams, dataService,
-    experimentService, config) {
+pacoApp.controller('DataCtrl', [
+  '$scope',
+  '$mdDialog',
+  '$location',
+  '$filter',
+  '$routeParams',
+  'dataService',
+  'experimentService',
+  'config',
+  function ($scope, $mdDialog, $location, $filter, $routeParams, dataService, experimentService, config) {
 
     $scope.sortColumn = 0;
     $scope.reverseSort = false;
@@ -439,8 +495,12 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
     $scope.screenData = null;
     $scope.photoHeader = 'data:image/jpeg;base64,';
     $scope.photoMarker = '/9j/';
+    $scope.audioMarker = 'AAAAGGZ0eXBtc';
+    $scope.statsDate = new Date();
+    $scope.groupNames = [];
+    $scope.showGroup = 'all';
 
-    $scope.switchView = function() {
+    $scope.switchView = function () {
       var newPath = $scope.currentView + '/' + $scope.experimentId;
       if ($scope.userChips) {
         newPath += '/' + $scope.userChips[0];
@@ -448,8 +508,8 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       $location.path(newPath);
     }
 
-    $scope.setColumn = function(columnId) {
-      if ( $scope.sortColumn === columnId) {
+    $scope.setColumn = function (columnId) {
+      if ($scope.sortColumn === columnId) {
         $scope.reverseSort = !$scope.reverseSort;
       } else {
         $scope.reverseSort = false;
@@ -457,76 +517,81 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       }
     }
 
-    $scope.columnSort = function(row) {
+    $scope.columnSort = function (row) {
       return row[$scope.sortColumn];
     };
 
-    enableColumns = function(columns) {
+    enableColumns = function (columns) {
       for (var id in columns) {
         $scope.showColumn[columns[id]] = true;
       }
     };
 
-    $scope.loadEvents = function() {
+    $scope.loadEvents = function (forceReload) {
+      forecReload = typeof forceReload !== 'undefined' ? forceReload : false;
       $scope.loading = true;
-      var loadingMore = ($scope.eventCursor !== null);
+      var loadingMore = ($scope.eventCursor !== null && !forceReload);
+      if (forceReload) {
+        $scope.eventCursor = null;
+      }
 
-      dataService.getEvents($scope.experimentId, $scope.restrict, $scope.anon, $scope.eventCursor).
-      then(function(response) {
+      dataService.getEvents($scope.experimentId, $scope.restrict, $scope.anon, $scope.showGroup, $scope.eventCursor)
+          .then(function (response) {
 
-        $scope.scrolling(false);
-        if (response.data) {
+            $scope.scrolling(false);
+            if (response.data) {
 
-          if (response.data.cursor) {
-            $scope.eventCursor = response.data.cursor;
-          }
+              if (response.data.cursor) {
+                $scope.eventCursor = response.data.cursor;
+              }
 
-          if (response.data.events.length < config.dataPageSize) {
-            $scope.eventCursor = null;
-          }
+              if (response.data.events.length < config.dataPageSize) {
+                $scope.eventCursor = null;
+              }
 
-          if ($scope.events) {
-            $scope.events = $scope.events.concat(response.data.events);
-          } else {
-            $scope.events = response.data.events;
-          }
+              if ($scope.events && !forceReload) {
+                $scope.events = $scope.events.concat(response.data.events);
+              } else {
+                $scope.events = response.data.events;
+              }
 
-          if (!$scope.events) {
-            $scope.csv = [];
-            return;
-          }
+              if (!$scope.events) {
+                $scope.csv = [];
+                return;
+              }
 
-          var table = $filter('jsonToTable')($scope.events, true);
-          $scope.table = table;
+              var table = $filter('jsonToTable')($scope.events, true);
+              $scope.table = table;
 
-          if (table === null) {
-            $scope.loading = false;
-            return;
-          }
+              if (table === null) {
+                $scope.loading = false;
+                return;
+              }
 
-          if (!loadingMore) {
-            if ($scope.columnOverride) {
-              enableColumns($scope.columnOverride);
-            } else {
-              enableColumns(config.dataOrder);
-              enableColumns(table.responseNames);
+              if (!loadingMore) {
+                if ($scope.columnOverride) {
+                  enableColumns($scope.columnOverride);
+                } else {
+                  enableColumns(config.dataOrder);
+                  enableColumns(table.responseNames);
+                }
+              }
+
+              $scope.csv = $filter('tableToCsv')(table);
+              $scope.loading = false;
             }
-          }
-
-          $scope.csv = $filter('tableToCsv')(table);
-          $scope.loading = false;
-        }
-      }, function(result) {
-        $scope.loading = false;
-        $scope.error = {  code: result.status,
-                          message: result.message
-                        };
-      });
+          }, function (result) {
+            $scope.loading = false;
+            $scope.error = {
+              code: result.status,
+              message: result.message
+            };
+          });
 
       $scope.status = 'Requesting response data';
     };
 
-    $scope.showReportOptions = function(experiment) {
+    $scope.showReportOptions = function (experiment) {
       var promise = $mdDialog.show({
         templateUrl: 'partials/report.html',
         preserveScope: true,
@@ -537,39 +602,55 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
         clickOutsideToClose: true,
         controller: 'ReportCtrl'
       });
-      promise.then(function(result) {
+      promise.then(function (result) {
         $scope.reportData = result.data;
         $scope.reportType = result.type;
       });
     };
 
-    $scope.loadStats = function() {
+    $scope.$watch('statsDate', function (newVal, oldVal) {
+      if (oldVal !== newVal) {
+        dataService.updateParticipantDateStats($scope.experimentId, $scope.statsDate, $scope.stats);
+      }
+      ;
+    });
+
+    $scope.loadStats = function () {
       $scope.loading = true;
       $scope.stats = null;
       $scope.currentView = 'stats';
 
-      dataService.getParticipantData($scope.experimentId, $scope.restrict).
-      then(function(result) {
-        if (result.data) {
-          $scope.stats = result.data;
-          $scope.loading = false;
-        }
-      }, function(result) {
-        $scope.loading = false;
-        $scope.error = {  code: result.status,
-                          message: result.statusText
-                        };
-      });
+      dataService.getParticipantStats($scope.experimentId, $scope.statsDate, $scope.restrict, $scope.showGroup).then(
+          function (result) {
+
+            if (result.data) {
+              $scope.stats = result.data;
+              $scope.loading = false;
+            }
+          }, function (result) {
+            $scope.loading = false;
+            $scope.error = {
+              code: result.status,
+              message: result.statusText
+            };
+          });
 
       $scope.status = 'Sending stats request';
     }
 
-    $scope.isPhotoData = function(data) {
-      return (typeof(data) === 'string' &&
-                data.indexOf($scope.photoMarker) === 0);
+    $scope.isPhotoData = function (data) {
+      return (typeof (data) === 'string' && (data.indexOf($scope.photoMarker) === 0 || data.indexOf("iVBORw0K") === 0));
     }
 
-    $scope.removeUserChip = function() {
+    $scope.isAudioData = function (data) {
+      return (typeof (data) === 'string' && data.indexOf($scope.audioMarker) === 0);
+    }
+
+    $scope.makeAudioSrc = function (cell) {
+      return "data:audio/mpeg;base64," + cell;
+    }
+
+    $scope.removeUserChip = function () {
       var newPath = $scope.currentView + '/' + $scope.experimentId;
       $location.path(newPath);
     };
@@ -600,12 +681,14 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       $scope.loadStats();
     }
 
-    experimentService.getExperiment($scope.experimentId).then(
-      function(response) {
-        $scope.experiment = response.data.results[0];
-      });
+    experimentService.getExperiment($scope.experimentId).then(function (response) {
+      $scope.experiment = response.data.results[0];
+      for (var i = 0; i < $scope.experiment.groups.length; i++) {
+        $scope.groupNames.push($scope.experiment.groups[i].name);
+      }
+    });
 
-    $scope.$watchCollection('showColumn', function(newVal, oldVal) {
+    $scope.$watchCollection('showColumn', function (newVal, oldVal) {
       var columnString = '';
       for (var key in $scope.showColumn) {
         if ($scope.showColumn[key] && key !== 'responses') {
@@ -617,28 +700,112 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       }
       $scope.columnString = columnString;
     });
-  }
-]);
+  }]);
 
-pacoApp.controller('HelpCtrl', ['$scope', '$routeParams', 'config',
-  function($scope, $routeParams, config) {
+pacoApp.controller('HelpCtrl', ['$scope', '$routeParams', 'config', function ($scope, $routeParams, config) {
 
-    $scope.helpLink = config.helpLinkBase;
+  $scope.helpLink = config.helpLinkBase;
 
-    if (angular.isDefined($routeParams.helpId)) {
-      var link = config.helpLinks[$routeParams.helpId];
-      if (angular.isDefined(link)) {
-        $scope.helpLink = config.helpLinkBase + '#' + link;
-      }
+  if (angular.isDefined($routeParams.helpId)) {
+    var link = config.helpLinks[$routeParams.helpId];
+    if (angular.isDefined(link)) {
+      $scope.helpLink = config.helpLinkBase + '#' + link;
     }
+  }
 
 }]);
 
+pacoApp.controller('HackCtrl', ['$scope', '$http', function ($scope, $http) {
+  var allResponses = '';
+  var editorReqSesssion = '';
+  var editorResSession = '';
+  $scope.hackRequest = '';
+  $scope.errorResponse = '';
+  $scope.submitForm = function () {
+    $http({
+      method: 'POST',
+      url: '/csSearch',
+      data: angular.fromJson($scope.hackRequest),
+      headers: {'Content-Type': 'application/json'}
+    })
+        .then(function mySuccess(response) {
+          allResponses = '';
+          $scope.hackResponse = '';
+          $scope.errorResponse = '';
+          if (response.data.errorMessage == null) {
+            if (response.data.events != null) {
+              for (i in response.data.events) {
+                allResponses += JSON.stringify(response.data.events[i], null, 4);
+              }
+            } else if (response.data.customResponse != null) {
+              for (i in response.data.customResponse) {
+                allResponses += JSON.stringify(response.data.customResponse[i], null, 4);
+              }
+            } else {
+              allResponses = "Unknown response format";
+            }
+          } else {
+            $scope.errorResponse = response.data.errorMessage;
+          }
+          $scope.hackResponse = allResponses;
+        }, function myError(response) {
+          $scope.errorResponse = response.data;
+        });
+  };
 
-pacoApp.controller('ReportCtrl', ['$scope', '$mdDialog', 'dataService',
-    'config', 'experiment', 'anonymous',
-  function($scope, $mdDialog, dataService, config, experiment, anonymous) {
-    $scope.reportTypes = ['csv','html','json'];
+  //Need to set blockScrolling to Infinity to supress Ace deprecation
+  // warning
+  $scope.aceInfinity = function (editor) {
+    if (editor) {
+      editor.$blockScrolling = 'Infinity';
+    }
+  };
+
+  $scope.aceReqLoaded = function (editor) {
+    editorReqSession = editor.getSession();
+  };
+  $scope.aceReqChanged = function (editor) {
+    $scope.hackRequest = editorReqSession.getDocument().getValue();
+  };
+
+  // Ace is loaded  so get pretty JSON here
+  $scope.prepareReqSourceAce = function (editor) {
+    $scope.aceInfinity(editor);
+    $scope.aceReq = {
+      JSON: angular.toJson($scope.hackRequest, true),
+      error: false
+    };
+  };
+
+  $scope.aceResLoaded = function (editor) {
+    editorResSession = editor.getSession();
+  };
+  $scope.aceResChanged = function (editor) {
+    $scope.hackResponse = editorResSession.getDocument().getValue();
+  };
+
+  // Ace is loaded  so get pretty JSON here
+  $scope.prepareResSourceAce = function (editor) {
+    $scope.aceInfinity(editor);
+
+    $scope.aceRes = {
+      JSON: angular.toJson($scope.hackResponse, true),
+      error: false
+    };
+  };
+
+
+}]);
+
+pacoApp.controller('ReportCtrl', [
+  '$scope',
+  '$mdDialog',
+  'dataService',
+  'config',
+  'experiment',
+  'anonymous',
+  function ($scope, $mdDialog, dataService, config, experiment, anonymous) {
+    $scope.reportTypes = ['csv', 'html', 'json'];
     $scope.hide = $mdDialog.hide;
     $scope.reportURL = '/events?q=\'experimentId=' + experiment.id + '\'&csv&cmdline=1';
     $scope.csvData = null;
@@ -648,146 +815,144 @@ pacoApp.controller('ReportCtrl', ['$scope', '$mdDialog', 'dataService',
       anonymous: false,
     }
 
-    $scope.getReport = function() {
+    $scope.getReport = function () {
       $scope.loading = true;
       $scope.error = null;
-      dataService.getReport(experiment.id, null, $scope.reportType,
-          $scope.options.anonymous, $scope.options.photos)
-        .then(function(result) {
+      dataService.getReport(experiment.id, null, $scope.reportType, $scope.options.anonymous, $scope.options.photos)
+          .then(function (result) {
 
-          if (result.error) {
-            $scope.loading = false;
-            $scope.error = result.error;
-            return;
-          }
+            if (result.error) {
+              $scope.loading = false;
+              $scope.error = result.error;
+              return;
+            }
 
-          var blob = new Blob([result.data], {
-            type: 'text/' + $scope.reportType
+            var blob = new Blob([result.data], {
+              type: 'text/' + $scope.reportType
+            });
+            var csvData = (window.URL || window.webkitURL).createObjectURL(blob);
+            $mdDialog.hide({
+              data: csvData,
+              type: $scope.reportType
+            });
           });
-          var csvData = (window.URL || window.webkitURL).createObjectURL(blob);
-          $mdDialog.hide({data: csvData, type: $scope.reportType});
-        });
     }
+  }]);
+
+pacoApp.controller('GroupsCtrl', ['$scope', 'template', function ($scope, template) {
+  $scope.hiding = false;
+  $scope.defaultFeedback = 'Thanks for Participating!';
+
+  $scope.dateToString = function (d) {
+    var s = d.getUTCFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
+    return s;
+  };
+
+  $scope.findInputName = function (findName) {
+    var result = $scope.group.inputs.filter(function (obj) {
+      return obj.name === findName;
+    });
+    return (result.length > 0);
+  }
+
+  $scope.newInputName = function () {
+    var safeId = $scope.group.inputs.length + 1;
+    var newName = 'input' + safeId;
+
+    while ($scope.findInputName(newName)) {
+      safeId++;
+      newName = 'input' + safeId;
+    }
+    return 'input' + safeId;
+  }
+
+  $scope.addInput = function (event, expandFn, index) {
+    var input = angular.copy(template.input);
+    input.name = $scope.newInputName();
+
+    if (index !== undefined) {
+      $scope.group.inputs.splice(index, 0, input);
+    } else {
+      $scope.group.inputs.push(input);
+    }
+    if (expandFn) {
+      expandFn(true);
+    }
+
+    event.stopPropagation();
+  };
+
+  $scope.toggleGroup = function ($event) {
+    $scope.hiding = !$scope.hiding;
+  };
+
+  $scope.addScheduleTrigger = function (event, expandFn) {
+    $scope.group.actionTriggers.push(angular.copy(template.scheduleTrigger));
+    var trigger = $scope.group.actionTriggers[$scope.group.actionTriggers.length - 1];
+    expandFn(true);
+    event.stopPropagation();
+  };
+
+  $scope.addEventTrigger = function (event, expandFn) {
+    $scope.group.actionTriggers.push(angular.copy(template.eventTrigger));
+    expandFn(true);
+    event.stopPropagation();
+  };
+
+  $scope.$watch('group.fixedDuration', function (newVal, oldVal) {
+    if (newVal && newVal === true && $scope.group.startDate == undefined) {
+      var today = new Date();
+      var tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000));
+      $scope.group.startDate = $scope.dateToString(today);
+      ;
+      $scope.group.endDate = $scope.dateToString(tomorrow);
+    }
+
+    if (newVal === false) {
+      $scope.group.startDate = null;
+      $scope.group.endDate = null;
+    }
+  });
 }]);
 
-pacoApp.controller('GroupsCtrl', ['$scope', 'template',
-  function($scope, template) {
-    $scope.hiding = false;
-    $scope.defaultFeedback = 'Thanks for Participating!';
-
-    $scope.dateToString = function(d) {
-      var s = d.getUTCFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
-      return s;
-    };
-
-    $scope.findInputName = function(findName) {
-      var result = $scope.group.inputs.filter(function (obj) {
-        return obj.name === findName;
-      });
-      return (result.length > 0);
-    }
-
-    $scope.newInputName = function() {
-      var safeId = $scope.group.inputs.length + 1;
-      var newName = 'input' + safeId;
-
-      while ($scope.findInputName(newName)) {
-        safeId++;
-        newName = 'input' + safeId;
-      }
-      return 'input' + safeId;
-    }
-
-    $scope.addInput = function(event, expandFn, index) {
-      var input = angular.copy(template.input);
-      input.name = $scope.newInputName();
-
-      if (index !== undefined) {
-        $scope.group.inputs.splice(index, 0, input);
-      } else {
-        $scope.group.inputs.push(input);
-      }
-      if (expandFn) {
-        expandFn(true);
-      }
-
-      event.stopPropagation();
-    };
-
-    $scope.swapInputs = function(event, index1, index2) {
-      var temp = $scope.group.inputs[index2];
-      $scope.group.inputs[index2] = $scope.group.inputs[index1];
-      $scope.group.inputs[index1] = temp;
-    };
-
-    $scope.toggleGroup = function($event) {
-      $scope.hiding = !$scope.hiding;
-    };
-
-    $scope.addScheduleTrigger = function(event, expandFn) {
-      $scope.group.actionTriggers.push(angular.copy(template.scheduleTrigger));
-      var trigger = $scope.group.actionTriggers[$scope.group.actionTriggers
-        .length - 1];
-      expandFn(true);
-      event.stopPropagation();
-    };
-
-    $scope.addEventTrigger = function(event, expandFn) {
-      $scope.group.actionTriggers.push(angular.copy(template.eventTrigger));
-      expandFn(true);
-      event.stopPropagation();
-    };
-
-    $scope.$watch('group.fixedDuration', function(newVal, oldVal) {
-      if (newVal && newVal == true && $scope.group.startDate ==
-        undefined) {
-        var today = new Date();
-        var today = new Date();
-        var tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000));
-        $scope.group.startDate = $scope.dateToString(today);;
-        $scope.group.endDate = $scope.dateToString(tomorrow);
-      }
-    });
-  }
-]);
-
-
-pacoApp.controller('InputCtrl', ['$scope', 'config', function($scope, config) {
+pacoApp.controller('InputCtrl', ['$scope', 'config', function ($scope, config) {
 
   $scope.responseTypes = config.responseTypes;
 
-  $scope.$watch('input.responseType', function(newValue, oldValue) {
-    if ($scope.input.responseType === 'list' &&
-      $scope.input.listChoices === undefined) {
+  $scope.$watch('input.responseType', function (newValue, oldValue) {
+    if ($scope.input.responseType === 'list' && $scope.input.listChoices === undefined) {
       $scope.input.listChoices = [''];
     }
   });
 
-  $scope.addChoice = function() {
-    $scope.input.listChoices.push('');
+  $scope.addChoice = function (index) {
+    if (index !== undefined) {
+      $scope.input.listChoices.splice(index, 0, '');
+    } else {
+      $scope.input.listChoices.push('');
+    }
   }
 }]);
 
-
 pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
-  function($scope, $mdDialog, config, template) {
+  function ($scope, $mdDialog, config, template) {
 
     $scope.scheduleTypes = config.scheduleTypes;
 
-    $scope.addAction = function(event) {
+    $scope.addAction = function (event) {
       var action = angular.copy(template.defaultAction);
       $scope.trigger.actions.push(action);
     }
 
-    $scope.addSchedule = function(event) {
+    $scope.addSchedule = function (event) {
       $scope.trigger.schedules.push(angular.copy(template.schedule));
     }
 
-    $scope.addCue = function(event) {
+    $scope.addCue = function (event) {
       $scope.trigger.cues.push(angular.copy(template.cue));
     }
 
-    $scope.showSchedule = function(event, schedule) {
+    $scope.showSchedule = function (event, schedule) {
       $mdDialog.show({
         templateUrl: 'partials/schedule.html',
         locals: {
@@ -798,7 +963,7 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
       });
     };
 
-    $scope.showAction = function(event, action, triggerType) {
+    $scope.showAction = function (event, action, triggerType) {
 
       $mdDialog.show({
         templateUrl: 'partials/action.html',
@@ -811,7 +976,7 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
       });
     };
 
-    $scope.showCue = function(event, cue) {
+    $scope.showCue = function (event, cue) {
       $mdDialog.show({
         templateUrl: 'partials/cue.html',
         locals: {
@@ -821,20 +986,17 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
         controller: 'CueCtrl'
       });
     };
-  }
-]);
+  }]);
 
-
-pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'template',
-  'action', 'triggerType',
-  function($scope, $mdDialog, config, template, action, triggerType) {
+pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'template', 'action', 'triggerType',
+  function ($scope, $mdDialog, config, template, action, triggerType) {
 
     $scope.action = action;
     $scope.triggerType = triggerType;
     $scope.actionTypes = config.actionTypes;
     $scope.hide = $mdDialog.hide;
 
-    $scope.$watch('action.actionCode', function(newValue, oldValue) {
+    $scope.$watch('action.actionCode', function (newValue, oldValue) {
       if (newValue === oldValue) {
         return;
       }
@@ -846,29 +1008,23 @@ pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'template',
       }
     });
 
-  }
-]);
+  }]);
 
+pacoApp.controller('CueCtrl', ['$scope', '$mdDialog', 'config', 'cue', function ($scope, $mdDialog, config, cue) {
+  $scope.cue = cue;
+  $scope.cueTypes = config.cueTypes;
+  $scope.hide = $mdDialog.hide;
+}]);
 
-pacoApp.controller('CueCtrl', ['$scope', '$mdDialog', 'config', 'cue',
-  function($scope, $mdDialog, config, cue) {
-    $scope.cue = cue;
-    $scope.cueTypes = config.cueTypes;
-    $scope.hide = $mdDialog.hide;
-  }
-]);
-
-
-pacoApp.controller('ErrorCtrl', ['$scope', '$mdDialog', 'config',
-  'errorMessage',
-  function($scope, $mdDialog, config, errorMessage) {
+pacoApp.controller('ErrorCtrl', ['$scope', '$mdDialog', 'config', 'errorMessage',
+  function ($scope, $mdDialog, config, errorMessage) {
 
     $scope.errorMessage = errorMessage;
     $scope.hide = $mdDialog.hide;
 
-    // TODO(bobevans): make server error formats consistent to avoid this special casing
-    if (errorMessage.indexOf('Exception') === 0 ||
-      errorMessage.indexOf('Newer version') === 0) {
+    // TODO(bobevans): make server error formats consistent to avoid this
+    // special casing
+    if (errorMessage.indexOf('Exception') === 0 || errorMessage.indexOf('Newer version') === 0) {
       $scope.errors = [errorMessage];
     } else {
 
@@ -878,13 +1034,10 @@ pacoApp.controller('ErrorCtrl', ['$scope', '$mdDialog', 'config',
         $scope.errors.push(err[error].msg);
       }
     }
-  }
-]);
+  }]);
 
-
-pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
-  'schedule',
-  function($scope, $mdDialog, config, template, schedule) {
+pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template', 'schedule',
+  function ($scope, $mdDialog, config, template, schedule) {
 
     $scope.schedule = schedule;
 
@@ -914,19 +1067,19 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
       return arr;
     }
 
-    $scope.addTime = function(times, idx) {
+    $scope.addTime = function (times, idx) {
       times.splice(idx + 1, 0, angular.copy(template.signalTime));
     };
 
-    $scope.remove = function(arr, idx) {
+    $scope.remove = function (arr, idx) {
       arr.splice(idx, 1);
     };
 
-    $scope.parseInt = function(number) {
+    $scope.parseInt = function (number) {
       return parseInt(number, 10);
     }
 
-    $scope.$watchCollection('days', function(days) {
+    $scope.$watchCollection('days', function (days) {
       var sum = 0;
       if (days) {
         for (var i = 0; i < 7; i++) {
@@ -938,7 +1091,7 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
       }
     });
 
-    $scope.$watch('schedule.scheduleType', function(newValue, oldValue) {
+    $scope.$watch('schedule.scheduleType', function (newValue, oldValue) {
 
       if (angular.isDefined(newValue)) {
         if ($scope.schedule.signalTimes === undefined) {
@@ -955,52 +1108,23 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
 
       }
     });
-  }
-]);
+  }]);
 
+pacoApp.controller('AdminCtrl', ['$scope', 'config', function ($scope, config) {
 
-pacoApp.controller('AdminCtrl', ['$scope', 'config', function($scope, config) {
-
-  $scope.dataDeclarations = config.dataDeclarations;
-  $scope.declared = [];
-
-  $scope.inList = function(item, list) {
-    if ($scope.experiment && $scope.experiment.extraDataCollectionDeclarations) {
-      var id = parseInt(item);
-      if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !==
-        -1) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  $scope.toggleDeclaration = function(item, list) {
-    var id = parseInt(item);
-    var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(
-      id);
-
-    if (find === -1) {
-      $scope.experiment.extraDataCollectionDeclarations.push(id);
-    } else {
-      $scope.experiment.extraDataCollectionDeclarations.splice(find, 1);
-    }
-  };
 }]);
 
+pacoApp.controller('SummaryCtrl', ['$scope', 'config', function ($scope, config) {
 
-pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) {
-
-  $scope.getActionSummary = function() {
-    if ($scope.action.actionCode !== undefined && $scope.action.actionCode !==
-      '') {
+  $scope.getActionSummary = function () {
+    if ($scope.action.actionCode !== undefined && $scope.action.actionCode !== '') {
       return config.actionTypes[$scope.action.actionCode];
     } else {
       return 'Undefined';
     }
   };
 
-  $scope.getCueSummary = function() {
+  $scope.getCueSummary = function () {
     if ($scope.cue.cueCode !== undefined && $scope.cue.cueCode !== '') {
       return config.cueTypes[$scope.cue.cueCode - 1];
     } else {
@@ -1008,7 +1132,7 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) 
     }
   };
 
-  $scope.getScheduleSummary = function() {
+  $scope.getScheduleSummary = function () {
     var sched = $scope.schedule;
     var str = '';
 
@@ -1016,7 +1140,7 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) 
       return 'Undefined';
     }
 
-    //ispiro:using === for these comparisons breaks on schedule edit
+    // ispiro:using === for these comparisons breaks on schedule edit
     if (sched.scheduleType == 0) {
       if (sched.repeatRate == 1) {
         str += 'Every day';
@@ -1038,8 +1162,7 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) 
         str += 'Every ' + sched.repeatRate + ' months'
       }
     } else if (sched.scheduleType == 4) {
-      str += config.scheduleTypes[4] + ', ' + sched.esmFrequency +
-        ' time';
+      str += config.scheduleTypes[4] + ', ' + sched.esmFrequency + ' time';
       if (sched.esmFrequency > 1) {
         str += 's per ';
       } else {
@@ -1067,3 +1190,84 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) 
     return str;
   };
 }]);
+
+pacoApp.controller('HubCtrl', ['$scope', '$mdDialog', '$filter', 'config', 'template', '$routeParams', '$location',
+  'experimentService',
+  function ($scope, $mdDialog, $filter, config, template, $routeParams, $location, experimentService) {
+
+    $scope.tabs = config.hubTabs;
+
+    $scope.state = {
+      tabId: 0,
+      groupIndex: null
+    };
+
+    // temporarily comment this because it prevents loading experiments
+    // directly
+    // fix for bug https://github.com/google/paco/issues/1448
+    // regresses bug https://github.com/google/paco/issues/1272
+    // if ($scope.user === undefined) {
+    // $location.path('/');
+    // }
+
+    if ($location.hash()) {
+      var newTabId = config.editTabs.indexOf($location.hash());
+      if (newTabId !== -1) {
+        $scope.state.tabId = newTabId;
+      }
+    }
+
+    $scope.$watch('user', function (newValue, oldValue) {
+      if (newValue && $scope.newExperiment && $scope.experiment) {
+        $scope.experiment.creator = $scope.user;
+        $scope.experiment.contactEmail = $scope.user;
+        $scope.experiment.admins = [$scope.user];
+      }
+    });
+
+    $scope.$watch('state.tabId', function (newValue, oldValue) {
+      if ($scope.state.tabId === 0) {
+        $location.hash('');
+      } else if ($scope.state.tabId > 0) {
+        $location.hash($scope.tabs[$scope.state.tabId]);
+      }
+    });
+  }]);
+
+pacoApp.controller('Experiment2Ctrl', ['$scope', '$mdDialog', '$filter', 'config', 'template', '$routeParams',
+  '$location', 'pubExperimentService',
+  function ($scope, $mdDialog, $filter, config, template, $routeParams, $location, experimentService) {
+    $scope.state = {
+      tabId: 0,
+      groupIndex: null
+    };
+
+    if (angular.isDefined($routeParams.pubRespondExperimentId)) {
+      $scope.respondExperimentId = parseInt($routeParams.pubRespondExperimentId, 10);
+      $scope.experimentId = $scope.respondExperimentId;
+    }
+    if ($scope.experimentId) {
+      experimentService.getExperiment($scope.experimentId).then(function (response) {
+        var data = response.data.results;
+        $scope.experiment = data[0];
+      });
+    }
+    $scope.$watch('experiment.groups', function (newValue, oldValue) {
+      if (newValue) {
+
+        $scope.admin = ($scope.experiment.admins.indexOf($scope.user) !== -1);
+
+        var groups = [];
+        for (var groupId in $scope.experiment.groups) {
+          var group = $scope.experiment.groups[groupId];
+          if (group.customRendering != true && group.inputs.length > 0) {
+            groups.push(group);
+          }
+        }
+        $scope.respondableGroups = groups;
+        if ($scope.respondableGroups.length === 1) {
+          $scope.state.groupIndex = 0;
+        }
+      }
+    });
+  }]);

@@ -19,14 +19,14 @@ public class ExperimentValidator implements Validator {
   }
 
   public boolean isNotNullAndNonEmptyString(String value, String msg) {
-    boolean b = isNonNullNonEmptyString(value);
+    boolean b = isNullOrEmptyString(value);
     if (b) {
       addError(msg);
     }
     return b;
   }
 
-  public boolean isNonNullNonEmptyString(String value) {
+  public boolean isNullOrEmptyString(String value) {
     return value == null || value.length() == 0;
   }
 
@@ -237,7 +237,8 @@ public class ExperimentValidator implements Validator {
 
   @Override
   public boolean isValidConditionalExpression(String conditionExpression, String errorMessage) {
-    if (!isNonNullNonEmptyString(errorMessage)) {
+    if (isNullOrEmptyString(conditionExpression)) {
+      addError(errorMessage);
       return false;
     }
     // TODO validate the conditionExpression with the interpreter.

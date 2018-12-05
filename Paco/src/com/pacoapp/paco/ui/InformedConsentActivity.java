@@ -36,6 +36,7 @@ import android.provider.Settings;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.Display;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,6 +54,7 @@ import com.pacoapp.paco.model.Output;
 import com.pacoapp.paco.net.NetworkClient;
 import com.pacoapp.paco.net.NetworkUtil;
 import com.pacoapp.paco.net.SyncService;
+import com.pacoapp.paco.sensors.android.AndroidInstalledApplications;
 import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
@@ -124,6 +126,11 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
       if (ExperimentHelper.declaresInstalledAppDataCollection(experiment.getExperimentDAO())) {
         TextView appInstallLogView = (TextView) findViewById(R.id.dataCollectedInstalledAppsView);
         appInstallLogView.setVisibility(TextView.VISIBLE);
+      }
+      // Show the user if accessibility services are used by this experiment
+      if (ExperimentHelper.declaresAccessibilityLogging(experiment.getExperimentDAO())) {
+        TextView accessibilityView = (TextView) findViewById(R.id.dataCollectedAccessibilityView);
+        accessibilityView.setVisibility(TextView.VISIBLE);
       }
       TextView ic = (TextView) findViewById(R.id.InformedConsentTextView);
       ic.setText(experiment.getExperimentDAO().getInformedConsentForm());
@@ -208,6 +215,10 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
       BroadcastTriggerReceiver.startProcessService(this);
     }
     startService(new Intent(this, ExperimentExpirationManagerService.class));
+    if (ExperimentHelper.declaresInstalledAppDataCollection(experiment.getExperimentDAO())) {
+      // Cache installed app names at the start of the experiment
+      (new AndroidInstalledApplications(getContext())).cacheApplicationNames();
+    }
     progressBar.setVisibility(View.GONE);
     runPostJoinInstructionsActivity();
   }
@@ -234,7 +245,7 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
 
     event.addResponse(createOutput("joined", "true"));
 
-    event.addResponse(createOutput("schedule", createSchedulesString()));
+    event.addResponse(createOutput("schedule", SchedulePrinter.createStringOfAllSchedules(experiment.getExperimentDAO())));
 
     if (experiment.getExperimentDAO().getRecordPhoneDetails()) {
       Display defaultDisplay = getWindowManager().getDefaultDisplay();
@@ -250,30 +261,6 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
     }
 
     experimentProviderUtil.insertEvent(event);
-  }
-
-  public String createSchedulesString() {
-    StringBuffer buf = new StringBuffer();
-    List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
-    boolean firstItem = true;
-    for (ExperimentGroup experimentGroup : groups) {
-      List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
-      for (ActionTrigger actionTrigger : actionTriggers) {
-        if (actionTrigger instanceof ScheduleTrigger) {
-          List<Schedule> schedules = ((ScheduleTrigger)actionTrigger).getSchedules();
-
-          for (Schedule schedule : schedules) {
-            if (firstItem) {
-              firstItem = false;
-            } else {
-              buf.append("; ");
-            }
-            buf.append(SchedulePrinter.toString(schedule));
-          }
-        }
-      }
-    }
-    return buf.toString();
   }
 
   private Output createOutput(String key, String answer) {
@@ -300,7 +287,7 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
       return getUnableToJoinDialog(getString(R.string.invalid_data));
     }
     case NetworkUtil.SERVER_ERROR: {
-      return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
+      return getUnableToJoinDialog(getString(R.string.ok));
     }
     case NetworkUtil.NO_NETWORK_CONNECTION: {
       return getNoNetworkDialog();
@@ -338,7 +325,7 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
   private AlertDialog getUnableToJoinDialog(String message) {
     AlertDialog.Builder unableToJoinBldr = new AlertDialog.Builder(this);
     unableToJoinBldr.setTitle(R.string.experiment_could_not_be_retrieved).setMessage(message)
-                    .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                       public void onClick(DialogInterface dialog, int which) {
                         setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
                         finish();
@@ -426,7 +413,7 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
             saveDownloadedExperimentBeforeScheduling(experimentList.get(0));
           }
         } else {
-          showFailureDialog("Could not successfully join. Try again.");
+          showFailureDialog(getString(R.string.could_not_successfully_join_try_again_));
         }
       }
     });

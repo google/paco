@@ -5,41 +5,48 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import android.content.Context;
-import android.content.res.AssetManager;
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
-import com.pacoapp.paco.PacoConstants;
+import com.pacoapp.paco.js.bridge.JavascriptCalendarManager;
 import com.pacoapp.paco.js.bridge.JavascriptEventLoader;
 import com.pacoapp.paco.js.bridge.JavascriptExperimentLoader;
+import com.pacoapp.paco.js.bridge.JavascriptLocationManager;
 import com.pacoapp.paco.js.bridge.JavascriptLogger;
 import com.pacoapp.paco.js.bridge.JavascriptNotificationService;
 import com.pacoapp.paco.js.bridge.JavascriptPackageManager;
 import com.pacoapp.paco.js.bridge.JavascriptSensorManager;
+import com.pacoapp.paco.js.bridge.JavascriptStringResources;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
 
-public class AndroidJsInterpreterBuilder {
+import android.content.Context;
+import android.content.res.AssetManager;
 
+public class AndroidJsInterpreterBuilder {
+  private static Logger Log = LoggerFactory.getLogger(AndroidJsInterpreterBuilder.class);
 
   private AndroidJsInterpreterBuilder() {
 
   }
 
-  public static JsInterpreter createInterpreter(Context context, Experiment androidExperiment, ExperimentDAO experiment, ExperimentGroup experimentGroup) {
+  public static JsInterpreter createInterpreter(Context context, Experiment androidExperiment, ExperimentDAO experiment, ExperimentGroup experimentGroup, Long actionTriggerSpecId, Long actionTriggerId, Long actionId) {
     JsInterpreter interpreter = new JsInterpreter();
     ExperimentProviderUtil experimentProvider = new ExperimentProviderUtil(context);
     bindLibraries(context, interpreter);
     interpreter.newBind("pacodb", new JavascriptEventLoader(experimentProvider, androidExperiment, experiment, experimentGroup));
     final JavascriptExperimentLoader obj = new JavascriptExperimentLoader(context, experimentProvider, experiment, androidExperiment, experimentGroup);
     interpreter.newBind("experimentLoader", obj);
-    interpreter.newBind("notificationService", new JavascriptNotificationService(context, experiment, experimentGroup));
+    interpreter.newBind("notificationService", new JavascriptNotificationService(context, experiment, experimentGroup, actionTriggerSpecId, actionTriggerId, actionId));
     interpreter.newBind("packageManager", new JavascriptPackageManager(context));
     interpreter.newBind("log", new JavascriptLogger());
     interpreter.newBind("sensors", new JavascriptSensorManager(context));
+    interpreter.newBind("strings", new JavascriptStringResources(context));
+    interpreter.newBind("calendar", new JavascriptCalendarManager(context));
+    interpreter.newBind("locationService", new JavascriptLocationManager(context));
     return interpreter;
 
   }
@@ -64,9 +71,9 @@ public class AndroidJsInterpreterBuilder {
       jsFile = assets.open(libFileNameInAssets);
       return readBytes(jsFile);
     } catch (FileNotFoundException e) {
-      Log.e(PacoConstants.TAG, "File not found for " + libFileNameInAssets, e);
+      Log.error("File not found for " + libFileNameInAssets, e);
     } catch (IOException e) {
-      Log.e(PacoConstants.TAG, "IO Error loading " + libFileNameInAssets, e);
+      Log.error("IO Error loading " + libFileNameInAssets, e);
     } finally {
       if (jsFile != null) {
         try {

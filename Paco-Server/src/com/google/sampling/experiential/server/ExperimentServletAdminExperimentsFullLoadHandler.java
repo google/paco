@@ -9,12 +9,13 @@ import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
 
 public class ExperimentServletAdminExperimentsFullLoadHandler extends ExperimentServletHandler {
 
-  public ExperimentServletAdminExperimentsFullLoadHandler(String email, DateTimeZone timezone, Integer limit, String cursor, String pacoProtocol) {
-    super(email, timezone, limit, cursor, pacoProtocol);
+  public ExperimentServletAdminExperimentsFullLoadHandler(String email, DateTimeZone timezone, Integer limit, String cursor, String pacoProtocol, String sortColumn, String sortOrder) {
+    super(email, timezone, limit, cursor, pacoProtocol, sortColumn, sortOrder);
+
   }
 
   protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {
-    ExperimentQueryResult result = ExperimentServiceFactory.getExperimentService().getUsersAdministeredExperiments(email, timezone, limit, cursor);
+    ExperimentQueryResult result = ExperimentServiceFactory.getExperimentService().getUsersAdministeredExperiments(email, timezone, limit, cursor, sortColumn, sortOrder);
     cursor = result.getCursor();
     return result.getExperiments();
   }

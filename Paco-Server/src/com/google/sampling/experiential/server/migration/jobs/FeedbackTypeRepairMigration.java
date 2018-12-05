@@ -2,6 +2,8 @@ package com.google.sampling.experiential.server.migration.jobs;
 
 import java.util.List;
 
+import org.joda.time.DateTime;
+
 import com.google.sampling.experiential.server.AuthUtil;
 import com.google.sampling.experiential.server.ExperimentService;
 import com.google.sampling.experiential.server.ExperimentServiceFactory;
@@ -29,7 +31,7 @@ public class FeedbackTypeRepairMigration implements MigrationJob {
   }
 
   @Override
-  public boolean doMigration() {
+  public boolean doMigration(String optionalcursor, DateTime startTime, DateTime endTime) {
     // load experiments
     ExperimentService es = ExperimentServiceFactory.getExperimentService();
     String cursor = null;

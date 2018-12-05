@@ -144,7 +144,7 @@ static NSString* const INPUT_TEXT = @"text";
     enumType = ResponseEnumTypePhoto;
     
   } else {
-    NSAssert1(NO, @"[ERROR]responseType %@ is not implemented!", responseTypeString);
+    //NSAssert1(NO, @"[ERROR]responseType %@ is not implemented!", responseTypeString);
   }
   return enumType;
 }

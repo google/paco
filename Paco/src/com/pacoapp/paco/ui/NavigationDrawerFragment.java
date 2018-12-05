@@ -131,6 +131,18 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         // set up the drawer's list view with items and click listener
 
+                                              mDrawerListView.setAdapter(new ArrayAdapter<String>(
+                                                      getActionBar().getThemedContext(),
+                                                      android.R.layout.simple_list_item_1,
+                                                      android.R.id.text1,
+                                                      new String[]{
+                                                              getString(R.string.running_experiments_title),
+                                                              getString(R.string.find_my_experiments),
+                                                              getString(R.string.find_public_experiments_title),
+                                                              getString(R.string.completed_experiments_title),
+                                                      }));
+                                              mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
@@ -230,7 +242,9 @@ public class NavigationDrawerFragment extends Fragment {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         // Forward the new configuration the drawer toggle component.
-        mDrawerToggle.onConfigurationChanged(newConfig);
+        if (mDrawerToggle != null) {
+          mDrawerToggle.onConfigurationChanged(newConfig);
+        }
     }
 
     @Override

@@ -24,30 +24,6 @@
     <filter-class>com.google.sampling.experiential.server.AuthenticatedServletFilter</filter-class>
   </filter>
   
-  <!-- 
-  <filter>
-    <filter-name>dbQuotaFilter</filter-name>
-    <filter-class>com.google.sampling.experiential.server.DBQuotaFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>dbQuotaFilter</filter-name>
-    <url-pattern>/events*</url-pattern>
-  </filter-mapping>
-
-  <filter>
-  <filter-name>appstats</filter-name>
-  <filter-class>com.google.appengine.tools.appstats.AppstatsFilter</filter-class>
-  <init-param>
-    <param-name>calculateRpcCosts</param-name>
-    <param-value>true</param-value>
-  </init-param>
-</filter>
-  <filter-mapping>
-    <filter-name>appstats</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-  -->
-
   <!-- Servlets -->
   <!--  model & report endpoints -->
   <servlet>
@@ -57,6 +33,15 @@
   <servlet-mapping>
     <servlet-name>eventServlet</servlet-name>
     <url-pattern>/events</url-pattern>
+  </servlet-mapping>
+ 
+  <servlet>
+    <servlet-name>ServerSearchServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.CloudSqlSearchServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ServerSearchServlet</servlet-name>
+    <url-pattern>/csSearch</url-pattern>
   </servlet-mapping>
   
   <servlet>
@@ -68,15 +53,34 @@
     <url-pattern>/usage</url-pattern>
   </servlet-mapping>
   
+  <servlet>
+    <servlet-name>ReportsFrontendServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.reports.ReportsFrontEndServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ReportsFrontendServlet</servlet-name>
+    <url-pattern>/reportsFrontend</url-pattern>
+  </servlet-mapping>
+
+    <servlet>
+    <servlet-name>participantJoinStatsServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.ParticipantJoinStatServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>participantJoinStatsServlet</servlet-name>
+    <url-pattern>/participantJoinStats</url-pattern>
+  </servlet-mapping>
+  
+  <!--  
  <servlet>
         <servlet-name>bshservlet</servlet-name>
         <servlet-class>bsh.servlet.BshServlet</servlet-class>
     </servlet>
-
     <servlet-mapping>
         <servlet-name>bshservlet</servlet-name>
         <url-pattern>/eval</url-pattern>
     </servlet-mapping>
+  -->
   
   <servlet>
     <servlet-name>experimentServlet</servlet-name>
@@ -87,6 +91,16 @@
     <url-pattern>/experiments</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>pubExperimentServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.PubExperimentServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>pubExperimentServlet</servlet-name>
+    <url-pattern>/pubexperiments</url-pattern>
+  </servlet-mapping>
+  
+  
   <servlet>
     <servlet-name>authServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.AuthServlet</servlet-class>
@@ -127,16 +141,80 @@
     <url-pattern>/simon</url-pattern>
   </servlet-mapping>
   
+  <servlet>
+    <servlet-name>AppUsageSessionServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.viz.appusage.LastAppSessionChartServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AppUsageSessionServlet</servlet-name>
+    <url-pattern>/lastAppSessionChart</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>PhoneSessionServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.viz.appusage.PhoneSessionServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PhoneSessionServlet</servlet-name>
+    <url-pattern>/phoneSessions</url-pattern>
+  </servlet-mapping>
+  
+  
   <!--  administrative and debugging endpoints -->
+  
+  <!-- only needed for local dev instance. In other environments, cloudsqlinsert in map reduce  will be used-->
+<!--   
+   <servlet>
+    <servlet-name>ServerInsertServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.CloudSqlInsertServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ServerInsertServlet</servlet-name>
+    <url-pattern>/csInsert</url-pattern>
+  </servlet-mapping>
+     <servlet>
+    <servlet-name>ServerCreateServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.migration.CloudSQLCreateServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ServerCreateServlet</servlet-name>
+    <url-pattern>/migration/csCreate</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>FailedEventsInsertServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.FailedEventsInsertServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>FailedEventsInsertServlet</servlet-name>
+    <url-pattern>/migration/csFailedEventsInsert</url-pattern>
+  </servlet-mapping>
   <servlet>
     <servlet-name>migrationFrontendServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.migration.MigrationFrontendServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>migrationFrontendServlet</servlet-name>
-    <url-pattern>/migrate</url-pattern>
+    <url-pattern>/migration/migrate</url-pattern>
   </servlet-mapping>
-
+-->
+  <!-- 
+   <servlet>
+    <servlet-name>EventCounterServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.migration.mr.eventctr.EventCounterMRServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EventCounterServlet</servlet-name>
+    <url-pattern>/eventCounter</url-pattern>
+  </servlet-mapping>
+<servlet>
+    <servlet-name>MayJuneEventCounterServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.migration.mr.dayctr.MayJuneEventCounterMRServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>MayJuneEventCounterServlet</servlet-name>
+    <url-pattern>/mayJuneEventCounter</url-pattern>
+  </servlet-mapping>
+  -->
   <servlet>
     <display-name>Remote API Servlet</display-name>
     <servlet-name>RemoteApiServlet</servlet-name>
@@ -148,19 +226,47 @@
     <url-pattern>/remote_api</url-pattern>
   </servlet-mapping>
   
+  <!--
+    <servlet>
+    <servlet-name>PipelineServlet</servlet-name>
+    <servlet-class>
+      com.google.appengine.tools.pipeline.impl.servlets.PipelineServlet
+    </servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PipelineServlet</servlet-name>
+    <url-pattern>/_ah/pipeline/*</url-pattern>
+  </servlet-mapping>
+ 
+   <servlet>
+    <servlet-name>mapreduce</servlet-name>
+    <servlet-class>
+      com.google.appengine.tools.mapreduce.MapReduceServlet
+    </servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>mapreduce</servlet-name>
+    <url-pattern>/mapreduce/*</url-pattern>
+  </servlet-mapping>
+  
+  -->
   <!-- security constraints -->
   <!-- ensure https, authenticate as necessary using Userservice or OAuthService in get/post 
     methods -->
     
   <security-constraint>
     <web-resource-collection>       
-         <url-pattern>/*</url-pattern>
+      <url-pattern>/*</url-pattern>
       <url-pattern>/index.html</url-pattern>
       <url-pattern>/events*</url-pattern>
       <url-pattern>/experiments*</url-pattern>
       <url-pattern>/participantStats*</url-pattern>
       <url-pattern>/jobStatus*</url-pattern>
       <url-pattern>/simon*</url-pattern>      
+      <url-pattern>/usage*</url-pattern>
+      <url-pattern>/csSearch</url-pattern>
+      <url-pattern>/lastAppSessionChart</url-pattern> 
+      <url-pattern>/phoneSessions</url-pattern>      
     </web-resource-collection>
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>
@@ -169,28 +275,19 @@
 
 
   <!-- gwt-only client endpoints use UserService with https -->
-  <security-constraint>
-    <web-resource-collection>
-      <url-pattern>/pacoserver/maps*</url-pattern>
-      <url-pattern>/pacoserver/logging*</url-pattern>
-      <url-pattern>/join*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>*</role-name>
-    </auth-constraint>
-    <user-data-constraint>
-      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-    </user-data-constraint>
-  </security-constraint>
-
   <!-- admin only endpoints use UserService, https, and admin role -->
   <security-constraint>
     <web-resource-collection>
-      <url-pattern>/migrate*</url-pattern>
-      <url-pattern>/pacoserver/migrate*</url-pattern>
+      <!--  TODO : can we remove these bottom commented lines-->
+      <!-- <url-pattern>/migrate*</url-pattern>-->
+      <!--  <url-pattern>/pacoserver/migrate*</url-pattern>-->
       <url-pattern>/remote_api*</url-pattern>
-      <url-pattern>/usage*</url-pattern>
       <url-pattern>/eval*</url-pattern>
+      <url-pattern>/participantJoinStats*</url-pattern>
+      <url-pattern>/migration*</url-pattern>
+      <url-pattern>/csInsert*</url-pattern>
+      <!--  <url-pattern>/eventCounter</url-pattern> --> 
+      <!--  <url-pattern>/mayJuneEventCounter</url-pattern>  --> 
     </web-resource-collection>
     <auth-constraint>
       <role-name>admin</role-name>
@@ -198,26 +295,8 @@
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>
     </user-data-constraint>
-
   </security-constraint>
 
-  <!-- 
-  <servlet>
-    <servlet-name>appstats</servlet-name>
-    <servlet-class>com.google.appengine.tools.appstats.AppstatsServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>appstats</servlet-name>
-    <url-pattern>/appstats/*</url-pattern>
-  </servlet-mapping>
-  <security-constraint>
-    <web-resource-collection>
-      <url-pattern>/appstats/*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>admin</role-name>
-    </auth-constraint>
-  </security-constraint>
- -->
+  
  
 </web-app>

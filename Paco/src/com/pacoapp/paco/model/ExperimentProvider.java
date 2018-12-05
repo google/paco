@@ -52,19 +52,18 @@ public class ExperimentProvider extends ContentProvider {
   private static final int JOINED_EXPERIMENTS_DATATYPE = 4;
   private static final int JOINED_EXPERIMENT_ITEM_DATATYPE = 5;
 
-  private static final int OUTPUTS_DATATYPE = 8;
+  static final int OUTPUTS_DATATYPE = 8;
   private static final int OUTPUT_ITEM_DATATYPE = 9;
 
-  private static final int EVENTS_DATATYPE = 10;
+  static final int EVENTS_DATATYPE = 10;
   private static final int EVENT_ITEM_DATATYPE = 11;
 
   private static final int NOTIFICATION_DATATYPE = 14;
   private static final int NOTIFICATION_ITEM_DATATYPE = 15;
 
-
   private SQLiteDatabase db;
   private final UriMatcher uriMatcher;
-
+  
   public ExperimentProvider() {
     uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     uriMatcher.addURI(ExperimentProviderUtil.AUTHORITY, "experiments", EXPERIMENTS_DATATYPE);
@@ -77,6 +76,7 @@ public class ExperimentProvider extends ContentProvider {
     uriMatcher.addURI(ExperimentProviderUtil.AUTHORITY, "outputs/#", OUTPUT_ITEM_DATATYPE);
     uriMatcher.addURI(ExperimentProviderUtil.AUTHORITY, "notifications", NOTIFICATION_DATATYPE);
     uriMatcher.addURI(ExperimentProviderUtil.AUTHORITY, "notifications/#", NOTIFICATION_ITEM_DATATYPE);
+    
   }
 
   @Override
@@ -87,7 +87,6 @@ public class ExperimentProvider extends ContentProvider {
 	return db != null;
   }
 
-  @Override
   public Cursor query(Uri uri, String[] projection, String selection,
 	  String[] selectionArgs, String sortOrder) {
 
@@ -376,7 +375,4 @@ public class ExperimentProvider extends ContentProvider {
     values.put(ExperimentColumns.JOIN_DATE, new DateTime().getMillis());
     }
   }
-
-
-
 }

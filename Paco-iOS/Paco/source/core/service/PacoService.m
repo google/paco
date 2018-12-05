@@ -15,10 +15,6 @@
 
 #import "PacoService.h"
 
-
-#import "GTMHTTPFetcher.h"
-#import "GTMHTTPFetcherLogging.h"
-#import "GTMOAuth2Authentication.h"
 #import "PacoAuthenticator.h"
 #import "PacoDateUtility.h"
 #import "PacoModel.h"
@@ -27,6 +23,10 @@
 #import "PacoExperimentSchedule.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoEvent.h"
+
+#import "GTMSessionFetcher.h"
+#import "GTMSessionFetcherService.h"
+#import "OIDError.h"
 
 @implementation PacoService
 
@@ -41,17 +41,6 @@
   return converted;
 }
 
-- (void)authenticateRequest:(NSMutableURLRequest *)request
-                withFetcher:(GTMHTTPFetcher *)fetcher {
-  if (self.authenticator.auth) {
-    // OAuth2
-    [fetcher setAuthorizer:self.authenticator.auth];
-    
-  } else {
-    DDLogError(@"Error authenticating request.");
-  }
-}
-
 - (void)executePacoServiceCall:(NSMutableURLRequest *)request
              completionHandler:(void (^)(id, NSError *))completionHandler {
   NSString *version = [[NSBundle mainBundle] infoDictionary][(NSString*)kCFBundleVersionKey];
@@ -59,40 +48,46 @@
   [request setValue:@"iOS" forHTTPHeaderField:@"http.useragent"];
   [request setValue:version forHTTPHeaderField:@"paco.version"];
   [request setValue:@"3.0" forHTTPHeaderField:@"pacoProtocol"];
-
-  // Authenticate
-    [GTMHTTPFetcher setLoggingEnabled:YES];
-  GTMHTTPFetcher *fetcher = [[GTMHTTPFetcher alloc] initWithRequest:request];
-  [self authenticateRequest:request withFetcher:fetcher];
-  fetcher.delegateQueue = [NSOperationQueue mainQueue];
-
-  // Fetch
+  
+  
+  // Creates a GTMSessionFetcherService with the authorization.
+  // Normally you would save this service object and re-use it for all REST API calls.
+  GTMSessionFetcherService *fetcherService = [[GTMSessionFetcherService alloc]  init];
+  fetcherService.authorizer = self.authenticator.auth;
+  
+  GTMSessionFetcher *fetcher = [fetcherService fetcherWithRequest:request];
+  
   [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
-      if (error) {
-        DDLogError(@"Service Call Failed [%@]", error);
+    if (error) {
+      if ([error.domain isEqual:OIDOAuthTokenErrorDomain]) {
+        //self.authenticator.auth = nil;
+        NSLog(@"Authorization error during token refresh, clearing state. %@",
+              error);
+        // Other errors are assumed transient.
+      } else {
+        NSLog(@"Transient error during token refresh. %@", error);
       }
-      // Convert to string and return.
-      id jsonObj = nil;
-      NSError *jsonError = nil;
-      if ([data length]) {
-        jsonObj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&jsonError];
-        if (jsonError) {
-          DDLogError(@"JSON PARSE ERROR = %@\n", jsonError);
-          DDLogError(@"PROBABLY AN AUTH ERROR");
-          
-          [[PacoClient sharedInstance] invalidateUserAccount];
-        }
+      return;
+    }
+    
+    id jsonObj = nil;
+    NSError *jsonError = nil;
+    if ([data length]) {
+      jsonObj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&jsonError];
+      if (jsonError) {
+        DDLogError(@"JSON PARSE ERROR = %@\n", jsonError);
+        DDLogError(@"JSON dump: %@\n", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
       }
-      if (completionHandler) {
-        completionHandler(jsonObj, error ? error : jsonError);
-      }
-    }];
+    }
+    if (completionHandler) {
+      completionHandler(jsonObj, error ? error : jsonError);
+    }
+    
+  }];
 }
 
 //http request to load paginated experiment definitions
 - (void)sendGetHTTPRequestWithEndPoint:(NSString*)endPointString andBlock:(PacoPaginatedResponseBlock)block {
-    
-    
   NSAssert(endPointString.length > 0, @"endpoint string should be valid!");
   
   NSURL *url = [NSURL URLWithString:
@@ -233,7 +228,7 @@
   NSMutableURLRequest *request =
   [NSMutableURLRequest requestWithURL:url
                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                      timeoutInterval:25];
+                      timeoutInterval:120];
   [request setHTTPMethod:@"POST"];
   
   // Serialize to JSON for the request body.

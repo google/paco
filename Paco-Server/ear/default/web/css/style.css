@@ -69,8 +69,7 @@ md-dialog li {
 .column1 {
   display: inline-block;
   vertical-align: top;
-  margin-right: 24px;
-  width: 600px;
+  width: 732px;
 }
 
 .column1 .remove-button {
@@ -80,6 +79,7 @@ md-dialog li {
 
 .schedule .remove.button {
   bottom: 0px;
+  width: 24px;
 }
 
 .short {
@@ -131,6 +131,16 @@ md-dialog li {
   width: 24px;
 }
 
+.no-audio .no-ios{
+  margin-left: 10px;
+  line-height: 11px;
+}
+
+.message.flex .no-ios{
+  margin-top: 6px;
+  margin-left: 10px;
+}
+
 no-ios {
   position: relative;
 }
@@ -180,8 +190,6 @@ md-dialog .paco-help {
   -webkit-transition: opacity .5s;
   white-space: nowrap;
 }
-
-
 
 .paco-help .tip-text {
   top: -2px;

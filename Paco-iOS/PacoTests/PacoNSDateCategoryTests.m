@@ -337,7 +337,7 @@
 
   testDate = [PacoDateUtility pacoDateForString:@"2013/10/12 17:34:15-0700"];
   XCTAssertNotNil(testDate, @"testDate should be valid");
-  expect = nil;
+  expect = @[];
   XCTAssertEqualObjects([testDate pacoDatesToScheduleWithTimes:times andEndDate:endDate], expect,
                        @"should not be able to schedule any time");
   
@@ -346,7 +346,7 @@
   endDate = [PacoDateUtility pacoDateForString:@"2013/10/12 00:00:00-0700"];
   XCTAssertNotNil(testDate, @"testDate should be valid");
   XCTAssertNotNil(endDate, @"endDate should be valid");
-  expect = nil;
+  expect = @[];
   XCTAssertEqualObjects([testDate pacoDatesToScheduleWithTimes:times andEndDate:endDate], expect,
                        @"should not be able to schedule any time since it passed the endDate");
 }

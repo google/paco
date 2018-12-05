@@ -16,9 +16,9 @@ public class NetworkUtil {
     if (!basicNetworkOn) {
       return false;
     }
-    if (new UserPreferences(context.getApplicationContext()).getWifiOnly()) {
-      return !ConnectivityManagerCompat.isActiveNetworkMetered(cm);
-    }
+//    if (new UserPreferences(context.getApplicationContext()).getWifiOnly()) {
+//      return !ConnectivityManagerCompat.isActiveNetworkMetered(cm);
+//    }
     return true;
   }
 
@@ -32,5 +32,6 @@ public class NetworkUtil {
   public static final int NO_NETWORK_CONNECTION = 1005;
   public static final int JOIN_ERROR = 1006;
   public static final int ENABLED_NETWORK = 1;
+  public static final int UNKNOWN_HOST_ERROR = 1007;
 
 }

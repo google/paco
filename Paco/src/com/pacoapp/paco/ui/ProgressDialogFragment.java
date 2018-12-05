@@ -68,10 +68,13 @@ public class ProgressDialogFragment extends DialogFragment {
         dialog = getUnableToJoinDialog(getString(R.string.invalid_data));
         break;
       } case NetworkUtil.SERVER_ERROR: {
-        dialog = getUnableToJoinDialog(getString(R.string.dialog_dismiss));
+        dialog = getUnableToJoinDialog(getString(R.string.ok));
         break;
       } case NetworkUtil.NO_NETWORK_CONNECTION: {
         dialog = getNoNetworkDialog();
+        break;
+      } case NetworkUtil.UNKNOWN_HOST_ERROR: {
+        dialog = getUnknownHostDialog();
         break;
       } default: {
         dialog = null;
@@ -98,7 +101,7 @@ public class ProgressDialogFragment extends DialogFragment {
     AlertDialog.Builder unableToJoinBldr = new AlertDialog.Builder(getActivity());
     unableToJoinBldr.setTitle(R.string.experiment_could_not_be_retrieved)
                     .setMessage(message)
-                    .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                          public void onClick(DialogInterface dialog, int which) {
                            getActivity().setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
                            getActivity().finish();
@@ -122,6 +125,20 @@ public class ProgressDialogFragment extends DialogFragment {
                             getActivity().finish();
                           }
                     });
+    return noNetworkBldr.create();
+  }
+  
+  private AlertDialog getUnknownHostDialog() {
+    AlertDialog.Builder noNetworkBldr = new AlertDialog.Builder(getActivity());
+    noNetworkBldr.setTitle(R.string.experiment_could_not_be_retrieved)
+                 .setMessage(getString(R.string.unknown_host))
+                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                   public void onClick(DialogInterface dialog, int which) {
+                           getActivity().setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+                           getActivity().finish();
+                         }
+                       });
+
     return noNetworkBldr.create();
   }
 

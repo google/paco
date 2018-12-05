@@ -49,15 +49,16 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   protected List<ExperimentGroup> groups;
   private String ringtoneUri;
   private String postInstallInstructions;
+  private Boolean anonymousPublic;
 
   // Visible for testing
   public ExperimentDAO(Long id, String title, String description, String informedConsentForm,
-      String email,
+      String email, String publicKey,
       String joinDate,
       String modifyDate, Boolean published, List<String> admins, List<String> publishedUsers,
       Boolean deleted, Integer version, Boolean recordPhoneDetails, List<ExperimentGroup> groups,
-      List<Integer> extraDataDeclarations) {
-    super(id, title, description, informedConsentForm, email, joinDate, recordPhoneDetails, deleted, extraDataDeclarations, null, null, null, null, null);
+      List<Integer> extraDataDeclarations, Boolean anonymousPublic) {
+    super(id, title, description, informedConsentForm, email, publicKey, joinDate, recordPhoneDetails, deleted, extraDataDeclarations, null, null, null, null, null);
     this.id = id;
     this.title = title;
     this.description = description;
@@ -69,6 +70,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     this.publishedUsers = ListMaker.paramOrNewList(publishedUsers, String.class);
     this.version = version;
     this.groups = ListMaker.paramOrNewList(groups, ExperimentGroup.class);
+    this.anonymousPublic = anonymousPublic;
   }
 
   /**
@@ -99,6 +101,15 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   public void setPublished(Boolean published) {
     this.published = published;
   }
+
+  public Boolean getAnonymousPublic() {
+    return anonymousPublic;
+  }
+
+  public void setAnonymousPublic(Boolean anonymousPublic) {
+    this.anonymousPublic = anonymousPublic;
+  }
+
 
   /**
    * @return
@@ -150,6 +161,9 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
 
   //@JsonIgnore
   public boolean isWhoAllowedToPostToExperiment(String who) {
+    if (getPublished() != null && getPublished() && getAnonymousPublic() != null && getAnonymousPublic()) {
+      return true;
+    }
     who = who.toLowerCase();
     return isAdmin(who) ||
       (getPublished() && (getPublishedUsers().isEmpty() || getPublishedUsers().contains(who)));

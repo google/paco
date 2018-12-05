@@ -21,10 +21,11 @@ import com.pacoapp.paco.shared.util.TimeUtil;
 
 public class ActionScheduleGenerator {
 
-  public static List<ActionSpecification> getAllAlarmsWithinOneMinuteofNow(DateTime now,
+  public static synchronized List<ActionSpecification> getAllAlarmsWithinOneMinuteofNow(DateTime now,
                                                                            List<ExperimentDAO> experiments,
                                                                            EsmSignalStore alarmStore,
                                                                            EventStore eventStore) {
+    System.out.println("entering getAllAlarmsWithinOneMinute: " + Thread.currentThread().getName());
     List<ActionSpecification> times = arrangeExperimentsByNextTimeFrom(experiments, now, alarmStore, eventStore);
     List<ActionSpecification> matchingTimes = new ArrayList<ActionSpecification>();
     for (ActionSpecification time : times) {
@@ -32,19 +33,25 @@ public class ActionScheduleGenerator {
         matchingTimes.add(time);
       }
     }
+    System.out.println("exiting getAllAlarmsWithinOneMinute: " + Thread.currentThread().getName());
     return matchingTimes;
   }
 
-  public static List<ActionSpecification> arrangeExperimentsByNextTime(List<ExperimentDAO> experiments,
+  public static synchronized List<ActionSpecification> arrangeExperimentsByNextTime(List<ExperimentDAO> experiments,
                                                                        EsmSignalStore alarmStore,
                                                                        EventStore eventStore) {
-    return arrangeExperimentsByNextTimeFrom(experiments, new DateTime(), alarmStore, eventStore);
+    System.out.println("entering arrangeExpermentsByNextTime " + Thread.currentThread().getName());
+    final List<ActionSpecification> arrangeExperimentsByNextTimeFrom = arrangeExperimentsByNextTimeFrom(experiments, new DateTime(), alarmStore, eventStore);
+    System.out.println("exiting arrangeExpermentsByNextTime " + Thread.currentThread().getName());
+    return arrangeExperimentsByNextTimeFrom;
+
   }
 
-  static List<ActionSpecification> arrangeExperimentsByNextTimeFrom(List<ExperimentDAO> experiments,
+  public static synchronized List<ActionSpecification> arrangeExperimentsByNextTimeFrom(List<ExperimentDAO> experiments,
                                                                        DateTime now,
                                                                        EsmSignalStore alarmStore,
                                                                        EventStore eventStore) {
+    System.out.println("entering arrangeExpermentsByNextTimeFROM " + Thread.currentThread().getName());
     List<ActionSpecification> times = new ArrayList<ActionSpecification>();
     for (ExperimentDAO experiment : experiments) {
       ActionScheduleGenerator actionScheduleGenerator = new ActionScheduleGenerator(experiment);
@@ -54,6 +61,7 @@ public class ActionScheduleGenerator {
       }
     }
     Collections.sort(times);
+    System.out.println("exiting arrangeExpermentsByNextTimeFROM " + Thread.currentThread().getName());
     return times;
   }
 
@@ -61,7 +69,7 @@ public class ActionScheduleGenerator {
 
   private ExperimentDAO experiment;
 
-  public ActionScheduleGenerator(ExperimentDAO experiment) {
+  private ActionScheduleGenerator(ExperimentDAO experiment) {
     this.experiment = experiment;
   }
 
@@ -110,7 +118,7 @@ public class ActionScheduleGenerator {
               final List<PacoAction> actions = scheduleTrigger.getActions();
               PacoNotificationAction notificationAction = null;
               for (PacoAction pacoAction : actions) {
-                if (pacoAction.getActionCode() != null && 
+                if (pacoAction.getActionCode() != null &&
                         pacoAction.getActionCode().equals(PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE)) {
                   notificationAction = (PacoNotificationAction) pacoAction;
                 }
@@ -192,6 +200,17 @@ public class ActionScheduleGenerator {
       return false;
     }
     return true;
+  }
+
+  public static boolean isExperimentGroupRunning(ExperimentGroup experimentGroup) {
+    if (!experimentGroup.getFixedDuration()) {
+      return true;
+    }
+    DateMidnight startDate = TimeUtil.unformatDate(experimentGroup.getStartDate()).toDateMidnight();
+    if (DateTime.now().isBefore(startDate)) {
+      return false;
+    }
+    return !isExperimentGroupOver(experimentGroup);
   }
 
   public static boolean isOver(DateTime now, ExperimentDAO experiment) {
@@ -404,19 +423,29 @@ public class ActionScheduleGenerator {
     }
   }
 
-  private void generateNextPeriod(DateMidnight generatingPeriodStart, EsmSignalStore alarmStore,
+  private synchronized void generateNextPeriod(DateMidnight generatingPeriodStart, EsmSignalStore alarmStore,
                                   Schedule schedule, Long experimentId, String groupName, Long actionTriggerId) {
     if (isOver(generatingPeriodStart.toDateTime(), experiment)) {
       return;
     }
+    List<DateTime> signalTimes = generateSignalTimesForPeriod(generatingPeriodStart, schedule,
+                                                              experimentId, groupName, actionTriggerId);
+    System.out.println("Generated " + signalTimes.size() + " esm signals for period start: " + generatingPeriodStart.getMillis());
+
+    System.out.println("PRE-deleteSignals " + Thread.currentThread().getName());
+
     alarmStore.deleteSignalsForPeriod(experimentId,
                                       generatingPeriodStart.getMillis(),
                                       groupName, actionTriggerId, schedule.getId());
 
-    List<DateTime> signalTimes = generateSignalTimesForPeriod(generatingPeriodStart, schedule,
-                                                              experimentId, groupName, actionTriggerId);
+    System.out.println("POST-deleteSignals " + Thread.currentThread().getName());
+
+    System.out.println("PRE-storeSignals " + Thread.currentThread().getName());
+
     storeSignalTimes(generatingPeriodStart, signalTimes, alarmStore,
                      experimentId, groupName, actionTriggerId, schedule.getId());
+
+    System.out.println("POST-storeSignals " + Thread.currentThread().getName());
   }
 
   private List<DateTime> generateSignalTimesForPeriod(DateMidnight periodStart,

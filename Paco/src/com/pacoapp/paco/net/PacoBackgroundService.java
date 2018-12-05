@@ -9,16 +9,18 @@ import java.net.URL;
 import java.util.List;
 
 import org.json.JSONException;
-
-import android.util.Log;
-import android.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.os.AndroidUtils;
 
+import android.util.Pair;
+
 public class PacoBackgroundService extends GetInBackground {
+
+  private static Logger Log = LoggerFactory.getLogger(PacoBackgroundService.class);
 
   public static final String POST = "POST";
   public  static final String GET = "GET";
@@ -87,10 +89,10 @@ public class PacoBackgroundService extends GetInBackground {
     } else if (sc == 401) {
         GoogleAuthUtil.invalidateToken(networkClient.getContext(), token);
         onError("Server auth error, please try again.", null);
-        Log.i(PacoConstants.TAG, "Server auth error: " + readResponse(urlConnection.getErrorStream()));
+        Log.info("Server auth error: " + readResponse(urlConnection.getErrorStream()));
         if (attempts < MAX_ATTEMPTS) {
           attempts++;
-          Log.i(PacoConstants.TAG, "Attempt: " + attempts + " for url:  " + url);
+          Log.info("Attempt: " + attempts + " for url:  " + url);
           doRequest();
         }
         return;

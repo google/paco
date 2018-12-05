@@ -102,7 +102,7 @@
         android:paddingBottom="4dip"
         android:paddingLeft="8dip"
         android:paddingTop="4dip"
-        android:text="Phone make, model, carrier"
+        android:text="@string/ic_phone_make_model_carrier_label"
         android:visibility="gone" >
     </TextView>
 
@@ -116,6 +116,19 @@
         android:paddingLeft="8dip"
         android:paddingTop="4dip"
         android:text="@string/installed_app_data_collected"
+        android:visibility="gone" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/dataCollectedAccessibilityView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginLeft="15dip"
+        android:paddingBottom="4dip"
+        android:paddingLeft="8dip"
+        android:paddingTop="4dip"
+        android:text="@string/accessibility_logging"
         android:visibility="gone" >
     </TextView>
 

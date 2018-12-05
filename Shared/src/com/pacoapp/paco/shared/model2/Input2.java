@@ -33,9 +33,10 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
   public static final String PHOTO = "photo";
   public static final String SOUND = "sound";
   public static final String ACTIVITY = "activity";
+  public static final String AUDIO = "audio";
 
   public static String[] RESPONSE_TYPES = {LIKERT_SMILEYS, LIKERT, OPEN_TEXT, LIST, NUMBER,
-    LOCATION, PHOTO, SOUND, ACTIVITY};
+    LOCATION, PHOTO, SOUND, ACTIVITY, AUDIO};
 
   private String name;
   private Boolean required = false;
@@ -56,7 +57,7 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
   /**
    *
    */
-  public static final Integer DEFAULT_LIKERT_STEPS = 5;
+  public static final Integer DEFAULT_LIKERT_STEPS = 5;  
 
   /**
    *
@@ -200,6 +201,8 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
     if (responseType != null) {
       if (responseType.equals(LIKERT)) {
         validator.isNotNull(likertSteps, "scales need a number of steps specified");
+        validator.isTrue(likertSteps >= 2, "scales need at least 2 steps");
+        validator.isTrue(likertSteps <= 9, "scales need 9 or less steps");
         //validator.isNotNull(leftSideLabel, "no left label is specified for scale");
         //validator.isNotNull(rightSideLabel, "no right label is specified for scale");
       } else if (responseType.equals(LIST)) {

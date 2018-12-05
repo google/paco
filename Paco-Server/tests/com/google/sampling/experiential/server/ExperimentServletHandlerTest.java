@@ -3,8 +3,6 @@ package com.google.sampling.experiential.server;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.joda.time.DateTimeZone;
 
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
@@ -17,6 +15,8 @@ import com.pacoapp.paco.shared.comm.Outcome;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentDAOCore;
 import com.pacoapp.paco.shared.model2.JsonConverter;
+
+import junit.framework.TestCase;
 
 public class ExperimentServletHandlerTest extends TestCase {
 
@@ -61,7 +61,7 @@ public class ExperimentServletHandlerTest extends TestCase {
 
   public void testShortLoadIsShortButComplete() {
     ExperimentServletHandler shortHandler = new ExperimentServletExperimentsForMeLoadHandler(email, null, null, null, pacoProtocol);
-    ExperimentServletHandler longHandler = new ExperimentServletAdminExperimentsFullLoadHandler(email, null, null, null, pacoProtocol);
+    ExperimentServletHandler longHandler = new ExperimentServletAdminExperimentsFullLoadHandler(email, null, null, null, pacoProtocol, null, null);
 
     String shortContent = shortHandler.performLoad();
     String longContent = longHandler.performLoad();

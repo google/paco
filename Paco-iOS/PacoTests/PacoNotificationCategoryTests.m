@@ -28,7 +28,6 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
 @interface PacoNotificationInfo()
 + (PacoNotificationInfo*)pacoInfoWithDictionary:(NSDictionary*)infoDict;
 + (NSDictionary*)userInfoDictionaryWithExperimentId:(NSString*)experimentId
-                                            experimentTitle:(NSString*) experimentTitle
                                            fireDate:(NSDate*)fireDate
                                         timeOutDate:(NSDate*)timeOutDate;
 - (PacoNotificationStatus)status;
@@ -66,12 +65,11 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                @"DEFINITION_JSON should be successfully serialized!");
   PacoExperimentDefinition* definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionDict];
   XCTAssertTrue(definition != nil, @"definition should not be nil!");
-  
   PacoExperiment* experimentInstance = [[PacoExperiment alloc] init];
   experimentInstance.schedule = definition.schedule;
   experimentInstance.definition = definition;
   experimentInstance.instanceId = definition.experimentId;
-  XCTAssertNotNil(experimentInstance, @"experimentInstance should be valid!");  
+  XCTAssertNotNil(experimentInstance, @"experimentInstance should be valid!");
   self.testExperiment = experimentInstance;
   
   NSDate* date1 = [NSDate dateWithTimeIntervalSinceNow:10];
@@ -92,10 +90,9 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
 
 
 - (void)testCreatePacoInfo {
-  NSDictionary* dict = @{kUserInfoKeyExperimentId:self.testID,
-                         kUserInfoKeyExperimentTitle:self.testTitle,
-                         kUserInfoKeyNotificationFireDate:self.testFireDate,
-                         kUserInfoKeyNotificationTimeoutDate:self.testTimeoutDate};
+  NSDictionary* dict = @{@"experimentInstanceId":self.testID,
+                         @"notificationFireDate":self.testFireDate,
+                         @"notificationTimeoutDate":self.testTimeoutDate};
   
   PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:dict];
   XCTAssertTrue(info != nil, @"should have a valid info");
@@ -125,30 +122,17 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
 }
 
 - (void)testCreateUserInfoDictionary {
-    
-    /* test */
   NSDictionary* dict = [PacoNotificationInfo userInfoDictionaryWithExperimentId:self.testID
-                                                                      experimentTitle:@"tttt"
                                                                        fireDate:self.testFireDate
                                                                     timeOutDate:self.testTimeoutDate];
-    
-  
-    
-    
-    
-  NSDictionary* expected = @{@"id":self.testID,
-                             @"title":@"tttt",
-                             @"fireDate":self.testFireDate,
-                             @"timeoutDate":self.testTimeoutDate
-                             }
-    
-    ;
+  NSDictionary* expected = @{@"experimentInstanceId":self.testID,
+                             @"notificationFireDate":self.testFireDate,
+                             @"notificationTimeoutDate":self.testTimeoutDate};
   XCTAssertEqualObjects(dict, expected, @"should have a valid result");
 }
 
 - (void)testCreateUserInfoDictionary1 {
   NSDictionary* dict = [PacoNotificationInfo userInfoDictionaryWithExperimentId:@""
-                                                                    experimentTitle:@" tite 1"
                                                                        fireDate:self.testFireDate
                                                                     timeOutDate:self.testTimeoutDate];
   XCTAssertEqualObjects(dict, nil, @"should have a nil result for an empty experiment id");
@@ -156,7 +140,6 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
 
 - (void)testCreateUserInfoDictionary2 {
   NSDictionary* dict = [PacoNotificationInfo userInfoDictionaryWithExperimentId:self.testID
-                                                                        experimentTitle:@" tite 1"
                                                                        fireDate:nil
                                                                     timeOutDate:self.testTimeoutDate];
   XCTAssertEqualObjects(dict, nil, @"should have a nil result for a nil fireDate");
@@ -164,7 +147,6 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
 
 - (void)testCreateUserInfoDictionary3 {
   NSDictionary* dict = [PacoNotificationInfo userInfoDictionaryWithExperimentId:self.testID
-                                                                    experimentTitle:@" tite 1"
                                                                        fireDate:self.testFireDate
                                                                     timeOutDate:nil];
   XCTAssertEqualObjects(dict, nil, @"should have a nil result for a nil timeOutDate");
@@ -173,7 +155,6 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
 - (void)testCreateUserInfoDictionary4 {
   self.testTimeoutDate = [NSDate dateWithTimeInterval:-1 sinceDate:self.testFireDate];
   NSDictionary* dict = [PacoNotificationInfo userInfoDictionaryWithExperimentId:self.testID
-                                                                    experimentTitle:@" tite 1"
                                                                        fireDate:self.testFireDate
                                                                     timeOutDate:self.testTimeoutDate];
   XCTAssertEqualObjects(dict, nil, @"should have a nil result for an invalid timeOutDate");
@@ -236,31 +217,14 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                                                                         timeOutDate:self.testTimeoutDate];
   XCTAssertEqualObjects(noti.timeZone, [NSTimeZone systemTimeZone], @"should be system timezone");
   XCTAssertEqualObjects(noti.fireDate, self.testFireDate, @"firedate should be valid");
- /* NSString* expectAlertBody = [NSString stringWithFormat:@"[%@]%@",
+  NSString* expectAlertBody = [NSString stringWithFormat:@"[%@]%@",
                                [PacoDateUtility stringForAlertBodyFromDate:self.testFireDate],
                                self.testTitle];
-  */
-    
-
-    /* the title should be templated  in a common file */
-    
- NSString* exptected = [NSString stringWithFormat:@"%@\nTime to participate!",self.testTitle];
-    
-    
-  XCTAssertEqualObjects(noti.alertBody, exptected, @"alert body should be valid");
-    
-    
-    
-    
-    
+  XCTAssertEqualObjects(noti.alertBody, expectAlertBody, @"alert body should be valid");
   XCTAssertEqualObjects(noti.soundName, @"deepbark_trial.mp3", @"sound name should be valid");
-    
-    
-  NSDictionary* userInfo = @{@"id":self.testID,
-                             @"fireDate":self.testFireDate,
-                             @"timeoutDate":self.testTimeoutDate,
-                             @"title":self.testTitle
-                             };
+  NSDictionary* userInfo = @{@"experimentInstanceId":self.testID,
+                             @"notificationFireDate":self.testFireDate,
+                             @"notificationTimeoutDate":self.testTimeoutDate};
   XCTAssertEqualObjects(noti.userInfo, userInfo, @"userInfo should be valid");
 }
 
@@ -321,22 +285,16 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                                                                            fireDate:self.testFireDate
                                                                         timeOutDate:self.testTimeoutDate];
   NSString* description = [noti pacoDescription];
-  NSString* fireDateStr = [NSString stringWithFormat:@"fireDate:%@; ",
+  NSString* fireDateStr = [NSString stringWithFormat:@"notificationFireDate:%@; ",
                            [PacoDateUtility pacoStringForDate:self.testFireDate]];
-    
-    
-    NSString* title = @"title:Paco Notification One; ";
-  NSString* timeoutDateStr = [NSString stringWithFormat:@"timeoutDate:%@; }",
+  NSString* timeoutDateStr = [NSString stringWithFormat:@"notificationTimeoutDate:%@; }",
                            [PacoDateUtility pacoStringForDate:self.testTimeoutDate]];
-    
-    
-  NSString* expect = [NSString stringWithFormat:@"<%@,%p: fireDate=%@, status=(%@), userInfo=%@%@%@%@>",
+  NSString* expect = [NSString stringWithFormat:@"<%@,%p: fireDate=%@, status=(%@), userInfo=%@%@%@>",
                       NSStringFromClass([noti class]),
                       noti,
                       [PacoDateUtility pacoStringForDate:self.testFireDate],
                       @"Fired, Not Timeout",
-                      @"{id:12345; ",
-                      title,
+                      @"{experimentInstanceId:12345; ",
                       fireDateStr,
                       timeoutDateStr
                       ];

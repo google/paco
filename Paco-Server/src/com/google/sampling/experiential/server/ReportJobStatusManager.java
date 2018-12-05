@@ -13,6 +13,7 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.QueryResultIterator;
+import com.google.appengine.api.datastore.Text;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.shared.TimeUtil;
@@ -48,13 +49,18 @@ public class ReportJobStatusManager {
       return null; // no need to throw an error, why let on that there is a
                    // report by this id that someone else owns?
     }
+    String msgStr = null;
+    Object msgProp = report.getProperty(ERROR_MESSAGE_PROPERTY);
+    if (msgProp!=null) {
+      msgStr = ((Text)msgProp).getValue();
+    }
     return report == null ? null : new ReportJobStatus((String)report.getProperty(ID_PROPERTY),
                                                  (String)report.getProperty(REQUESTOR_PROPERTY),
                                                  new Integer(((Long)report.getProperty(STATUS_PROPERTY)).intValue()),
                                                  (String)report.getProperty(START_TIME_PROPERTY),
                                                  (String)report.getProperty(END_TIME_PROPERTY),
                                                  (String)report.getProperty(LOCATION_PROPERTY),
-                                                 (String)report.getProperty(ERROR_MESSAGE_PROPERTY));
+                                                 msgStr);
   }
 
   private Entity getReportById(String id) {
@@ -138,7 +144,7 @@ public class ReportJobStatusManager {
     report.setProperty(STATUS_PROPERTY, FAILED);
     report.setProperty(END_TIME_PROPERTY, getCurrentTimeAsString());
     if (!Strings.isNullOrEmpty(errorMessage)) {
-      report.setProperty(ERROR_MESSAGE_PROPERTY, errorMessage);
+      report.setProperty(ERROR_MESSAGE_PROPERTY, new Text(errorMessage));
     }
 
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();

@@ -99,6 +99,8 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
     }
   };
 
+  private AlertDialog endTimeBeforeStartDialog;
+
   public static final String SCHEDULE_TRIGGER_ID = "schedule_trigger";
 
   public static final String SCHEDULE_ID = "schedule_id";
@@ -125,6 +127,10 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
   public void onDetach() {
     super.onDetach();
     callbacks = sDummyCallbacks;
+    if (endTimeBeforeStartDialog != null) {
+      endTimeBeforeStartDialog.dismiss();
+      endTimeBeforeStartDialog = null;
+    }
   }
 
   @Override
@@ -148,11 +154,10 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
     timePicker = (TimePicker) timesScheduleLayout.findViewById(R.id.DailyScheduleTimePicker);
     timePicker.setIs24HourView(false);
 
-    createSelections();
-
     if (schedule.getScheduleType().equals(Schedule.WEEKDAY) || schedule.getScheduleType().equals(Schedule.DAILY)) {
       showDailyScheduleConfiguration(container);
     } else if (schedule.getScheduleType().equals(Schedule.WEEKLY)) {
+      createSelections();
       showWeeklyScheduleConfiguration(container);
     } else if (schedule.getScheduleType().equals(Schedule.MONTHLY)) {
       showMonthlyScheduleConfiguration(container);
@@ -212,7 +217,16 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
                          new DialogInterface.OnClickListener() {
 
                            public void onClick(DialogInterface dialog, int which) {
-                             schedule.setEsmStartHour(getHourOffsetFromPicker());
+                             final Long hourOffsetFromPicker = getHourOffsetFromPicker();
+                             if (hourOffsetFromPicker >= schedule.getEsmEndHour()) {
+                               alertUserToInvertedTimes();
+                               return;
+                             }
+                             if (windowIsTooShortForSignals(hourOffsetFromPicker, schedule.getEsmEndHour())) {
+                               alertUserToTooShortScheduleWindow();
+                               return;
+                             }
+                            schedule.setEsmStartHour(hourOffsetFromPicker);
                              startHourField.setText(getTextFromPicker(schedule.getEsmStartHour()
                                                                                 .intValue()));
                            }
@@ -241,16 +255,79 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
                                 new DialogInterface.OnClickListener() {
 
                                   public void onClick(DialogInterface dialog, int which) {
-                                    schedule.setEsmEndHour(getHourOffsetFromPicker());
+                                    Long endHourOffsetFromPicker = getHourOffsetFromPicker();
+                                    if (timePicker.getCurrentHour() == 0 && timePicker.getCurrentMinute() == 0) {
+                                      setToElevenFiftyNine();
+                                      endHourOffsetFromPicker = getHourOffsetFromPicker();
+                                    } else if (endHourOffsetFromPicker <= schedule.getEsmStartHour()) {
+                                      alertUserToInvertedTimes();
+                                      return;
+                                    }
+                                    if (windowIsTooShortForSignals(schedule.getEsmStartHour(), endHourOffsetFromPicker)) {
+                                      alertUserToTooShortScheduleWindow();
+                                      return;
+                                    }
+                                    schedule.setEsmEndHour(endHourOffsetFromPicker);
                                     endHourField.setText(getTextFromPicker(schedule.getEsmEndHour()
                                                                                      .intValue()));
                                   }
+
+
+
 
                                 });
         endHourDialog.show();
       }
     });
 
+  }
+
+  private boolean windowIsTooShortForSignals(Long esmStartHour, Long esmEndHour) {
+    if (schedule.getEsmPeriodInDays().equals(Schedule.ESM_PERIOD_DAY)) {
+      long duration = esmEndHour - esmStartHour ;
+      long minimunTime = schedule.getMinimumBuffer() * 60 * 1000 * schedule.getEsmFrequency();
+      return duration < minimunTime;
+    }
+    return false;
+  }
+
+  private void alertUserToTooShortScheduleWindow() {
+    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+    alertDialogBuilder.setMessage(R.string.start_and_end_time_too_short);
+    alertDialogBuilder.setCancelable(true);
+
+    alertDialogBuilder.setPositiveButton(
+        R.string.ok,
+        new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              dialog.cancel();
+            }
+        });
+    endTimeBeforeStartDialog = alertDialogBuilder.create();
+    endTimeBeforeStartDialog.show();
+
+  }
+
+  private void alertUserToInvertedTimes() {
+    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+    alertDialogBuilder.setMessage(R.string.end_time_must_be_after_start_time_warning_label);
+    alertDialogBuilder.setCancelable(true);
+
+    alertDialogBuilder.setPositiveButton(
+        R.string.ok,
+        new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              dialog.cancel();
+            }
+        });
+    endTimeBeforeStartDialog = alertDialogBuilder.create();
+    endTimeBeforeStartDialog.show();
+
+  }
+
+  private void setToElevenFiftyNine() {
+    timePicker.setCurrentHour(23);
+    timePicker.setCurrentMinute(59);
   }
 
   private Long getHourOffsetFromPicker() {
@@ -522,7 +599,7 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
       TextView label = (TextView) convertView.findViewById(R.id.textView1);
       String labelText = schedule.getSignalTimes().get(position).getLabel();
       if (Strings.isNullOrEmpty(labelText)) {
-        labelText = "Time " + Integer.toString(position + 1);
+        labelText = getContext().getString(R.string.time_schedule_edit_label) + " " + Integer.toString(position + 1);
       }
       label.setText(labelText + ": ");
       Button btn = (Button) convertView.findViewById(R.id.timePickerLabel);

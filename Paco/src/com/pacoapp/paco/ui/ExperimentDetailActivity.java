@@ -22,6 +22,21 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.net.ExperimentUrlBuilder;
+import com.pacoapp.paco.net.NetworkClient;
+import com.pacoapp.paco.net.NetworkUtil;
+import com.pacoapp.paco.net.PacoForegroundService;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.utils.IntentExtraHelper;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -41,23 +56,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Strings;
-import com.pacoapp.paco.R;
-import com.pacoapp.paco.UserPreferences;
-import com.pacoapp.paco.model.Experiment;
-import com.pacoapp.paco.model.ExperimentProviderUtil;
-import com.pacoapp.paco.net.ExperimentUrlBuilder;
-import com.pacoapp.paco.net.NetworkClient;
-import com.pacoapp.paco.net.NetworkUtil;
-import com.pacoapp.paco.net.PacoForegroundService;
-import com.pacoapp.paco.shared.model2.ExperimentDAO;
-import com.pacoapp.paco.shared.model2.ExperimentGroup;
-import com.pacoapp.paco.utils.IntentExtraHelper;
-
 public class ExperimentDetailActivity extends ActionBarActivity implements ExperimentLoadingActivity, NetworkClient {
 
   public static final String ID_FROM_MY_EXPERIMENTS_FILE = "my_experimentsFile";
 
+  private static Logger Log = LoggerFactory.getLogger(ExperimentDetailActivity.class);
 
   private static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
 
@@ -78,6 +81,7 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Log.debug("ExperimentDetailActivity onCreate");
     setContentView(R.layout.experiment_detail);
 
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -106,8 +110,8 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
   }
 
 
-  private boolean isLaunchedFromLink(){ 
-	return uri != null && uri.getScheme().equalsIgnoreCase("pacoapp"); 
+  private boolean isLaunchedFromLink(){
+	  return uri != null && uri.getScheme().equalsIgnoreCase("pacoapp");
   }
 
   private boolean isLaunchedFromQRCode() {
@@ -197,6 +201,7 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
       for (Experiment experiment : potentialJoinedExperiment) {
         if (experiment.getJoinDate() != null) {
           alreadyJoined = true;
+          Log.debug("Already joined experiment");
           break;
         }
       }
@@ -241,6 +246,7 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
 
   protected void retrieveExperimentFromServer(final String realServerId) {
     if (!NetworkUtil.isConnected(this)) {
+      Log.debug("Cannot retrieve experiment from server. No Network connection");
       showDialog(NetworkUtil.NO_NETWORK_CONNECTION, null);
     } else {
       //      progressBar.setVisibility(View.VISIBLE);
@@ -264,9 +270,11 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
 
   @Override
   protected void onResume() {
+    Log.debug("ExperimentDetailActivity onResume");
     if ((isLaunchedFromLink() || isLaunchedFromQRCode()) && userPrefs.getAccessToken() == null) {
-        Intent splash = new Intent(this, SplashActivity.class);
-        this.startActivity(splash);
+      Log.debug("redirect to Login");
+      Intent splash = new Intent(this, SplashActivity.class);
+      this.startActivity(splash);
     } else {
       if (!isLaunchedFromQRCode() && !isLaunchedFromLink()) {
         IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
@@ -274,40 +282,39 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
         experiment = experimentProviderUtil.getExperimentFromDisk(experimentId, useMyExperimentsDiskFile);
       }
 
-      if(isLaunchedFromLink()){
-    	  //Get experiment id from link/uri
-    	  //example: pacoapp://experiment/1234567
-    	  String[] uriSegments = this.uri.getSchemeSpecificPart().toString().replace("//", "").split("/");
-    	  if(uriSegments.length == 2 && uriSegments[0].equalsIgnoreCase("experiment")){ //Got the right URI format, check whether to download experiment
-    		  this.receivedExperimentId = Long.parseLong(uriSegments[1]);
-    		  this.experiment = this.experimentProviderUtil.getExperimentFromDisk(this.receivedExperimentId, this.useMyExperimentsDiskFile);
-    		  
-    		  if(this.experiment == null){ //Experiment NOT found locally, load from server
-    			  this.retrieveExperimentFromServer( uriSegments[1] );
-    		  }else{//experiment found, show it
-    			  this.showExperiment();
-    		  }
-    	  }else{ //If the URI is wrong, show message and then go to MyExperimentsActivity
-    		  new AlertDialog.Builder(this)
-    		  .setMessage(R.string.link_wrong)
-    		  .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						startActivity(new Intent (getContext(), MyExperimentsActivity.class));
-					}
-    		  	})
-    		  .show();
-    	  }
-      }
-      else if (isLaunchedFromQRCode() && experiment == null) {
-        new AlertDialog.Builder(this)
-          .setMessage(R.string.selected_experiment_not_on_phone_refresh)
-          .setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
+      if (isLaunchedFromLink()) {
+        // Get experiment id from link/uri
+        // example: pacoapp://experiment/1234567
+        String[] uriSegments = this.uri.getSchemeSpecificPart().toString().replace("//", "").split("/");
+        if (uriSegments.length == 2 && uriSegments[0].equalsIgnoreCase("experiment")) {
+          // Got the right URI format, check whether to download experiment
+          this.receivedExperimentId = Long.parseLong(uriSegments[1]);
+          this.experiment = this.experimentProviderUtil.getExperimentFromDisk(this.receivedExperimentId,
+                                                                              this.useMyExperimentsDiskFile);
+
+          if (this.experiment == null) { // Experiment NOT found locally, load  from server
+            Log.debug("No local experiment. Loading from server");
+            this.retrieveExperimentFromServer(uriSegments[1]);
+          } else { // experiment found, show it
+            this.showExperiment();
+          }
+        } else {
+          // If the URI is wrong, show message and then go to MyExperimentsActivity
+          new AlertDialog.Builder(this).setMessage(R.string.link_wrong)
+                                       .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                         public void onClick(DialogInterface dialog, int which) {
+                                           startActivity(new Intent(getContext(), MyExperimentsActivity.class));
+                                         }
+                                       }).show();
+        }
+      } else if (isLaunchedFromQRCode() && experiment == null) {
+        new AlertDialog.Builder(this).setMessage(R.string.selected_experiment_not_on_phone_refresh)
+                                     .setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
                                        public void onClick(DialogInterface dialog, int which) {
                                          String realServerId = uri.getLastPathSegment().substring(4);
                                          retrieveExperimentFromServer(realServerId);
                                        }
-                                     })
-          .show();
+                                     }).show();
       } else {
         showExperiment();
       }
@@ -373,7 +380,7 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
             ExperimentDetailActivity.this.finish();
           }
         } else {
-          showFailureDialog("Could not successfully join. Try again.");
+          showFailureDialog(getString(R.string.could_not_successfully_join_try_again_));
         }
       }
     });

@@ -1,29 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
-
- <application>quantifiedself</application>
+  <application>quantifiedself</application>
   <module>mapreduce</module>
-  <version>154</version>
+  <version>211</version>
   <threadsafe>true</threadsafe>
-    <ssl-enabled>true</ssl-enabled>
+  <ssl-enabled>true</ssl-enabled>
   <sessions-enabled>true</sessions-enabled>
   <precompilation-enabled>true</precompilation-enabled>
-  
   <!-- Larger / higher memory instances are useful for their improved sorting performance -->
   <instance-class>F4</instance-class>
   <automatic-scaling>
     <max-pending-latency>1000ms</max-pending-latency>
-
-  <!-- max-concurrent-requests affects how quickly instances will get spun up and
+    <!-- max-concurrent-requests affects how quickly instances will get spun up and
     performance of running the job. It can be tuned lower for larger or more memory intensive
     jobs or jobs on smaller instances, and higher for workers that require very little
     memory or are on larger memory instances. Regardless of this setting, MapReduce will
     use memory estimates to limit concurrent requests (per instance) if needed to prevent
     running out of memory -->
-  <max-concurrent-requests>4</max-concurrent-requests>
+    <max-concurrent-requests>4</max-concurrent-requests>
   </automatic-scaling>
-
   <system-properties>
     <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
+    <property name="ae-cloudsql.database-url" value="AAA"/>
+    <property name="ae-cloudsql.database-username" value="BBB"/>
+    <property name="ae-cloudsql.database-password" value="CCC"/>
+    <property name="ae-connection-pool.maxconn" value="100"/>
+    <property name="ae-cloudsql.local-database-url" value="DDD"/>
+    <property name="ae-cloudsql.local-database-username" value="EEE"/>
+    <property name="ae-cloudsql.local-database-password" value="FFF"/>
   </system-properties>
-
 </appengine-web-app>

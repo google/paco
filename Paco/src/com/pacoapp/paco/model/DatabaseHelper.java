@@ -5,20 +5,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.codehaus.jackson.JsonProcessingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.PacoNotificationAction;
+import com.pacoapp.paco.shared.util.ErrorMessages;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-
-import com.pacoapp.paco.shared.model2.ExperimentDAO;
-import com.pacoapp.paco.shared.model2.PacoNotificationAction;
+import android.database.sqlite.SQLiteQueryBuilder;
 
 /**
  * This class helps open, create, and upgrade the database file.
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
+
+  private static Logger Log = LoggerFactory.getLogger(DatabaseHelper.class);
 
   private Context context;
 
@@ -87,7 +93,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
   @Override
   public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-    Log.w(ExperimentProvider.TAG, "Upgrading database from version " + oldVersion + " to " + newVersion + ".");
+    Log.warn("Upgrading database from version " + oldVersion + " to " + newVersion + ".");
 
     // if (oldVersion <= 12) {
     // throw new
@@ -322,7 +328,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
       }
     } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+      Log.warn("Caught unexpected exception.", e);
     } finally {
       if (cursor != null) {
         cursor.close();
@@ -416,5 +422,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //                 + refCol + " = " + entry.getKey() + ";");
 //    }
 //  }
-
+  
+  public Cursor query(int tableIndicator, String[] projection, String selection,
+		  String[] selectionArgs, String sortOrder, String groupBy, String having, String limit) {
+    SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+    Cursor resultSet = null;
+    switch (tableIndicator) {
+	    case ExperimentProvider.OUTPUTS_DATATYPE:
+	      qb.setTables(ExperimentProvider.EVENTS_TABLE_NAME+ " INNER JOIN " + ExperimentProvider.OUTPUTS_TABLE_NAME + 
+					" ON " + (ExperimentProvider.EVENTS_TABLE_NAME+ "." +EventColumns._ID) + " = " + OutputColumns.EVENT_ID);
+	      break;
+	    case ExperimentProvider.EVENTS_DATATYPE:
+	      qb.setTables(ExperimentProvider.EVENTS_TABLE_NAME);
+	      break;
+	    default:
+	      throw new IllegalArgumentException(ErrorMessages.UNKNOWN_TABLE_INDICATOR.getDescription() + tableIndicator);
+	  }
+    try{
+      // While validating the columns, with their corresponding data types, JSQL parser considers a value as
+      // string when enclosed in single quotes. So, in the input we send with single quotes.
+      // But when we send it to the following query method which takes a string array, it considers 
+      // the single quote as part of the string. So, we need to remove it explicitly.  
+      String selectionArgsWithoutQuotes[] = new String[selectionArgs.length];
+      for(int i=0; i<selectionArgs.length;i++){
+        String temp = selectionArgs[i];
+        selectionArgsWithoutQuotes[i] = temp;
+        if(temp.startsWith("'")){
+          selectionArgsWithoutQuotes[i] = temp.substring(1,temp.length()-1);
+        } 
+      }
+      
+      resultSet = qb.query(getReadableDatabase(), projection, selection, selectionArgsWithoutQuotes, groupBy, having,
+	      sortOrder, limit);
+    }catch (SQLiteException s){
+      Log.warn(ErrorMessages.SQL_EXCEPTION.getDescription(), s);
+      //Client should receive the exception
+      throw s;
+    }
+    return resultSet;
+  }
 }

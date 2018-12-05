@@ -1,9 +1,15 @@
 var pacoApp = angular.module('pacoApp', [
   'ngRoute',
   'ngMaterial',
-  'ui.ace'
+  'ui.ace',
+  'nvd3'
 ]);
 
+pacoApp.config(['$sceDelegateProvider', function($sceDelegateProvider) {
+    // Angular doesn't deal well with audio src=data: this lets us load local data. 
+    // TODO remove when port to Google Cloud Storage for Audio and Image data is complete
+	$sceDelegateProvider.resourceUrlWhitelist(['data:audio/mpeg;base64,**','self']);
+}]);
 
 pacoApp.config(['$routeProvider','$locationProvider',
   function($routeProvider, $locationProvider) {
@@ -24,11 +30,17 @@ pacoApp.config(['$routeProvider','$locationProvider',
     when('/stats/:experimentId', {
       templateUrl: 'partials/stats.html',
     }).
+    when( '/viz/:experimentId', {
+      templateUrl: 'partials/viz/viz.html',
+    }).
     when('/stats/:experimentId/:filter', {
       templateUrl: 'partials/stats.html',
     }).
     when('/respond/:respondExperimentId', {
       templateUrl: 'partials/respond.html',
+    }).
+    when('/hack',{
+      templateUrl: 'partials/hack.html',
     }).
     when('/help/:helpId?', {
       templateUrl: 'partials/help.html',
@@ -40,6 +52,17 @@ pacoApp.config(['$routeProvider','$locationProvider',
     when('/copy/:copyId', {
       templateUrl: 'partials/edit.html',
       reloadOnSearch: false,
+    }).
+    when('/hub',{
+        templateUrl: 'partials/hub.html',
+        reloadOnSearch: false,
+    }).
+    when('/survey/:pubRespondExperimentId',{
+      templateUrl: 'partials/respondpub.html',
+      reloadOnSearch: false,
+    }).
+    when('/hack',{
+      templateUrl: 'partials/hack.html',
     }).
     otherwise({
       templateUrl: 'partials/welcome.html',

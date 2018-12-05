@@ -19,10 +19,10 @@
 	android:layout_height="wrap_content" android:orientation="vertical"
 	android:gravity="center" android:layout_gravity="center|top"
 	android:layout_width="fill_parent">
-	<TextView android:text="Libraries used by Paco" 
+	<TextView android:text="@string/libraries_used_by_paco_label" 
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		android:gravity="center" android:textSize="25dip"></TextView>
-	<TextView android:text="We are grateful for their contributions." 
+	<TextView android:text="@string/we_are_grateful_for_their_contributions_label" 
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:gravity="center" android:textSize="15dip"></TextView>
 	<ListView android:layout_width="match_parent"

@@ -27,6 +27,20 @@ import java.util.Map;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentColumns;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.net.ExperimentUrlBuilder;
+import com.pacoapp.paco.net.NetworkClient;
+import com.pacoapp.paco.net.NetworkUtil;
+import com.pacoapp.paco.net.PacoForegroundService;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -55,18 +69,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.pacoapp.paco.R;
-import com.pacoapp.paco.UserPreferences;
-import com.pacoapp.paco.model.Experiment;
-import com.pacoapp.paco.model.ExperimentColumns;
-import com.pacoapp.paco.model.ExperimentProviderUtil;
-import com.pacoapp.paco.net.ExperimentUrlBuilder;
-import com.pacoapp.paco.net.NetworkClient;
-import com.pacoapp.paco.net.NetworkUtil;
-import com.pacoapp.paco.net.PacoForegroundService;
-
 /**
  *
  */
@@ -76,6 +78,8 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
   static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
   static final int JOIN_REQUEST_CODE = 1;
   static final int JOINED_EXPERIMENT = 1;
+
+  private static Logger Log = LoggerFactory.getLogger(FindMyExperimentsActivity.class);
 
   private ExperimentProviderUtil experimentProviderUtil;
   private ListView list;
@@ -93,6 +97,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Log.debug("FindMyExperimentsActivity onCreate");
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.find_experiments, null);
     setContentView(mainLayout);
 
@@ -208,6 +213,9 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
     } else if (id == R.id.action_settings) {
       launchSettings();
       return true;
+    } else if (id == R.id.action_preferences) {
+      launchPreferences();
+      return true;
     } else if (id == R.id.action_about) {
       launchAbout();
       return true;
@@ -223,12 +231,21 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
     } else if (id == R.id.action_email_paco_team) {
       launchEmailPacoTeam();
       return true;
+    }  else if (id == R.id.action_troubleshooting) {
+      launchTroubleshooting();
+      return true;
     } else if (id == android.R.id.home) {
       finish();
       return true;
     }
     return super.onOptionsItemSelected(item);
   }
+
+  private void launchTroubleshooting() {
+    startActivity(new Intent(this, TroubleshootingActivity.class));
+  }
+
+
 
   private void launchFindMyExperiments() {
     startActivity(new Intent(this, FindMyExperimentsActivity.class));
@@ -250,6 +267,10 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
     startActivity(new Intent(this, SettingsActivity.class));
   }
 
+  private void launchPreferences() {
+    startActivity(new Intent(this, PreferencesActivity.class));
+  }
+
   private void launchEula() {
     Intent eulaIntent = new Intent(this, EulaDisplayActivity.class);
     startActivity(eulaIntent);
@@ -268,7 +289,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
     Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
     String aEmailList[] = { getString(R.string.contact_email) };
     emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, aEmailList);
-    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Paco Feedback");
+    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.email_subject_paco_feedback));
     emailIntent.setType("plain/text");
     startActivity(emailIntent);
   }
@@ -276,6 +297,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
   @Override
   protected void onResume() {
     super.onResume();
+    Log.debug("FindMyExperimentsActivity onResume");
     dialogable = true;
     if (userPrefs.getAccessToken() == null) {
       Intent acctChooser = new Intent(this, SplashActivity.class);
@@ -301,7 +323,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
   private TextView createListHeader() {
     TextView listHeader = (TextView) findViewById(R.id.ExperimentListTitle);
     String header = null;
-    header = getString(R.string.find_my_experiments_list_title);
+    header = getString(R.string.find_my_experiments);
     listHeader.setText(header);
     listHeader.setTextSize(25);
     return listHeader;
@@ -387,8 +409,13 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
         experimentCursor = newExperimentCursor;
         saveExperimentsToDisk();
       } else {
-        experiments.addAll(newExperiments); // we are mid-pagination so just add
-                                            // the new batch to the existing.
+        for (Experiment experiment : newExperiments) {
+          if (!experiments.contains(experiment)) {
+            experiments.add(experiment); // we are mid-pagination so just add
+            // the new batch to the existing.
+          }
+        }
+
         Collections.sort(experiments, new Comparator<Experiment>() {
 
           @Override
@@ -424,6 +451,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
   }
 
   private void saveExperimentsToDisk() {
+    Log.debug("FindMyExperimentsActivity saveExperimentsToDisk");
     try {
       String contentAsString = ExperimentProviderUtil.getJson(experiments);
       experimentProviderUtil.saveMyExperimentsToDisk(contentAsString);
@@ -440,6 +468,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
 
   // Visible for testing
   public void reloadAdapter() {
+    Log.debug("FindMyExperimentsActivity reloadAdapter");
     if (experiments == null || experiments.isEmpty()) {
       experiments = experimentProviderUtil.loadMyExperimentsFromDisk();
     }
@@ -469,7 +498,9 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
     if (dialogable) {
       if (status.equals(NetworkUtil.CONTENT_ERROR) || status.equals(NetworkUtil.RETRIEVAL_ERROR)) {
         showDialogById(NetworkUtil.INVALID_DATA_ERROR);
-      } else {
+      } else if (status.equals(Integer.toString(NetworkUtil.UNKNOWN_HOST_ERROR))) {
+        showDialogById(NetworkUtil.UNKNOWN_HOST_ERROR);
+      }  else {
         showDialogById(NetworkUtil.SERVER_ERROR);
       }
     }
@@ -516,8 +547,6 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
 
           creator.setText(buf.toString());
           creator.setOnClickListener(myButtonListener);
-        } else {
-          creator.setText(getContext().getString(R.string.unknown_author_text));
         }
         // ImageView iv = (ImageView)
         // view.findViewById(R.id.experimentIconView);
@@ -566,6 +595,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
 
   @Override
   protected void onPause() {
+    Log.debug("FindMyExperimentsActivity onPause");
     dialogable = false;
     super.onPause();
   }
@@ -580,7 +610,10 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        Toast.makeText(FindMyExperimentsActivity.this, msg, Toast.LENGTH_LONG);
+        //Toast.makeText(FindMyExperimentsActivity.this, msg, Toast.LENGTH_LONG).show();
+        progressBar.setVisibility(View.GONE);
+        //showFailureDialog(getString(R.string.could_not_retrieve_experiments_try_again_));
+        showFailureDialog(msg);
       }
     });
   }
@@ -592,11 +625,11 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
       public void run() {
         progressBar.setVisibility(View.GONE);
         if (msg != null) {
-          Toast.makeText(FindMyExperimentsActivity.this, "Download complete", Toast.LENGTH_LONG);
+          Toast.makeText(FindMyExperimentsActivity.this, getString(R.string.experiment_list_download_complete), Toast.LENGTH_LONG).show();;
           updateDownloadedExperiments(msg);
           saveRefreshTime();
         } else {
-          showFailureDialog("No experiment data retrieved. Try again.");
+          showFailureDialog(getString(R.string.could_not_retrieve_experiments_try_again_));
         }
       }
     });

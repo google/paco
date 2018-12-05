@@ -1,12 +1,9 @@
 package com.pacoapp.paco.js.bridge;
 
-import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
-import android.webkit.JavascriptInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
@@ -17,10 +14,15 @@ import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.triggering.BeeperService;
 
+import android.content.Context;
+import android.content.Intent;
+import android.webkit.JavascriptInterface;
+
+
 public class JavascriptExperimentLoader {
-  /**
-   *
-   */
+
+  private static Logger Log = LoggerFactory.getLogger(JavascriptExperimentLoader.class);
+
   private ExperimentDAO experiment;
   private String json;
   private ExperimentProviderUtil experimentProvider;
@@ -47,7 +49,7 @@ public class JavascriptExperimentLoader {
       experimentGroupJson = JsonConverter.jsonify(experimentGroup);
     }
     long t2= System.currentTimeMillis();
-    Log.e(PacoConstants.TAG, "time to load experiment group: " + (t2 - t1));
+    Log.error("time to load experiment group: " + (t2 - t1));
     return experimentGroupJson;
   }
 
@@ -66,7 +68,7 @@ public class JavascriptExperimentLoader {
       experimentGroupReferredJson = JsonConverter.jsonify(referredGroup);
     }
     long t2= System.currentTimeMillis();
-    Log.e(PacoConstants.TAG, "time to load referred experiment group: " + (t2 - t1));
+    Log.error("time to load referred experiment group: " + (t2 - t1));
     return experimentGroupReferredJson;
   }
 
@@ -78,7 +80,7 @@ public class JavascriptExperimentLoader {
       json = JsonConverter.jsonify(experiment);
     }
     long t2= System.currentTimeMillis();
-    Log.e(PacoConstants.TAG, "time to load experiment in getExperiment(): " + (t2 - t1));
+    Log.error("time to load experiment in getExperiment(): " + (t2 - t1));
     return json;
   }
   /**
@@ -99,12 +101,12 @@ public class JavascriptExperimentLoader {
         ExperimentDAO experiment = JsonConverter.fromSingleEntityJson(experimentJson);
         androidExperiment.setExperimentDAO(experiment);
         long t2 = System.currentTimeMillis();
-        Log.e(PacoConstants.TAG, "time to load from json : " + (t2 - t1));
+        Log.error("time to load from json : " + (t2 - t1));
         experimentProvider.updateExistingExperiments(Lists.newArrayList(androidExperiment), true);
         UserPreferences userprefs = new UserPreferences(context);
         userprefs.setExperimentEdited(androidExperiment.getId());
         long t3 = System.currentTimeMillis();
-        Log.e(PacoConstants.TAG, "time to update: " + (t3 - t2));
+        Log.error("time to update: " + (t3 - t2));
         context.startService(new Intent(context, BeeperService.class));
         if (ExperimentHelper.shouldWatchProcesses(experiment)) {
           BroadcastTriggerReceiver.initPollingAndLoggingPreference(context);
@@ -113,7 +115,7 @@ public class JavascriptExperimentLoader {
           BroadcastTriggerReceiver.stopProcessService(context);
         }
         long t4 = System.currentTimeMillis();
-        Log.e(PacoConstants.TAG, "total time in saveExperiment: " + (t4 - t1));
+        Log.error("total time in saveExperiment: " + (t4 - t1));
       }
 
     }).start();

@@ -37,7 +37,7 @@ public interface ExperimentService {
                                                  String cursor);
 
   ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                        String cursor);
+                                                        String cursor, String sortColumn, String sortOrder);
 
   ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor, String email);
 
@@ -53,7 +53,7 @@ public interface ExperimentService {
 
   Boolean deleteExperiments(List<Long> experimentIds, String email);
 
-  ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit, String cursor);
+  ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit, String cursor, String sortColumn, String sortOrder);
 
   ExperimentQueryResult getAllExperiments(String cursor);
 

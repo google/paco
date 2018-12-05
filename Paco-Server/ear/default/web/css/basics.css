@@ -1,12 +1,19 @@
 .basics md-input-container {
-  margin: 16px;
-  max-width: 600px;
   overflow-y: hidden;
 }
 
 md-input-container div[ng-message] {
   color: #9E9E9E;
   line-height: 1.2em;
+}
+
+.basics .disclosures {
+  display: block;
+  min-height: 58px;
+}
+
+.basics .disclosures .padded {
+  padding-top: 0;
 }
 
 .basics h2 {
@@ -71,4 +78,17 @@ md-input-container div[ng-message] {
   cursor: pointer;
   position: absolute;
   top: 100px;
+}
+
+.align_tiptext .tip-text {
+  top: 35px;
+  left: -320px;
+}
+
+div.no-ios_inline md-checkbox {
+  display: inline-block;
+}
+
+no-ios.align_tiptext.ng-scope div.no-ios {
+  vertical-align: middle;
 }

@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!--
  ~ Copyright 2011 Google Inc. All Rights Reserved.
  ~
@@ -15,17 +15,23 @@
  ~ KIND, either express or implied.  See the License for the
  ~ specific language governing permissions and limitations
  ~ under the License.
- -->
-<appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>
+ --><appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
   <application>quantifiedself</application>
   <module>reportworker</module>
-  <version>154</version>
-
+  <version>211</version>
   <!-- Configure java.util.logging -->
   <system-properties>
-    <property value='WEB-INF/logging.properties' name='java.util.logging.config.file'/> 
+    <property value="WEB-INF/logging.properties" name="java.util.logging.config.file"/>
+    <property name="com.pacoapp.reportbucketname" value="reportbucket"/>
+    <property name="com.pacoapp.adminDomain" value="google.com"/>
+    <property name="ae-cloudsql.database-url" value="AAA"/>
+    <property name="ae-cloudsql.database-username" value="BBB"/>
+    <property name="ae-cloudsql.database-password" value="CCC"/>
+    <property name="ae-connection-pool.maxconn" value="100"/>
+    <property name="ae-cloudsql.local-database-url" value="DDD"/>
+    <property name="ae-cloudsql.local-database-username" value="EEE"/>
+    <property name="ae-cloudsql.local-database-password" value="FFF"/>
   </system-properties>
-  
   <ssl-enabled>true</ssl-enabled>
   <sessions-enabled>true</sessions-enabled>
   <precompilation-enabled>true</precompilation-enabled>
@@ -35,4 +41,3 @@
     <max-instances>10</max-instances>
   </basic-scaling>
 </appengine-web-app>
-

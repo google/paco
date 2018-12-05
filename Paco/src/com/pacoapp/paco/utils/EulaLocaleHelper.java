@@ -23,4 +23,34 @@ public class EulaLocaleHelper extends AndroidLocaleHelper<Integer> {
   protected Integer getPtVersion() {
     return R.raw.eula_pt;
   }
+  
+  @Override
+  protected Integer getBnVersion() {
+    return R.raw.eula_bn;
+  }
+
+  @Override
+  protected Integer getElVersion() {
+    return R.raw.eula_el;
+  }
+  
+  @Override
+  protected Integer getGuVersion() {
+    return R.raw.eula_gu;
+  }
+  @Override
+  protected Integer getHiVersion() {
+    return R.raw.eula_hi;
+  }
+  @Override
+  protected Integer getKnVersion() {
+    return R.raw.eula_kn;
+  }
+  @Override
+  protected Integer getMrVersion() {
+    return R.raw.eula_mr;
+  }@Override
+  protected Integer getTaVersion() {
+    return R.raw.eula_ta;
+  }
 }

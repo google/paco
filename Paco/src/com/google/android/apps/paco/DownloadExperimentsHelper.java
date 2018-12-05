@@ -4,24 +4,26 @@ import java.net.URLEncoder;
 import java.util.List;
 
 import org.joda.time.DateTime;
-
-import android.content.Context;
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.net.NetworkUtil;
 import com.pacoapp.paco.net.PacoService;
 import com.pacoapp.paco.net.ServerAddressBuilder;
 
+import android.content.Context;
+
 public class DownloadExperimentsHelper {
 
+  private static Logger Log = LoggerFactory.getLogger(DownloadExperimentsHelper.class);
   private Context context;
   private UserPreferences userPrefs;
   private String contentAsString;
   private String cursor;
   private Integer limit;
+
   public DownloadExperimentsHelper(Context context, UserPreferences userPrefs, Integer limit, String cursor) {
     this.context = context;
     this.userPrefs = userPrefs;
@@ -37,7 +39,7 @@ public class DownloadExperimentsHelper {
       }
       return NetworkUtil.SUCCESS;
     } catch (Exception e) {
-      Log.e(PacoConstants.TAG, "Exception. Unable to update my experiments, " + e.getMessage());
+      Log.error("Exception. Unable to update my experiments, " + e.getMessage());
       return NetworkUtil.SERVER_COMMUNICATION_ERROR;
     }
   }
@@ -56,7 +58,7 @@ public class DownloadExperimentsHelper {
       }
       return NetworkUtil.SUCCESS;
     } catch (Exception e) {
-      Log.e(PacoConstants.TAG, "Exception. Unable to update available experiments, " + e.getMessage());
+      Log.error("Exception. Unable to update available experiments, " + e.getMessage());
       return NetworkUtil.SERVER_COMMUNICATION_ERROR;
     }
   }
@@ -74,7 +76,7 @@ public class DownloadExperimentsHelper {
       }
       return NetworkUtil.SUCCESS;
     } catch (Exception e) {
-      Log.e(PacoConstants.TAG, "Exception. Unable to update running experiments, " + e.getMessage());
+      Log.error("Exception. Unable to update running experiments, " + e.getMessage());
       return NetworkUtil.SERVER_COMMUNICATION_ERROR;
     }
   }
