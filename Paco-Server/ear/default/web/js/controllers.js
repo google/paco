@@ -60,8 +60,10 @@ pacoApp.controller('ExperimentCtrl', [
   '$routeParams',
   '$location',
   'experimentService',
-  function ($scope, $mdDialog, $filter, config, template, $routeParams, $location, experimentService) {
+  'PacoConstantsService',
+  function ($scope, $mdDialog, $filter, config, template, $routeParams, $location, experimentService, PacoConstantsService) {
     $scope.ace = {};
+    $scope.useOldColumns = PacoConstantsService.useOldColumns;
     $scope.feedbackTypes = config.feedbackTypes;
     $scope.ringtones = config.ringtones;
     $scope.tabs = config.editTabs;
@@ -175,13 +177,12 @@ pacoApp.controller('ExperimentCtrl', [
 
     $scope.$watch('experiment.groups', function (newValue, oldValue) {
       if (newValue) {
-
         $scope.admin = ($scope.experiment.admins.indexOf($scope.user) !== -1);
 
         var groups = [];
         for (var groupId in $scope.experiment.groups) {
           var group = $scope.experiment.groups[groupId];
-          if (group.customRendering != true && group.inputs.length > 0) {
+          if (group.inputs.length > 0 && (group.groupType === "SURVEY" || ($scope.useOldColumns && !group.groupType))) {
             groups.push(group);
           }
         }
@@ -841,8 +842,9 @@ pacoApp.controller('ReportCtrl', [
     }
   }]);
 
-pacoApp.controller('GroupsCtrl', ['$scope', 'template', function ($scope, template) {
+pacoApp.controller('GroupsCtrl', ['$scope', 'template', 'PacoConstantsService',  function ($scope, template, PacoConstantsService) {
   $scope.hiding = false;
+  $scope.useOldColumns = PacoConstantsService.useOldColumns;
   $scope.defaultFeedback = 'Thanks for Participating!';
   
   if ($scope.group.startDate) {
@@ -916,8 +918,8 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template', function ($scope, templa
     if (newVal && !oldVal) {
       $scope.startDate = new Date();
       $scope.endDate = new Date($scope.startDate.getTime() + (24 * 60 * 60 * 1000));
-      $scope.group.startDate = $scope.dateToString(today);      
-      $scope.group.endDate = $scope.dateToString(tomorrow);
+      $scope.group.startDate = $scope.dateToString($scope.startDate);      
+      $scope.group.endDate = $scope.dateToString($scope.endDate);
     }
 
     if (newVal === false) {
@@ -927,7 +929,6 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template', function ($scope, templa
       $scope.endDate = null;
     }
   });
-  
 }]);
 
 pacoApp.controller('InputCtrl', ['$scope', 'config', function ($scope, config) {
@@ -953,7 +954,9 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
   function ($scope, $mdDialog, config, template) {
 
     $scope.scheduleTypes = config.scheduleTypes;
-
+    if($scope.group.groupType !== 'SURVEY' && $scope.group.groupType !== 'undefined') {
+      $scope.disabled = true;
+    }
     $scope.addAction = function (event) {
       var action = angular.copy(template.defaultAction);
       $scope.trigger.actions.push(action);
@@ -1256,8 +1259,8 @@ pacoApp.controller('HubCtrl', ['$scope', '$mdDialog', '$filter', 'config', 'temp
   }]);
 
 pacoApp.controller('Experiment2Ctrl', ['$scope', '$mdDialog', '$filter', 'config', 'template', '$routeParams',
-  '$location', 'pubExperimentService',
-  function ($scope, $mdDialog, $filter, config, template, $routeParams, $location, experimentService) {
+  '$location', 'pubExperimentService', 'PacoConstantsService',
+  function ($scope, $mdDialog, $filter, config, template, $routeParams, $location, experimentService, PacoConstantsService) {
     $scope.state = {
       tabId: 0,
       groupIndex: null
@@ -1274,14 +1277,15 @@ pacoApp.controller('Experiment2Ctrl', ['$scope', '$mdDialog', '$filter', 'config
       });
     }
     $scope.$watch('experiment.groups', function (newValue, oldValue) {
+      $scope.useOldColumns = PacoConstantsService.useOldColumns;
+      
       if (newValue) {
-
         $scope.admin = ($scope.experiment.admins.indexOf($scope.user) !== -1);
 
         var groups = [];
         for (var groupId in $scope.experiment.groups) {
           var group = $scope.experiment.groups[groupId];
-          if (group.customRendering != true && group.inputs.length > 0) {
+          if (group.inputs.length > 0 && ($scope.useOldColumns || group.groupType === "SURVEY")) {
             groups.push(group);
           }
         }

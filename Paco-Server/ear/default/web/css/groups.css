@@ -149,6 +149,13 @@ md-card .section .group-name {
   width: 400px;
 }
 
+md-card .section .group-type{
+  position: absolute;
+  top: -4px;
+  left: 218px;
+  width: 400px;
+}
+
 md-card .section .buffer-input {
   position: absolute;
   top: 6px;

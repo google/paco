@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.users.User;
 import com.google.sampling.experiential.server.AuthUtil;
+import com.google.sampling.experiential.server.migration.dao.CloudSQLMigrationDao;
+import com.google.sampling.experiential.server.migration.dao.impl.CloudSQLMigrationDaoImpl;
 import com.pacoapp.paco.shared.util.Constants;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 

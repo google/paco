@@ -16,6 +16,7 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
   private static final int MAX_DURATION_DAYS_FOR_LARGE_DATA_LOGGERS = 14;
 
   private String name;
+  private GroupTypeEnum groupType;
 
   private Boolean customRendering = false;
   private String customRenderingCode;
@@ -332,6 +333,18 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
 
   public void setLogNotificationEvents(Boolean shouldLog) {
     this.logNotificationEvents = shouldLog;
+  }
+
+
+
+  public GroupTypeEnum getGroupType() {
+    return groupType;
+  }
+
+
+
+  public void setGroupType(GroupTypeEnum groupType) {
+    this.groupType = groupType;
   }
 
 }

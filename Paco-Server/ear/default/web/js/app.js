@@ -25,6 +25,12 @@ pacoApp.config(['$locationProvider', function($locationProvider) {
   $locationProvider.hashPrefix('');
 }]);
 
+pacoApp.factory('PacoConstantsService', function() {
+  return {
+      useOldColumns : false
+  };
+});
+
 pacoApp.config(['$routeProvider','$locationProvider',
   function($routeProvider, $locationProvider) {
     $routeProvider.

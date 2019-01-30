@@ -13,6 +13,7 @@ import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.GroupTypeEnum;
 import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.model2.InterruptTrigger;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
@@ -78,12 +79,12 @@ public class ExperimentGroupPicker extends ActionBarActivity implements Experime
       choosableGroups = Lists.newArrayList();
       for (ExperimentGroup experimentGroup : groups) {
         if (!experimentGroup.getFixedDuration() || (!ActionScheduleGenerator.isOver(new DateTime(), experimentDAO))) {
-          if (shouldRender == RENDER_NEXT && experimentGroup.getInputs() != null && !experimentGroup.getInputs().isEmpty()) {
+          if (shouldRender == RENDER_NEXT && experimentGroup.getGroupType().equals(GroupTypeEnum.SURVEY)) {
             choosableGroups.add(experimentGroup);
           }
         } else if (experimentGroup.getFixedDuration() && ActionScheduleGenerator.isOver(new DateTime(), experimentDAO)) {
           final ActionTrigger actionTrigger = experimentGroup.getActionTriggers().get(0);
-          if (shouldRender == RENDER_NEXT && experimentGroup.getInputs() != null && !experimentGroup.getInputs().isEmpty() &&
+          if (shouldRender == RENDER_NEXT && experimentGroup.getGroupType().equals(GroupTypeEnum.SURVEY) &&
                   actionTrigger instanceof InterruptTrigger
                   && ((InterruptTrigger)actionTrigger).getCues().get(0).getCueCode() == InterruptCue.PACO_EXPERIMENT_ENDED_EVENT) {
             choosableGroups.add(experimentGroup);

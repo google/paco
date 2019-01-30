@@ -1,5 +1,6 @@
 package com.google.sampling.experiential.server;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -24,13 +25,6 @@ public interface ExperimentService {
   // Note: DAOs are here for internal use and for the GWT client. Remote clients will use the AsJson api.
   ExperimentDAO getExperiment(Long id);
   List<ExperimentDAO> getExperimentsById(List<Long> experimentIds, String email, DateTimeZone timezone);
-  //List<String> getExperimentsByIdAsJson(List<Long> experimentIds, String email, DateTimeZone timezone);
-
-  // saving experiments
-  List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail, DateTimeZone timezone);
-
-  // saving experiments but specifying validation or not
-  List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail, DateTimeZone timezone, Boolean validate);
 
   //delete experiments
   Boolean deleteExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail);
@@ -59,6 +53,10 @@ public interface ExperimentService {
   ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit, String cursor, String sortColumn, String sortOrder);
 
   ExperimentQueryResult getAllExperiments(String cursor);
+
+
+  List<ValidationMessage> saveExperiment(ExperimentDAO experiment, String loggedInUserEmail, DateTimeZone timezone,
+                                         boolean persistInCloudSql, boolean validate) throws SQLException, Exception;
 
 
 }

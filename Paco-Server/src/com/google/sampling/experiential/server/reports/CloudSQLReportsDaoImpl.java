@@ -19,7 +19,7 @@ import org.json.JSONObject;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.datastore.EventServerColumns;
+import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.ExperimentAccessManager;
 import com.google.sampling.experiential.server.QueryConstants;
