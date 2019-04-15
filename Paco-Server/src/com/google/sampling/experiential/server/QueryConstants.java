@@ -42,6 +42,7 @@ public enum QueryConstants {
           " join " + ExternStringInputColumns.TABLE_NAME + " esi  " +  
           " on i.name_id=esi." + ExternStringInputColumns.EXTERN_STRING_INPUT_ID +  
           " where evgm.experiment_id = ? and esi."+ ExternStringInputColumns.LABEL +" like '%-DUP-%'"),
+  GET_ALL_DISTINCT_TEXT_FOR_EXPERIMENT_ID("select distinct text from events e join outputs o on e._id=o.event_id where experiment_id=?"),
   GET_EVENT_FOR_ID("select * from " + EventServerColumns.TABLE_NAME + " where " + Constants.UNDERSCORE_ID+ " =?"),
   GET_EVENT_ID_WITH_DUP_VARIABLE("select distinct _id from events e join outputs o on e._id=o.event_id where e.experiment_id=? and text like'%-DUP-%' and e.experiment_version_group_mapping_id is not null limit 1000"),
   GET_NUMBER_OF_EVENTS_FOR_EXPERIMENT("select count("+ Constants.UNDERSCORE_ID + ") from " + EventServerColumns.TABLE_NAME + " where " + EventServerColumns.EXPERIMENT_ID + " = ?"),
@@ -50,7 +51,7 @@ public enum QueryConstants {
   GET_DISTINCT_OUTPUTS_FOR_EXPERIMENT_ID("select count(distinct text) from events e join outputs o on e._id=o.event_id where experiment_id=?"),
   GET_EXPERIMENT_DEFINITION_RECORD_COUNT("select count(*) from temp_experiment_definition_bk"),
   GET_EVENTS_COUNT("select count(*) from " + ExperimentVersionGroupMappingColumns.TABLE_NAME + " evgm join events e on evgm.experiment_version_group_mapping_id = e.experiment_version_group_mapping_id " +
-                                    " join outputs o on e._id=o.event_id where evgm.experiment_version_group_mapping_id=? and who_bk=? and input_id=?"),
+                                    " join outputs o on e._id=o.event_id where evgm.experiment_version_group_mapping_id=? and who=? and input_id=?"),
   GET_EGVM_ID_FOR_EXP_ID_AND_VERSION("select "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION_GROUP_MAPPING_ID + " from " + ExperimentVersionGroupMappingColumns.TABLE_NAME + " evm "+
                                     " where " + ExperimentVersionGroupMappingColumns.EXPERIMENT_ID + " = ? and  " + ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION + " = ? " ),
   GET_EVGM_ID("SELECT * FROM " + ExperimentVersionGroupMappingColumns.TABLE_NAME +  " evgm join group_detail gd on evgm.group_detail_id=gd.group_detail_id where experiment_id=? and experiment_version=? and group_name =?"),
@@ -62,14 +63,35 @@ public enum QueryConstants {
   GET_TO_BE_DELETED_EXPERIMENTS("select distinct experiment_id from temp_experiment_id_version_group_name where experiment_id not in (select id from temp_experiment_definition) and experiment_id not in (select distinct experiment_id from experiment_version_group_mapping)" ),
   DELETE_EXPERIMENTS_IN_EXPERIMENT_ID_VERSION("delete from temp_experiment_id_version_group_name where experiment_id = ?" ),
   DELETE_EXPERIMENTS_WITH_VERSION_IN_EXPERIMENT_ID_VERSION("delete from temp_experiment_id_version_group_name where experiment_id = ? and experiment_version = ?" ),
+  DELETE_EVGM_EXP_GROUP_DETAILS_INF_CONSENT("delete evgm, ed, infcon, gd " + 
+                                        "  from experiment_version_group_mapping evgm  " + 
+                                        " join group_detail gd on evgm.group_detail_id=gd.group_detail_id " + 
+                                        " join experiment_detail ed on ed.experiment_detail_id=evgm.experiment_detail_id " + 
+                                        " left join informed_consent infcon on infcon.experiment_id=evgm.experiment_id and infcon.informed_consent_id=ed.informed_consent_id " + 
+                                        " where evgm.experiment_id=? and evgm.experiment_version>0 and evgm.group_detail_id >0"),
+  DELETE_INPUT_AND_CHOICE_COLLECTION_FOR_EXPT("delete i,ic, cc " + 
+                                                          " from experiment_version_group_mapping evgm  "+  
+                                                          " join input_collection ic on evgm.input_collection_id=ic.input_collection_id and evgm.experiment_id=ic.experiment_ds_id " +
+                                                          " join input i on ic.input_id=i.input_id " + 
+                                                          " left join choice_collection cc on ic.choice_collection_id=cc.choice_collection_id and ic.experiment_ds_id=cc.experiment_ds_id " + 
+                                                          " where evgm.experiment_id=?"),
+  DELETE_EXPERIMENT_USER_FOR_EXPERIMENT("delete from experiment_user where experiment_id=?"),
   DELELTE_INPUTS_IN_INPUT_COLLECTION_FOR_EXPERIMENT("delete from input_collection where  experiment_ds_id=? and input_id=?"),
   UPDATE_INPUT_COLLECTION_ID_FOR_EVGM_ID("update experiment_version_group_mapping set input_collection_id=? where experiment_version_group_mapping_id= ? "),
   UPDATE_EXPERIMENT_ID_VERSION_GROUP_NAME_STATUS_IN_EXPERIMENT_ID_VERSION("update temp_experiment_id_version_group_name set status=? where experiment_id = ? and experiment_version = ? and group_name=?" ),
   UPDATE_EXPERIMENT_ID_VERSION_STATUS_IN_EXPERIMENT_ID_VERSION("update temp_experiment_id_version_group_name set status=? where experiment_id = ? and experiment_version = ?" ),
   UPDATE_EXPERIMENT_ID_STATUS_IN_EXPERIMENT_ID_VERSION("update temp_experiment_id_version_group_name set status=? where experiment_id = ? " ),
   UPDATE_EVENTS_WITH_NEW_GROUP_NAME("update events set group_name=? where _id=?"),
-  INSERT_TO_OLD_GROUP_NAME_TABLE("insert into event_old_group_name(old_group_name,event_id) values (?,?)"),
+  INSERT_TO_OLD_GROUP_NAME_TABLE("insert ignore into event_old_group_name(old_group_name,event_id) values (?,?)"),
+  INSERT_IGNORE_TO_PIVOT_HELPER("INSERT ignore INTO pivot_helper (experiment_version_group_mapping_id, anon_who, input_id, events_posted) VALUES (?,?,?,?) "),
   INSERT_TO_PIVOT_HELPER_WITH_ON_DUPLICATE_CLAUSE("INSERT INTO pivot_helper (experiment_version_group_mapping_id, anon_who, input_id, events_posted, processed) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE events_posted=events_posted+1"),
+  SELECT_PIVOT_HELPER_ZERO_RECORDS("select * from pivot_helper where events_posted=0"),
+  SELECT_JULY_AUGUST_EVG("select distinct evgm.experiment_version_group_mapping_id, who_bk, input_id from experiment_version_group_mapping evgm"
+          + " join events e on e.experiment_version_group_mapping_id= evgm.experiment_version_group_mapping_id "
+          + " join outputs o on e._id=o.event_id where e.response_time between '2018-07-01 01:00:00' and '2018-08-31 11:59:49'"),
+  FIND_EVENTS_MISSING_INPUT_IDS("select e.experiment_id, e.experiment_version, e.group_name, e.experiment_version_group_mapping_id, e.who_bk, o.* from events e join outputs o on e._id=o.event_id  where  input_id is null"),
+  UPDATE_OUTPUT_WITH_INPUT_ID("update outputs set input_id=? where event_id=? and text=?"),
+  UPDATE_PIVOT_HELPER("update pivot_helper set events_posted =? where experiment_version_group_mapping_id=? and anon_who=? and input_id=?"),
   REPLACE_TO_EXPERIMENT_ID_VERSION_GROUP_NAME("REPLACE INTO `pacodb`.`temp_experiment_id_version_group_name` (`experiment_id`, `experiment_version`, `group_name`, `status`) VALUES (?, ?,?,?)"),
   DELETE_FROM_EXPERIMENT_DEFINITION("delete from temp_experiment_definition where id = ? "),
   DELETE_FROM_INPUT("delete from input where input_id=?"),
@@ -109,6 +131,7 @@ public enum QueryConstants {
   GET_LABEL_ID_FOR_STRING("select * from " + ExternStringListLabelColumns.TABLE_NAME + " where "  + ExternStringListLabelColumns.LABEL + "= ?"),
   GET_INPUT_TEXT_ID_FOR_STRING("select * from " + ExternStringInputColumns.TABLE_NAME + " where "  + ExternStringInputColumns.LABEL + "= ?"),
   GET_LATEST_VERSION("SELECT "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION +" FROM " + ExperimentVersionGroupMappingColumns.TABLE_NAME + " where "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_ID +"=? order by "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION +" desc limit 1") ,
+  GET_ALL_VERSIONS("SELECT distinct "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION +" FROM " + ExperimentVersionGroupMappingColumns.TABLE_NAME + " where "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_ID +"=? ") ,
   GET_ALL_EVM_RECORDS_FOR_VERSION("select * from " + ExperimentVersionGroupMappingColumns.TABLE_NAME + " where "  + ExperimentVersionGroupMappingColumns.EXPERIMENT_ID + "= ? and " + ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION + "=?"),
   GET_ALL_GROUPS_IN_VERSION("select * from experiment_version_group_mapping evgm join experiment_detail eh on evgm.experiment_detail_id = eh.experiment_detail_id " + 
           " join group_detail gh on evgm.group_detail_id = gh.group_detail_id " +
@@ -130,7 +153,9 @@ public enum QueryConstants {
           + " join input_collection ic on ic.experiment_ds_id = evm.experiment_id and  evm.input_collection_id=ic.input_collection_id"),
   DELETE_ALL_OUTPUTS("DELETE outputs FROM events LEFT JOIN outputs ON events._id = outputs.event_id WHERE events._id in (?)"),
   DELETE_ALL_EVENTS("DELETE events FROM events WHERE events._id in (?)"),
-  GET_EVENT_IDS_ORDERED_BY_ID("select _id from events where experiment_id=? order by _id asc limit 250"),
+  GET_EVENT_IDS_OLD_FORMAT_ORDERED_BY_ID("select _id from events where experiment_id=? order by _id asc limit 250"),
+  GET_EVENT_IDS_NEW_FORMAT_ORDERED_BY_ID("select _id from events join experiment_version_group_mapping evgm "  +
+          " on evgm.experiment_version_group_mapping_id = events.experiment_version_group_mapping_id where evgm.experiment_id =? order by _id asc limit 250"),
   UPDATE_ALL_EVENTS("update events e join outputs o on e._id=o.event_id set experiment_version_group_mapping_id =1 where o.text like '%-DUP-%' and e.experiment_id=?"),
   INSERT_TEMP_EXPERIMENT_ID_VERSION_GROUP_NAME ("insert into temp_experiment_id_version_group_name(experiment_id, experiment_version, group_name)  select distinct experiment_id, experiment_version, group_name from events where experiment_id is not null"),
   GET_EXPERIMENTS_WITH_HUGE_INPUTSET("select experiment_ds_id, input_collection_id, count(*) from input_collection group by experiment_ds_id, input_collection_id " + 

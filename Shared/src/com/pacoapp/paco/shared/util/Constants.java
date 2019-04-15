@@ -45,6 +45,9 @@ public class Constants {
   public static final String RESPONSE_TYPE_APP_JSON = "application/json";
   public static final String UNKNOWN = "unknown";
   public static final Boolean USE_OLD_FORMAT_FLAG = false;
+  public static final Boolean USE_OLD_SEARCH_QUERY = false;
   public static final Boolean PERSIST_IN_CLOUD_SQL_FLAG = false;
   public static final Boolean SEND_TO_CLOUD_SQL = true;
+  public static final String IOS = "iOS";
+  public static final String IOS_VERSION_1182 = "1.1.8.2";
 }

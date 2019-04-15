@@ -23,6 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.appengine.api.LifecycleManager;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
@@ -79,7 +80,6 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     eventColInsertList.add(new Column(EventServerColumns.ACTION_TRIGGER_SPEC_ID));
     eventColInsertList.add(new Column(EventServerColumns.ACTION_ID));
     eventColInsertList.add(new Column(EventServerColumns.WHO));
-    eventColInsertList.add(new Column(EventServerColumns.WHO+ "_bk"));
     eventColInsertList.add(new Column(EventServerColumns.WHEN));
     eventColInsertList.add(new Column(EventServerColumns.WHEN_FRAC_SEC));
     eventColInsertList.add(new Column(EventServerColumns.PACO_VERSION));
@@ -95,7 +95,6 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     eventColSearchList.addAll(eventColInsertList);
     
     outputColList.add(new Column(OutputServerColumns.EVENT_ID));
-    outputColList.add(new Column(OutputServerColumns.TEXT));
     outputColList.add(new Column(OutputServerColumns.ANSWER));
     outputColList.add(new Column(OutputServerColumns.INPUT_ID));
     
@@ -228,8 +227,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       statementCreateEvent.setLong(i++, event.getActionId() != null ? new Long(event.getActionId()) : java.sql.Types.NULL);
       PacoId anonId = euImpl.getAnonymousIdAndCreate(expIdLong, event.getWho(), true);
       pvUpdateAnonWhoId = anonId.getId().intValue();
-      statementCreateEvent.setString(i++, anonId.getId().toString());
-      statementCreateEvent.setString(i++, anonId.getId().toString());
+      statementCreateEvent.setInt(i++, anonId.getId().intValue());
       if (event.getWhen() != null) {
         whenTs = new Timestamp(event.getWhen().getTime());
         whenFrac = com.google.sampling.experiential.server.TimeUtil.getFractionalSeconds(whenTs);
@@ -272,11 +270,18 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
         allEVMInVersion =  evmDaoImpl.getAllGroupsInVersion(expIdLong, event.getExperimentVersion());
         if (allEVMInVersion == null) {
           log.warning("eventId:"+ event.getId() + " not saved in cloud sql");
-          throw new Exception("No EVGM records for event"+ event.getId());
+          throw new Exception("No EVGM records for this experiment, trying to persist event"+ event.getId());
         }
       }
       // Rename event group Name from null to System, if its system predefined inputs
-      ExperimentVersionGroupMapping evmForThisGroup = findMatchingEVMRecord(event, allEVMInVersion, migrationFlag);
+      log.info("Fix system group name alone");
+      evmDaoImpl.ensureSystemGroupName(event, allEVMInVersion);
+      evmDaoImpl.ensureEVMRecord(expIdLong, event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), migrationFlag, allEVMInVersion);
+      ExperimentVersionGroupMapping evmForThisGroup = allEVMInVersion.get(event.getExperimentGroupName());
+      if (evmForThisGroup == null) {
+        log.warning("eventId:"+ event.getId() + " not saved in cloud sql");
+        throw new Exception("No EVGM records for event"+ event.getId());
+      }
       pvUpdateEvmId = evmForThisGroup.getExperimentVersionMappingId();
       statementCreateEvent.setLong(i++, pvUpdateEvmId);
       statementCreateEvent.execute();
@@ -287,8 +292,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
         for (String key : event.getWhatKeys()) {
           String whatAnswer = event.getWhatByKey(key);
           statementCreateEventOutput.setLong(1, event.getId());
-          statementCreateEventOutput.setString(2, key);
-          statementCreateEventOutput.setString(3, whatAnswer);
+          statementCreateEventOutput.setString(2, whatAnswer);
           InputOrderAndChoice currentInput = evmForThisGroup.getInputCollection().getInputOrderAndChoices().get(key);
           // for some reason (scripted variable) this particular output does not have input associated, then add this input variable name to the input collection and get the input id
           if ( currentInput == null) {
@@ -298,7 +302,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
             newInput = icDaoImpl.addUndefinedInputToCollection(expIdLong, evmForThisGroup.getInputCollection().getInputCollectionId(), key);
             currentInput.setInput(newInput);
           }
-          statementCreateEventOutput.setLong(4, currentInput.getInput().getInputId().getId());
+          statementCreateEventOutput.setLong(3, currentInput.getInput().getInputId().getId());
           pvUpdateInputIds.add(currentInput.getInput().getInputId().getId());
           statementCreateEventOutput.addBatch();
         }
@@ -329,21 +333,6 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       }
     }
     return retVal;
-  }
-  
-  private ExperimentVersionGroupMapping findMatchingEVMRecord(Event event, Map<String, ExperimentVersionGroupMapping> allEVMMap, boolean migrationFlag) throws Exception{
-    ExperimentVersionGroupMapping returnEVM = null;
-    CSExperimentVersionGroupMappingDao daoImpl = new CSExperimentVersionGroupMappingDaoImpl();
-    Long expId = Long.parseLong(event.getExperimentId());
-    log.info("event id"+ event.getId());
-    // fix the group name
-    daoImpl.ensureCorrectGroupName(event);
-    // if event is posted for a version where we do not have experiment mapping records
-    daoImpl.ensureEVMRecord(expId,event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), migrationFlag, allEVMMap);
-    returnEVM = allEVMMap.get(event.getExperimentGroupName());
-    String mightBeModifiedGroupName = returnEVM.getGroupInfo().getName();
-    allEVMMap.put(mightBeModifiedGroupName, returnEVM);
-    return returnEVM;
   }
   
   @Override
@@ -458,7 +447,6 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     } catch (SQLException sqle) {
       log.warning(ErrorMessages.SQL_EXCEPTION.getDescription() + sqle);
     }
-
     return event;
   }
 
@@ -474,36 +462,20 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     return "0";
   }
   
-  private List<Long> getEventIdsForExperiment(Long experimentId) throws SQLException {
-    Connection conn = null;
-    PreparedStatement statementGetEventIds = null;
+  private List<Long> getEventIdsForExperiment(Long experimentId, Connection conn, PreparedStatement statementGetEventIds) throws SQLException {
     ResultSet rsGetEventIds = null;
     List<Long> eventIds = Lists.newArrayList();
-    String getEventIds = QueryConstants.GET_EVENT_IDS_ORDERED_BY_ID.toString() ;
-    
     try {
-      conn = CloudSQLConnectionManager.getInstance().getConnection();
-      
-      statementGetEventIds = conn.prepareStatement(getEventIds);
-      statementGetEventIds.setLong(1, experimentId);
-      
       rsGetEventIds = statementGetEventIds.executeQuery();
       while (rsGetEventIds.next()) {
         eventIds.add(rsGetEventIds.getLong(1));
       }
-      log.info("Selected " + eventIds.size() +  " event ids  for expt id " + experimentId );
-      
+      log.info("Selected " + eventIds.size() +  " event ids for expt id " + experimentId);
       return eventIds;
     } finally {
       try {
         if (rsGetEventIds != null) {
           rsGetEventIds.close();
-        }
-        if (statementGetEventIds != null) {
-          statementGetEventIds.close();
-        }
-        if (conn != null) {
-          conn.close();
         }
       } catch (SQLException ex1) {
         log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
@@ -511,16 +483,14 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     }
   }  
   
-  private boolean deleteEventsAndOutputs(List<Long> eventIds) throws SQLException {
-    Connection conn = null;
+  private boolean deleteEventsAndOutputs(Connection conn, List<Long> eventIds) throws SQLException {
     PreparedStatement statementDeleteEvents = null;
     PreparedStatement statementDeleteOutputs = null;
     int i = 1;
     String questionMarkCharacters = null;
-    String deleteQuery1 = QueryConstants.DELETE_ALL_OUTPUTS.toString() ;
-    String deleteQuery2 = QueryConstants.DELETE_ALL_EVENTS.toString() ;
+    String deleteQuery1 = QueryConstants.DELETE_ALL_OUTPUTS.toString();
+    String deleteQuery2 = QueryConstants.DELETE_ALL_EVENTS.toString();
     try {
-      conn = CloudSQLConnectionManager.getInstance().getConnection();
       questionMarkCharacters = questionMark(eventIds);
       deleteQuery1 = deleteQuery1.replaceFirst("\\?", questionMarkCharacters);
       statementDeleteOutputs = conn.prepareStatement(deleteQuery1);
@@ -549,9 +519,6 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
         if (statementDeleteEvents != null) {
           statementDeleteEvents.close();
         }
-        if (conn != null) {
-          conn.close();
-        }
       } catch (SQLException ex1) {
         log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
       }
@@ -563,18 +530,50 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
   
   @Override
   public boolean deleteAllEventsAndOutputsData(Long experimentId) throws SQLException {
-    
-    List<Long> eventIds = getEventIdsForExperiment(experimentId);
-    
-    while ( true ) {
-      deleteEventsAndOutputs(eventIds);
-      eventIds = getEventIdsForExperiment(experimentId);
-      if (eventIds.size() == 0) {
-        break;
+    boolean oldFormat = true;
+    PreparedStatement statementGetEventIds = null;
+    String getEventIds =  null;
+    Connection conn = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      
+      if (oldFormat) { 
+        getEventIds = QueryConstants.GET_EVENT_IDS_OLD_FORMAT_ORDERED_BY_ID.toString() ;
+      } else {
+        getEventIds = QueryConstants.GET_EVENT_IDS_NEW_FORMAT_ORDERED_BY_ID.toString() ;
+      }
+      statementGetEventIds = conn.prepareStatement(getEventIds);
+      statementGetEventIds.setLong(1, experimentId);
+      List<Long> eventIds = getEventIdsForExperiment(experimentId, conn, statementGetEventIds);
+      
+      while (true) {
+        if (LifecycleManager.getInstance().isShuttingDown()) { 
+          log.info("app engine current module is going to shut down in.........."+LifecycleManager.getInstance().getRemainingShutdownTime());
+        }
+        deleteEventsAndOutputs(conn, eventIds);
+        eventIds = getEventIdsForExperiment(experimentId, conn, statementGetEventIds);
+        if (eventIds.size() == 0) {
+          if (oldFormat) { 
+            oldFormat = false;
+            eventIds = getEventIdsForExperiment(experimentId, conn, statementGetEventIds);
+          } else {
+            break;  
+          }
+        } 
+      } 
+    } finally { 
+      try {
+        if (statementGetEventIds != null) {
+          statementGetEventIds.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
       }
     } 
     return true;
- 
   }  
 
   @Override
@@ -731,6 +730,41 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     }
 
     return allInputIds;
+  }
+
+  @Override
+  public List<String> getAllDistinctTextForExperiment(Long experimentId) throws SQLException {
+    List<String> distinctTexts = Lists.newArrayList();
+    PreparedStatement statementGetDistinctText = null;
+    String getDistinctText =  null;
+    Connection conn = null;
+    ResultSet rs = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      getDistinctText = QueryConstants.GET_ALL_DISTINCT_TEXT_FOR_EXPERIMENT_ID.toString();
+      statementGetDistinctText = conn.prepareStatement(getDistinctText);
+      statementGetDistinctText.setLong(1, experimentId);
+      log.info("all distinct text: "+ statementGetDistinctText.toString());
+      rs = statementGetDistinctText.executeQuery();
+      while (rs.next()) {
+        distinctTexts.add(rs.getString(1));
+      }
+    } finally { 
+      try {
+        if (rs != null) { 
+          rs.close();
+        }
+        if (statementGetDistinctText != null) {
+          statementGetDistinctText.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    } 
+    return distinctTexts;
   }
   
 }

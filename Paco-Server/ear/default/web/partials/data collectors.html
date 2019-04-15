@@ -1,0 +1,177 @@
+<p>Define data collection instruments for your experiment.</p>
+
+  <md-button class="md-primary md-raised" ng-click="addGroup('SURVEY')">
+    Add Survey
+  </md-button> 
+  <md-button ng-click="showSensorGroupPopup()">
+    Add Sensor
+  </md-button> 
+  
+<div class="groups">
+  <div class="group" ng-repeat="group in experiment.groups track by $index" ng-controller="GroupsCtrl">
+	
+      	<md-card hidable>
+	      <md-card-content ng-if="experiment.groups.length > 1  || hiding ">
+	          <paco-help tip="experiment-groups" ng-if="$index > 0">
+	            Help: Experiment Groups
+	          </paco-help>
+	          <div ng-switch on="group.groupType">
+					<div class="survey" ng-switch-when="SURVEY">
+	  	      			<div class="section">
+		          			<div class="title" ng-click="toggleHide()">
+					            <a href="" class="group-toggle" ng-class="{hiding: hiding}" ></a>
+					            Survey
+				          	</div>
+				          	<md-input-container placeholder="Survey Name" md-float class="group-name">
+			            		<input ng-model="group.name" aria-label="Group name">
+			            		<no-ios ng-if="moreThanOneSurveyGroupPresent(experiment)">iOS does not support multiple groups</no-ios>
+			            	</md-input-container>
+			          		<a href="" class="removeGroup" ng-click="remove(experiment.groups, $index)"></a>
+						</div>
+					 </div>	
+      				<div ng-switch-when="PHONESTATUS|APPUSAGE_ANDROID" ng-switch-when-separator="|">
+	      				<div class="section">
+			          			<div class="title" ng-click="toggleHide()">
+						            <a href="" class="group-toggle" ng-class="{hiding: hiding}"></a>
+						            Sensor
+					          	</div>
+	      					<md-input-container placeholder="Sensor" md-no-float class="group-name">
+	      					<input ng-model="group.name" aria-label="Group name">
+	      					
+	      					</md-input-container>
+	      					 <a href="" class="removeGroup" ng-click="remove(experiment.groups, $index)" ng-if="group.groupType !== 'SYSTEM'"></a>
+	      				</div>
+     				</div>
+     				<div ng-switch-when="SYSTEM" ng-switch-when-separator="|">
+	      				<div class="section">
+			          			<div class="title" ng-click="toggleHide()">
+						            <a href="" class="group-toggle" ng-class="{hiding: hiding}"></a>
+						            Sensor
+					          	</div>
+	      					<md-input-container placeholder="Sensor" md-no-float class="group-name">
+	      					<label>{{group.groupType}}</label>
+	      					</md-input-container>
+	      					 <a href="" class="removeGroup" ng-click="remove(experiment.groups, $index)" ng-if="group.groupType !== 'SYSTEM'"></a>
+	      				</div>
+     				</div>
+	          </div>
+	         
+	         	
+	      	</md-card-content>
+	        <md-divider></md-divider>
+	
+	        <div class="duration section" layout="row" ng-if="group.groupType !== 'SYSTEM'" ng-hide="hiding" >
+	          <div class="title">
+	            Duration
+	          </div>
+	           <div class="animate-switch-container" ng-switch on="group.groupType" >
+					<div class="title" ng-switch-when="SURVEY">
+						<md-radio-group ng-model="group.fixedDuration" layout="row" as-string>
+		            		<md-radio-button value="false">Ongoing</md-radio-button>
+		            		<md-radio-button value="true">Fixed</md-radio-button>
+		          		</md-radio-group>
+					</div>
+					
+					<div class="title" ng-switch-when="APPUSAGE_ANDROID|PHONESTATUS" ng-switch-when-separator="|">
+					<!-- Nothing -->
+						<label>Fixed</label>
+					</div>
+			   </div>
+	          
+	
+	          <div flex class="date" style="max-height:24px;padding:0px;margin:0px">
+	            <md-input-container ng-if="group.fixedDuration" style="max-height:24px;padding:0px;margin:0px">
+	              <label>Start date</label>
+	              <md-datepicker ng-if="group.fixedDuration" ng-model="startDate" ng-change="group.startDate = dateToString(startDate)" placeholder="Start date"></md-datepicker>
+	            </md-input-container>
+	          </div>
+	          <div flex class="date" style="max-height:24px;padding:0px;margin:0px">
+	            <md-input-container ng-if="group.fixedDuration"  style="max-height:24px;padding:0px;margin:0px">
+	              <label>End date</label>
+	              <md-datepicker ng-if="group.fixedDuration" ng-model="endDate" ng-change="group.endDate = dateToString(endDate)" placeholder="End date"></md-datepicker>
+	            </md-input-container>
+	          </div>
+	        </div>
+	      </md-card-content>
+	       <md-card-content ng-hide="hiding" >
+	        <md-divider></md-divider>
+	         <div class="duration section" layout="row">
+	          <div class="title">Type</div>
+	        <!--   <md-input-container md-no-float class="group-name"> -->
+	            <!-- <input ng-model="group.groupType" aria-label="Group Type" ng-disabled="true"> -->
+	            <label>{{group.groupType}}</label>
+	     <!--      </md-input-container> -->
+	          </div>
+	      </md-card-content>
+	      <md-card-content ng-if="group.groupType === 'SURVEY'" expandable="{{group.actionTriggers.length > 0}}" ng-hide="hiding">
+	        <md-divider></md-divider>
+	
+	        <div class="section" ng-click="toggleExpand()">
+	          <div class="title">
+	            Triggers
+	            <span class="light">({{group.actionTriggers.length}})</span>
+	          </div>
+	         
+	          <md-button ng-click="addScheduleTrigger($event, toggleExpand)" >
+	            Add Scheduled Trigger
+	          </md-button>
+	          <md-button ng-click="addEventTrigger($event, toggleExpand)">
+	            Add Event Trigger
+	          </md-button>
+	        </div>
+	
+	        <div expander>
+	          <paco-help tip="triggers" ng-if="group.actionTriggers.length > 0">Help: Triggers</paco-help>
+	          <div ng-repeat="trigger in group.actionTriggers track by $index" ng-include="'partials/trigger.html'">
+	          </div>
+	        </div>
+	      </md-card-content>
+	
+	      <md-card-content ng-hide="hiding" expandable="{{group.inputs.length > 0}}">
+	        <md-divider></md-divider>
+	        <div class="section" ng-click="toggleExpand()">
+	          <div class="title">
+	            Inputs
+	            <span class="light">({{group.inputs.length}})</span>
+	          </div>
+	        <!--   <md-button ng-click="addInput($event, toggleExpand)">
+	            Add Input
+	          </md-button> -->
+	           <md-button ng-click="addInput($event, toggleExpand)">
+	            Add Input
+	          </md-button> 
+	        </div>
+	        <div expander ng-show="group.inputs.length > 0">
+	          <paco-help tip="inputs" ng-if="group.inputs.length > 0">Help: Inputs</paco-help>
+	          <div ng-repeat="input in group.inputs track by $index" ng-include="'partials/input.html'">
+	          </div>
+	        </div>
+	      </md-card-content>
+	
+	      <md-card-content ng-hide="hiding" expandable=true expanded=false ng-if="group.groupType === 'SURVEY' || group.groupType === 'SYSTEM'">
+	        <paco-help tip="advanced" ng-if="state.expand">Help: Advanced</paco-help>
+	        <md-divider></md-divider>
+	        <div class="section" ng-click="toggleExpand()">
+	          <div class="title">
+	            Advanced
+	          </div>
+	    
+	        <div expander>
+	          <div ng-switch on="group.groupType">
+				<div ng-switch-when="SURVEY">
+					 <div ng-include="'partials/advanced_survey.html'"></div>
+				</div>
+				<div ng-switch-when="SYSTEM" ng-switch-when-separator="|">
+					 <div ng-include="'partials/advanced_predefined.html'"></div>
+				</div>
+			  </div>
+	        </div>
+	      </md-card-content>
+	
+	    </md-card>
+	    <!--  div for animate switch container-->
+  </div> <!--  div for group -->
+
+</div> <!-- div fro groups -->
+
+

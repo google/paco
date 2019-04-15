@@ -288,8 +288,15 @@ public class MigrationDataRetriever {
       evtDSLst.add(evtObjDS);
       if (!populateEventsTableOldMethod) {
         Map<String, ExperimentVersionGroupMapping> allEVMInVersion = evmDaoImpl.getAllGroupsInVersion(Long.parseLong(evtObjDS.getExperimentId()), evtObjDS.getExperimentVersion());
+        if (allEVMInVersion == null) { 
+            evmDaoImpl.createEVGMByCopyingFromLatestVersion(Long.parseLong(evtObjDS.getExperimentId()), evtObjDS.getExperimentVersion());
+            allEVMInVersion = evmDaoImpl.getAllGroupsInVersion(Long.parseLong(evtObjDS.getExperimentId()), evtObjDS.getExperimentVersion());
+        } 
+        if (allEVMInVersion == null) { 
+          return;
+        } 
         // Rename event group Name from null to System, if its system predefined inputs
-        evmForThisGroup = evmDaoImpl.findMatchingEVGMRecord(evtObjDS, allEVMInVersion, false);
+        evmForThisGroup = evmDaoImpl.findMatchingEVGMRecord(evtObjDS, allEVMInVersion, true);
       }
       String getQueryForEventIdSql = SearchUtil.getQueryForEventRetrieval(evtObjDS.getId().toString());
       List<EventDAO> eventInCS = eventOutputDaoImpl.getEvents(getQueryForEventIdSql, withOutputs, populateEventsTableOldMethod);

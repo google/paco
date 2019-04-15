@@ -52,9 +52,45 @@
 <body ng-app="pacoApp" ng-controller="HomeCtrl">
   <div class="home">
     <div ng-include="'partials/menu.html'"></div>
-    <div ng-view class="main"></div>
+
+	<md-card hidable class="alert-toolbar"> 
+		<md-card-content ng-if="!hiding " class="alert-toolbar-container">
+		<div class="title" ng-click="toggleHide()">
+			<a href="" class="group-toggle" ng-class="{hiding: hiding}"></a>
+			<div>Dear EU & Switzerland Users of Paco</div>
+		</div>
+		</md-card-content> 
+		<md-card-content ng-if="hiding " class="alert-toolbar-container">
+			<div>
+				<div class="title" ng-click="toggleHide()">
+					<a href="" class="group-toggle" ng-class="{hiding: hiding}"></a>
+					<div>Dear EU & Switzerland Users of Paco</div>
+				</div>
+				<p>Unfortunately, as of this time, Paco cannot be used in the EU
+					or Switzerland. The reason is that I have yet to determine whether
+					Paco's data collection and retention model conforms to the expected
+					model for the international agreements around data handling. Until a
+					determination has been made about what is needed, if anything, to
+					conform to the new regulations, I cannot sign onto the EU-US Privacy
+					Shield agreement. I am working to resolve this and will update this
+					message as soon as I have it figured out. Please remember that Paco
+					is offered for free by one individual, me, not an organization, and
+					I will do my best to implement a solution if one exists.
+				</p>
+				<p>
+					However, since Paco is free and open source, it is possible to run
+					your own server in an EU datacenter. Please contact <a
+						href="mailto:bob@pacoapp.com">bob@pacoapp.com</a> to find out more
+					about this option.
+				</p>
+			</div>
+		</md-card-content> 
+	</md-card>
+
+	<div ng-view class="main"></div>
+	
     <div ng-include="'partials/sitemap.html'"></div>
-  </div>
+  
 </body>
 
 </html>

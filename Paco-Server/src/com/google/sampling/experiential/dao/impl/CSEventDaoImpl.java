@@ -163,17 +163,18 @@ public class CSEventDaoImpl implements CSEventDao {
       allEVMRecords = evmDaoImpl.getAllGroupsInVersion(Long.parseLong(event.getExperimentId()), event.getExperimentVersion());
       // Rename event group Name from null to System, if its system predefined inputs
       ExperimentVersionGroupMapping evmForThisGroup = evmDaoImpl.findMatchingEVGMRecord(event, allEVMRecords, false);
-      Long pvUpdateEvmId = evmForThisGroup.getExperimentVersionMappingId();
-      if (allEVMRecords.get(event.getExperimentGroupName()) == null) {
-        statementCreateEvent.setNull(i++, java.sql.Types.BIGINT);
+      if ( evmForThisGroup != null) { 
+        Long pvUpdateEvmId = evmForThisGroup.getExperimentVersionMappingId();
+        if (allEVMRecords.get(event.getExperimentGroupName()) == null) {
+          statementCreateEvent.setNull(i++, java.sql.Types.BIGINT);
+        } else {
+          statementCreateEvent.setLong(i++, pvUpdateEvmId);
+        }
+        statementCreateEvent.execute();
+        conn.commit();
       } else {
-        statementCreateEvent.setLong(i++, pvUpdateEvmId);
+        throw new Exception("No corresponding group name for this event" + event.getExperimentGroupName() + "-for-experiment:"+ event.getExperimentId());
       }
-      
-      
-      statementCreateEvent.execute();
-
-      conn.commit();
       retVal = true;
     } finally {
       try {

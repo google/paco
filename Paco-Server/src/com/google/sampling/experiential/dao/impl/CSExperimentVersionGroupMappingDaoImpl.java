@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -519,6 +520,40 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
       }
     }
   }
+  
+  private List<Integer> getAllExperimentVersionsInCloudSql(Long experimentId) throws SQLException {
+    Connection conn = null;
+    ResultSet rs = null;
+    PreparedStatement statementClosestExperimentVersion = null;
+    List<Integer> allVersions = Lists.newArrayList();
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementClosestExperimentVersion = conn.prepareStatement(QueryConstants.GET_ALL_VERSIONS.toString());
+      statementClosestExperimentVersion.setLong(1, experimentId);
+      log.info("get all version:" + statementClosestExperimentVersion.toString());
+      rs = statementClosestExperimentVersion.executeQuery();
+      while (rs.next()) {
+        allVersions.add(rs.getInt(ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION));
+      }
+      return allVersions;
+
+    } finally {
+      try {
+        if ( rs != null) {
+          rs.close();
+        }
+        if (statementClosestExperimentVersion != null) {
+          statementClosestExperimentVersion.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+  }
+  
   @Override
   public ExperimentVersionGroupMapping getEVGMId(Long experimentId, Integer experimentVersion, String groupName) throws SQLException {
     Connection conn = null;
@@ -564,11 +599,19 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
 
   @Override
   public void createEVGMByCopyingFromLatestVersion(Long experimentId, Integer experimentVersion) throws SQLException {
-    Integer latestVersion = getLatestExperimentVersion(experimentId);
+    Integer latestVersion = null;
+    List<Integer> allVersions = getAllExperimentVersionsInCloudSql(experimentId);
+    if (allVersions.size() > 0) {
+      latestVersion = Collections.max(allVersions);
+    } else {
+      // These records should have been deleted in earlier migration steps. But, in case we run into this situation
+      // we need to delete the experiment in exp id version group name table and do not create evgm records in cloud sql
+      log.info("Unexpected scenario, cannot find EVGM for "+ experimentId + " and " + experimentVersion);
+      return;
+    }
     Connection conn = null;
     ResultSet rs = null;
     PreparedStatement statementClosestExperimentVersion = null;
-    
     List<ExperimentVersionGroupMapping> newEVMRecords = Lists.newArrayList();
     ExperimentVersionGroupMapping evm = null;
     ExperimentDetail expFacet = null;
@@ -576,7 +619,7 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     InputCollection inputCollection = null;
     Long inputCollectionId = null;
     try {
-      if (latestVersion != null && latestVersion != experimentVersion) {
+      if (!allVersions.contains(experimentVersion)) {
         conn = CloudSQLConnectionManager.getInstance().getConnection();
         statementClosestExperimentVersion = conn.prepareStatement(QueryConstants.GET_ALL_EVM_RECORDS_FOR_VERSION.toString());
         statementClosestExperimentVersion.setLong(1, experimentId);
@@ -630,12 +673,16 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     CSExperimentVersionGroupMappingDao daoImpl = new CSExperimentVersionGroupMappingDaoImpl();
     Long expId = Long.parseLong(event.getExperimentId());
     // fix the group name
-    daoImpl.ensureCorrectGroupName(event);
+    daoImpl.ensureCorrectGroupName(event, allEVMMap);
     // if event is posted for a version where we do not have experiment mapping records
     daoImpl.ensureEVMRecord(expId,event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), migrationFlag, allEVMMap);
     returnEVM = allEVMMap.get(event.getExperimentGroupName());
-    String mightBeModifiedGroupName = returnEVM.getGroupInfo().getName();
-    allEVMMap.put(mightBeModifiedGroupName, returnEVM);
+    if (returnEVM != null)  {
+      String mightBeModifiedGroupName = returnEVM.getGroupInfo().getName();
+      allEVMMap.put(mightBeModifiedGroupName, returnEVM);
+    } else {
+      throw new Exception("No corresponding group in EVGM table"+ event.getExperimentId() + "--" + event.getExperimentGroupName());
+    }
     return returnEVM;
   }
   
@@ -1077,19 +1124,17 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
   }
 
   @Override
-  public void ensureCorrectGroupName(Event eventDao) throws Exception {
-    log.info("gn entering" + eventDao.getExperimentGroupName());
+  public void ensureCorrectGroupName(Event eventDao, Map<String, ExperimentVersionGroupMapping> allEVMMap) throws Exception {
     String featureName = null;
     CSGroupTypeInputMappingDao inputMappingDao = new CSGroupTypeInputMappingDaoImpl();
     Map<String, List<String>>inputMap = inputMappingDao.getAllPredefinedFeatureVariableNames();
     Iterator<String> predefinedInputIterator = inputMap.keySet().iterator();
-    
     Map<String, What> inputsInEvent = convertFromWhatToMap(eventDao.getWhat());
     boolean groupNameChanged = false;
     // for each predefined feature
+    log.info("old group name: " + eventDao.getExperimentGroupName());
     while (predefinedInputIterator.hasNext()) {
       featureName = predefinedInputIterator.next();
-      log.info("chking for feature : "+ featureName);
       if (featureName.equals(GroupTypeEnum.NOTIFICATION.name())) { 
         continue;
       }
@@ -1097,8 +1142,8 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
       
       for (String eachFeatureVariableName : featuresInputVariableNames) {
         if (inputsInEvent.containsKey(eachFeatureVariableName)) {
-          log.info("group name changing from " + eventDao.getExperimentGroupName() + " -to- " + featureName);
           eventDao.setExperimentGroupName(featureName);
+          log.info("new sys group name:"+ eventDao.getExperimentGroupName());
           groupNameChanged = true;
           break;
         }
@@ -1107,9 +1152,66 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
         break;
       }
     } // predefined map of all predefined grps
-    if ( eventDao.getExperimentGroupName() == null) { 
-      eventDao.setExperimentGroupName(Constants.UNKNOWN);
+    // Currently, IOS versions supports only 1 group. Also, for that single group, client does not send group name with any of the events
+    // we need to identify the IOS events and populate the group name 
+    if (eventDao.getExperimentGroupName() == null) {
+      if (eventDao.getAppId().equalsIgnoreCase(Constants.IOS)) {
+        eventDao.setExperimentGroupName(getNonSystemGroupNameFromEVGMRecords(allEVMMap));
+      } else {
+        eventDao.setExperimentGroupName(Constants.UNKNOWN);
+      }
     }
-    log.info("gn exiting" + eventDao.getExperimentGroupName());
+    log.info("new group name:"+ eventDao.getExperimentGroupName());
+    
+  }
+  
+  @Override
+  public void ensureSystemGroupName(Event eventDao, Map<String, ExperimentVersionGroupMapping> allEVMMap) throws Exception {
+    
+    CSGroupTypeInputMappingDao inputMappingDao = new CSGroupTypeInputMappingDaoImpl();
+    Map<String, List<String>>inputMap = inputMappingDao.getAllPredefinedFeatureVariableNames();
+    Map<String, What> inputsInEvent = convertFromWhatToMap(eventDao.getWhat());
+    // for each predefined feature
+    log.info("sys - old group name: " + eventDao.getExperimentGroupName());
+    List<String> featuresInputVariableNames = inputMap.get(GroupTypeEnum.SYSTEM.name());
+    
+    for (String eachFeatureVariableName : featuresInputVariableNames) {
+      if (inputsInEvent.containsKey(eachFeatureVariableName)) {
+        eventDao.setExperimentGroupName(GroupTypeEnum.SYSTEM.name());
+        break;
+      }
+    }
+    
+//    if (eventDao.getWhat() == null || (eventDao.getWhat().size() == 0 && eventDao.getScheduledTime() != null)) {
+//      eventDao.setExperimentGroupName(GroupTypeEnum.SYSTEM.name());
+//    }
+    // Currently, IOS versions supports only 1 group. Also, for that single group, client does not send group name with any of the events
+    // we need to identify the IOS events and populate the group name 
+    if (eventDao.getExperimentGroupName() == null) {
+      if (eventDao.getAppId().equalsIgnoreCase(Constants.IOS)) {
+        eventDao.setExperimentGroupName(getNonSystemGroupNameFromEVGMRecords(allEVMMap));
+      } else {
+        eventDao.setExperimentGroupName(Constants.UNKNOWN);
+      }
+    }
+    log.info("new group name:"+ eventDao.getExperimentGroupName());
+    
+  }
+  
+  private String getNonSystemGroupNameFromEVGMRecords(Map<String, ExperimentVersionGroupMapping> allEVMMap) {
+    String nonSystemGroupName = null;
+    String crtGrpName = null;
+    ExperimentVersionGroupMapping evgm = null;
+    Iterator<String> grpNameItr = allEVMMap.keySet().iterator();
+    while (grpNameItr.hasNext()) {
+      crtGrpName = grpNameItr.next();
+      evgm = allEVMMap.get(crtGrpName);
+      if (evgm.getGroupInfo().getGroupTypeId().intValue() != GroupTypeEnum.SYSTEM.getGroupTypeId()) {
+        nonSystemGroupName = evgm.getGroupInfo().getName();
+        break;
+      }
+    }
+    log.info("non sys group:" + nonSystemGroupName);
+    return nonSystemGroupName;
   }
 }

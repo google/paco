@@ -39,7 +39,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
     setCharacterEncoding(req, resp);
     User user = AuthUtil.getWhoFromLogin();
     String loggedInUser = null;
-    boolean oldFormatFlag = Constants.USE_OLD_FORMAT_FLAG;
+    boolean oldFormatFlag = Constants.USE_OLD_SEARCH_QUERY;
     ObjectMapper mapper = JsonConverter.getObjectMapper();
     
     if (user == null) {

@@ -216,9 +216,9 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
             "KEY `experiment_history_fk_idx` (`" + ExperimentVersionGroupMappingColumns.EXPERIMENT_DETAIL_ID + "`)," +
             "KEY `group_history_fk_idx` (`" + ExperimentVersionGroupMappingColumns.GROUP_DETAIL_ID + "`)," +
             " CONSTRAINT `experiment_history_fk` FOREIGN KEY (`" + ExperimentVersionGroupMappingColumns.EXPERIMENT_DETAIL_ID + "`) REFERENCES `" +
-                   ExperimentDetailColumns.TABLE_NAME + "` (`" + ExperimentDetailColumns.EXPERIMENT_DETAIL_ID + "`) ON DELETE NO ACTION ON UPDATE NO ACTION," +
+                   ExperimentDetailColumns.TABLE_NAME + "` (`" + ExperimentDetailColumns.EXPERIMENT_DETAIL_ID + "`) ON DELETE CASCADE ON UPDATE NO ACTION," +
             " CONSTRAINT `group_history_fk` FOREIGN KEY (`" + ExperimentVersionGroupMappingColumns.GROUP_DETAIL_ID + "`) REFERENCES " +
-                   GroupDetailColumns.TABLE_NAME + " (`" + GroupDetailColumns.GROUP_DETAIL_ID + "`) ON DELETE NO ACTION ON UPDATE NO ACTION)" +
+                   GroupDetailColumns.TABLE_NAME + " (`" + GroupDetailColumns.GROUP_DETAIL_ID + "`) ON DELETE CASCADE ON UPDATE NO ACTION)" +
             " DEFAULT CHARACTER SET = utf8mb4" ;
    final String CREATE_TABLE_INFORMED_CONSENT = "CREATE TABLE IF NOT EXISTS `pacodb`.`"+ InformedConsentColumns.TABLE_NAME+"` (" +
            InformedConsentColumns.INFORMED_CONSENT_ID + " BIGINT(20) NOT NULL," +
@@ -355,7 +355,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
    " ADD CONSTRAINT `e_ic_informed_consent_fk` " +
    " FOREIGN KEY (`"+ InformedConsentColumns.INFORMED_CONSENT_ID  + "`) " + 
    " REFERENCES `pacodb`.`"+ InformedConsentColumns.TABLE_NAME  + "` (`"+ InformedConsentColumns.INFORMED_CONSENT_ID  + "`) " + 
-   " ON DELETE NO ACTION " +
+   " ON DELETE CASCADE " +
    " ON UPDATE NO ACTION ";
    final String addNewColumnsSql11 = "ALTER TABLE `pacodb`.`" + EventServerColumns.TABLE_NAME +  "`  " +
            " ADD INDEX `evg_idx` (`"+EventServerColumns.EXPERIMENT_ID+"`,`"+EventServerColumns.EXPERIMENT_VERSION+"`,`"+EventServerColumns.GROUP_NAME+"`,`"+EventServerColumns.EXPERIMENT_VERSION_GROUP_MAPPING_ID +"`)";
@@ -805,6 +805,16 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     } catch (Exception e) { 
       log.warning("Catch all - ge"+ExceptionUtil.getStackTraceAsString(e));
       throw e;
+    } finally {
+      if ( rs != null) { 
+        rs.close();
+      }
+      if (statementFindExperimentWithDuplicateVariableNames != null) { 
+        statementFindExperimentWithDuplicateVariableNames.close();
+      }
+      if (conn != null) { 
+        conn.close();
+      }
     }
     return successFlag;
   }
@@ -943,6 +953,8 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     CSOutputDao outDaoImpl = new  CSOutputDaoImpl();
     int i = 1;
     Long startTime = System.currentTimeMillis();
+    Long outputStartTime = null;
+    Long outputTotalTime = 0L;
     try {
       if (erroredExperimentIds != null && erroredExperimentIds.size() > 0) {
         unprocessedRecordQuery = unprocessedRecordQuery.replace(" limit 1000", " and " + EventServerColumns.EXPERIMENT_ID + "  not in (?) and " + EventServerColumns.EXPERIMENT_ID+ "  = ? and  " + EventServerColumns.EXPERIMENT_VERSION + " = ? and  " + EventServerColumns.GROUP_NAME+ " =? limit "+ batchSize);
@@ -962,6 +974,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
       
       log.info("executing"+unprocessedRecordQuery.toString());
       rsUnprocessedEventQuery = statementUnprocessedEventRecord.executeQuery();
+      log.info("execute event query complete");
       while (rsUnprocessedEventQuery.next()) {
         eventDao = new EventDAO();
         eventDao.setExperimentId(rsUnprocessedEventQuery.getLong(ExperimentVersionGroupMappingColumns.EXPERIMENT_ID));
@@ -970,11 +983,13 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
         eventDao.setExperimentGroupName(rsUnprocessedEventQuery.getString(EventServerColumns.GROUP_NAME));
         eventDao.setExperimentName(rsUnprocessedEventQuery.getString(EventServerColumns.EXPERIMENT_NAME));
         eventDao.setId(rsUnprocessedEventQuery.getLong(Constants.UNDERSCORE_ID));
-        List<WhatDAO> whats = outDaoImpl.getOutputsWithoutInputId(eventDao.getId());
+        outputStartTime = System.currentTimeMillis();
+        List<WhatDAO> whats = outDaoImpl.getOutputsWithoutInputId(conn, eventDao.getId());
+        outputTotalTime = outputTotalTime + (System.currentTimeMillis() - outputStartTime);
         eventDao.setWhat(whats);
         eventDaoList.add(eventDao);
       } 
-      log.info("get 1000 records took :" + (System.currentTimeMillis() - startTime));
+      log.info("get 1000 records took :" + (System.currentTimeMillis() - startTime) + ", with output taking: "+ outputTotalTime);
       return eventDaoList;
     } catch (SQLException sqle) {
       log.warning("SQLException while inserting to lookup" + ExceptionUtil.getStackTraceAsString(sqle));
@@ -1224,7 +1239,18 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     } catch (Exception e) { 
       log.warning("Catch all - ge"+ExceptionUtil.getStackTraceAsString(e));
       throw e;
+    } finally {
+      if ( rs != null) { 
+        rs.close();
+      }
+      if (statementFindExperimentWithDuplicateVariableNames != null) { 
+        statementFindExperimentWithDuplicateVariableNames.close();
+      }
+      if (conn != null) { 
+        conn.close();
+      }
     }
+    
     return successFlag;
   }
   
@@ -1249,6 +1275,16 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     } catch (Exception e) { 
       log.warning("Catch all - ge"+ExceptionUtil.getStackTraceAsString(e));
       throw e;
+    } finally {
+      if ( rs != null) { 
+        rs.close();
+      }
+      if (statementFindExperimentWithDuplicateVariableNames != null) { 
+        statementFindExperimentWithDuplicateVariableNames.close();
+      }
+      if (conn != null) { 
+        conn.close();
+      }
     }
     return successFlag;
   }
@@ -1266,21 +1302,38 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     CSFailedEventDao failedDaoImpl = new CSFailedEventDaoImpl();
     CSTempExperimentIdVersionGroupNameDao expIdDaoImpl = new CSTempExperimentIdVersionGroupNameDaoImpl();
     List<Long> expIdsToBeDeleted = expIdDaoImpl.getExperimentIdsToBeDeleted();
-    List<Long> expIdsCurrentlyInDataStore = null;
+    List<Long> finalListOfExptIdToBeDeleted = null;
+    final ExperimentService experimentService = ExperimentServiceFactory.getExperimentService();
+    log.info("Delete from exp id version");
     for (Long experimentId : expIdsToBeDeleted) {
       // delete all outputs and events for these experiments
-      expIdsCurrentlyInDataStore = getExperimentIdLst(readFromDataStore());
-      if (!expIdsCurrentlyInDataStore.contains(experimentId)) {
+      if (experimentService.getExperiment(experimentId) == null) {
+        log.info("exp id :"+ experimentId);
+        if (finalListOfExptIdToBeDeleted == null) {
+          finalListOfExptIdToBeDeleted = Lists.newArrayList();
+        }
+        finalListOfExptIdToBeDeleted.add(experimentId);
         daoImpl.deleteAllEventsAndOutputsData(experimentId);
         // not an actual failed event. But, just to track that we have deleted all events and outputs of this experiment, we update this table
         failedDaoImpl.insertFailedEvent("expId: " + experimentId , "Did not find any experiment definition. ", "Did not find any experiment definition.So deleted all events and outputs");
-        log.info("expId: " + experimentId + "deleted");
+//        log.info("expId: " + experimentId + "deleted");
+        if ( finalListOfExptIdToBeDeleted.size()  == 30) {
+          log.info("reached 30:");
+          expIdDaoImpl.deleteExperiments(finalListOfExptIdToBeDeleted);
+          finalListOfExptIdToBeDeleted = null;
+        }
+      } else {
+        log.info("exp def found in data store "+ experimentId);
       }
     }
-    // delete these experiments from expid version table as well
-    if (expIdsToBeDeleted.size() > 0 ) { 
-      expIdDaoImpl.deleteExperiments(expIdsToBeDeleted);
+    // if the number of experiments to be deleted is not a multiple of 30, then last batch of records that are less than 30
+    // will not get deleted.
+    if (finalListOfExptIdToBeDeleted != null) {
+      log.info("last batch of expts to be deleted size:" + finalListOfExptIdToBeDeleted.size());
+      expIdDaoImpl.deleteExperiments(finalListOfExptIdToBeDeleted);
+      finalListOfExptIdToBeDeleted = null;
     }
+   
     return false;
   }
   
@@ -1346,12 +1399,22 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     } catch (Exception e) { 
       log.warning("Catch all - ge"+ExceptionUtil.getStackTraceAsString(e));
       throw e;
+    } finally {
+      if ( rsCatchAll != null) { 
+        rsCatchAll.close();
+      }
+      if (statementCatchAll != null) { 
+        statementCatchAll.close();
+      }
+      if (conn != null) { 
+        conn.close();
+      }
     }
     return successFlag;
   }
   
   @Override 
-  public boolean copyExperimentMarkExperimentsForPivotTable() throws Exception {
+  public boolean copyExperimentFilterExperimentsForPivotTableProcessing() throws Exception {
     Connection conn = null;
     PreparedStatement statementExperimentWithHugeInputSet = null;
     ResultSet rs = null;
@@ -1371,12 +1434,23 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     } catch (Exception e) { 
       log.warning("Huge Inputset - ge"+ ExceptionUtil.getStackTraceAsString(e));
       throw e;
+    } finally {
+      if ( rs != null) { 
+        rs.close();
+      }
+      if (statementExperimentWithHugeInputSet != null) { 
+        statementExperimentWithHugeInputSet.close();
+      }
+      if (conn != null) { 
+        conn.close();
+      }
     }
+    
     return successFlag;
   }
   
   @Override
-  public boolean copyExperimentPopulatePivotTableForAllExperiments() throws SQLException {
+  public boolean copyExperimentPopulatePivotTableForFilteredExperiments() throws SQLException {
     Integer migrationStatus = 3;
     CSExperimentVersionGroupMappingDao evgmDao = new CSExperimentVersionGroupMappingDaoImpl();
     CSTempExperimentIdVersionGroupNameDao expIdVersionDao = new CSTempExperimentIdVersionGroupNameDaoImpl();
@@ -1412,6 +1486,186 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     return true;
   }
   
+  @Override
+  public boolean copyExperimentPopulatePivotTableForMissingRecords() throws SQLException {
+    Connection conn = null;
+    PreparedStatement statementPvHelperSelectiveSet = null;
+    ResultSet rs = null;
+    CSPivotHelperDao pvHelperDaoImpl = new CSPivotHelperDaoImpl();
+    List<PivotHelper> pvHelperList = Lists.newArrayList();
+    PivotHelper pvHelper = null;
+    Long evgmId = null;
+    Long noOfEvents = 0L;
+    Long inputId = null;
+    Integer anonId = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementPvHelperSelectiveSet = conn.prepareStatement(QueryConstants.SELECT_JULY_AUGUST_EVG.toString());
+      rs = statementPvHelperSelectiveSet.executeQuery();
+      while (rs.next()) {
+        evgmId = rs.getLong(PivotHelperColumns.EXPERIMENT_VERSION_GROUP_MAPPING_ID);
+        inputId = rs.getLong(PivotHelperColumns.INPUT_ID);
+        anonId = rs.getInt("who_bk");
+        pvHelper = new PivotHelper(evgmId, anonId, inputId, true, noOfEvents);
+        pvHelperList.add(pvHelper);
+      }
+      pvHelperDaoImpl.insertIgnorePivotHelper(pvHelperList);
+      
+    } finally {
+      if ( rs != null) { 
+        rs.close();
+      }
+      if (statementPvHelperSelectiveSet != null) { 
+        statementPvHelperSelectiveSet.close();
+      }
+      if (conn != null) { 
+        conn.close();
+      }
+    }
+    return true;
+  }
+  
+  @Override
+  public void copyExperimentFixMissingInputIds() throws Exception {
+    Connection conn = null;
+    PreparedStatement statementFixMissingInputIds = null;
+    PreparedStatement statementUpdateInputIds = null;
+    
+    ResultSet rs = null;
+    Long evgmId = null;
+    Integer anonId = null;
+    Long expId = null;
+    List<Long> inputIds = null;
+    Long eventId = null;
+    String text = null;
+    ExperimentVersionGroupMapping currentEVGM = null;
+    Integer expVersion = null;
+    CSExperimentVersionGroupMappingDao evmDaoImpl = new CSExperimentVersionGroupMappingDaoImpl();
+    
+    CSInputCollectionDao icDaoImpl = new CSInputCollectionDaoImpl();
+    CSPivotHelperDao pvDaoImpl = new CSPivotHelperDaoImpl();
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementFixMissingInputIds = conn.prepareStatement(QueryConstants.FIND_EVENTS_MISSING_INPUT_IDS.toString());
+      statementUpdateInputIds = conn.prepareStatement(QueryConstants.UPDATE_OUTPUT_WITH_INPUT_ID.toString());
+      
+      rs = statementFixMissingInputIds.executeQuery();
+      Map<String, ExperimentVersionGroupMapping> allEVMInVersion = null;
+      while (rs.next()) {
+        inputIds = Lists.newArrayList();
+        expId =  rs.getLong(EventServerColumns.EXPERIMENT_ID);
+        expVersion = rs.getInt(EventServerColumns.EXPERIMENT_VERSION);
+        evgmId = rs.getLong(EventServerColumns.EXPERIMENT_VERSION_GROUP_MAPPING_ID);
+        anonId = rs.getInt("who_bk");
+        eventId = rs.getLong(OutputServerColumns.EVENT_ID);
+        text = rs.getString(OutputServerColumns.TEXT);
+        allEVMInVersion = evmDaoImpl.getAllGroupsInVersion(expId, expVersion);
+        currentEVGM = allEVMInVersion.get(rs.getString(EventServerColumns.GROUP_NAME));
+        InputOrderAndChoice currentInput = currentEVGM.getInputCollection().getInputOrderAndChoices().get(text);
+        // for some reason (scripted variable) this particular output does not have input associated, then add this input variable name to the input collection and get the input id
+        if ( currentInput == null) {
+          // add this variable to the existing input collection
+          log.warning("This input is not already in there"+ text +  "--" + eventId);
+          Input newInput = null;
+          currentInput = new InputOrderAndChoice();
+          newInput = icDaoImpl.addUndefinedInputToCollection(expId, currentEVGM.getInputCollection().getInputCollectionId(), text);
+          currentInput.setInput(newInput);
+        }
+        if (currentEVGM.getExperimentVersionMappingId().longValue() != evgmId) {
+          log.warning("check EVGM id conflict" + currentEVGM.getExperimentVersionMappingId() + "--" + evgmId);
+        }
+        inputIds.add(currentInput.getInput().getInputId().getId());
+        // update output table with input id
+        statementUpdateInputIds.setLong(1, currentInput.getInput().getInputId().getId());
+        statementUpdateInputIds.setLong(2, eventId);
+        statementUpdateInputIds.setString(3, text);
+        log.info(statementUpdateInputIds.toString());
+        statementUpdateInputIds.execute();
+        // update pv helper table for this single output
+        pvDaoImpl.incrementUpdateCtByOne(currentEVGM.getExperimentVersionMappingId(), anonId, inputIds);
+      }
+    } finally {
+      if ( rs != null) { 
+        rs.close();
+      }
+      if (statementFixMissingInputIds != null) { 
+        statementFixMissingInputIds.close();
+      }
+      if (statementUpdateInputIds != null) { 
+        statementUpdateInputIds.close();
+      }
+      if (conn != null) { 
+        conn.close();
+      }
+    }
+  }
+  
+  @Override
+  public boolean copyExperimentPopulatePivotTableForSelectiveRecords() throws SQLException {
+    Connection conn = null;
+    PreparedStatement statementPvHelperSelectiveSet = null;
+    ResultSet rs = null;
+    CSExperimentVersionGroupMappingDao evgmDao = new CSExperimentVersionGroupMappingDaoImpl();
+    CSPivotHelperDao pvHelperDaoImpl = new CSPivotHelperDaoImpl();
+    List<PivotHelper> pvHelperList = null;
+    PivotHelper pvHelper = null;
+    Long evgmId = null;
+    Long inputId = null;
+    Integer anonId = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementPvHelperSelectiveSet = conn.prepareStatement(QueryConstants.SELECT_PIVOT_HELPER_ZERO_RECORDS.toString());
+      rs = statementPvHelperSelectiveSet.executeQuery();
+      while (rs.next()) {
+        evgmId = rs.getLong(PivotHelperColumns.EXPERIMENT_VERSION_GROUP_MAPPING_ID);
+        inputId = rs.getLong(PivotHelperColumns.INPUT_ID);
+        anonId = rs.getInt(PivotHelperColumns.ANON_WHO);
+        
+        pvHelperList = Lists.newArrayList();
+
+        long noOfEvents = evgmDao.getNumberOfEvents(evgmId, anonId, inputId);
+        pvHelper = new PivotHelper(evgmId, anonId, inputId, true, noOfEvents);
+        pvHelperList.add(pvHelper);
+        pvHelperDaoImpl.updatePivotHelper(pvHelperList);
+      }
+      
+    } finally {
+      if ( rs != null) { 
+        rs.close();
+      }
+      if (statementPvHelperSelectiveSet != null) { 
+        statementPvHelperSelectiveSet.close();
+      }
+      if (conn != null) { 
+        conn.close();
+      }
+    }
+    return true;
+  }
+  
+  private List<String> getMatchingFeatures(Map<String, List<String>> featuresMap, List<String> allPossibleTexts) { 
+    List<String> matchingFeatures = Lists.newArrayList();
+    Iterator<String> predefinedInputIterator = featuresMap.keySet().iterator();
+    String featureName = null;
+    // for each predefined feature
+    while (predefinedInputIterator.hasNext()) {
+      featureName = predefinedInputIterator.next();
+      // TODO we have to fix this, once we fix the way we capture events for notification grp
+      if (featureName.equals(GroupTypeEnum.NOTIFICATION.name())) {
+        continue;
+      } else {
+        for (String eachKnownVariableName : featuresMap.get(featureName)) {
+          if (allPossibleTexts != null && allPossibleTexts.contains(eachKnownVariableName)) { 
+            matchingFeatures.add(featureName);
+            log.info("matching features"+ featureName);
+            break;
+          }
+        }
+      }
+    }
+    return matchingFeatures;
+  }
+  
   
   @Override
   public boolean copyExperimentChangeGroupNameOfEventsWithPredefinedInputs() throws SQLException {
@@ -1424,75 +1678,80 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     CSGroupTypeInputMappingDao inputMappingDao = new CSGroupTypeInputMappingDaoImpl();
     CSTempExperimentIdVersionGroupNameDao expIdVersionDao = new CSTempExperimentIdVersionGroupNameDaoImpl();
     CSEventDao eventDaoImpl = new CSEventDaoImpl();
+    CSEventOutputDao eventOutputDaoImpl = new CSEventOutputDaoImpl();
     String finalQryForSys = SELECT_EVENTS_MATCHING_PREDFINED_INPUT_NAMES;
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       Long eventId = null;
       int recordCount = 0;
+      List<String> matchingFeatures = null;
       Map<String, List<String>>inputMap = inputMappingDao.getAllPredefinedFeatureVariableNames();
+      statementSelectEventsWithPredefinedInputs = conn.prepareStatement(finalQryForSys);
+      statementSelectEventsWithPredefinedInputs.setFetchSize(500);
       while (true) {
         List<ExperimentLite> expLites = expIdVersionDao.getAllExperimentLiteOfStatus(1);
         if ( expLites.size() == 0) {
           break;
         }
         for (ExperimentLite expLite : expLites) {
-          log.info("RecordCount" + (recordCount++) + ":New exp id" + expLite.getExperimentId() + "----------" + expLite.getExperimentVersion());
+          log.info("RecordCount" + (recordCount++) + ":New exp id" + expLite.getExperimentId() + "--" + expLite.getExperimentVersion() + "--" + expLite.getExperimentGroupName());
           Iterator<String> predefinedInputIterator = inputMap.keySet().iterator();
+          
           if (!inputMap.keySet().contains(expLite.getExperimentGroupName())) {
-            // for each predefined feature
-            while (predefinedInputIterator.hasNext()) {
-              featureName = predefinedInputIterator.next();
-              // TODO we have to fix this, once we fix the way we capture events for notification grp
-              if (featureName.equals(GroupTypeEnum.NOTIFICATION.name())) {
-                continue;
+            matchingFeatures = getMatchingFeatures(inputMap, eventOutputDaoImpl.getAllDistinctTextForExperiment(expLite.getExperimentId()));
+            if (matchingFeatures != null) { 
+              // for each predefined feature
+              while (predefinedInputIterator.hasNext()) {
+                featureName = predefinedInputIterator.next();
+                // TODO we have to fix this, once we fix the way we capture events for notification grp
+                if (featureName.equals(GroupTypeEnum.NOTIFICATION.name())) {
+                  continue;
+                } else if (matchingFeatures.contains(featureName)) {
+                  List<String> eachFeaturesInputVariableNames = inputMap.get(featureName);
+                  for (String eachFeatureInputVariableName : eachFeaturesInputVariableNames) {
+                    while (true) {
+                      statementSelectEventsWithPredefinedInputs.setLong(1, expLite.getExperimentId());
+                      statementSelectEventsWithPredefinedInputs.setInt(2, expLite.getExperimentVersion());
+                      statementSelectEventsWithPredefinedInputs.setString(3, expLite.getExperimentGroupName());
+                      statementSelectEventsWithPredefinedInputs.setString(4, eachFeatureInputVariableName);
+                        log.info("executing qry " + statementSelectEventsWithPredefinedInputs.toString());
+                      rs = statementSelectEventsWithPredefinedInputs.executeQuery();
+                      if(!rs.next()) {
+                        break;
+                      } else {
+                        rs.beforeFirst();
+                        eventIdsToBeUpdatedWithNewGroupName = Sets.newLinkedHashSet();
+                        eventIdsOldGroupName = Lists.newArrayList();
+                        while (rs.next()) {
+                          eventId = rs.getLong(Constants.UNDERSCORE_ID);
+                          if (eventIdsToBeUpdatedWithNewGroupName.add(eventId)) {
+                            eventIdsOldGroupName.add(rs.getString(EventServerColumns.GROUP_NAME));
+                            // these can be inserted with mig status 2, since we are adding this once we identify the correct group name. 
+                            // these records need not be checked for again to see if we need to change group name
+                            expIdVersionDao.upsertExperimentIdVersionGroupName(expLite.getExperimentId(), expLite.getExperimentVersion(), featureName, 2);
+                          }
+                        }// 250 records
+                        // update events in batch
+                        eventDaoImpl.updateGroupName(Lists.newArrayList(eventIdsToBeUpdatedWithNewGroupName), eventIdsOldGroupName, featureName);
+                      } // if records present
+    //                    log.info("continue for more records for same feature");
+                    }// while loop finish all records
+                  } // for loop on each variable name in predefined input
+                } // predefined map of all predefined grps
               }
-              try {
-                List<String> eachFeaturesInputVariableNames = inputMap.get(featureName);
-                statementSelectEventsWithPredefinedInputs = conn.prepareStatement(finalQryForSys);
-                statementSelectEventsWithPredefinedInputs.setFetchSize(500);
-                
-                for (String eachFeatureInputVariableName : eachFeaturesInputVariableNames) {
-                  while (true) {
-                    statementSelectEventsWithPredefinedInputs.setLong(1, expLite.getExperimentId());
-                    statementSelectEventsWithPredefinedInputs.setInt(2, expLite.getExperimentVersion());
-                    statementSelectEventsWithPredefinedInputs.setString(3, expLite.getExperimentGroupName());
-                    statementSelectEventsWithPredefinedInputs.setString(4, eachFeatureInputVariableName);
-                    log.info("executing qry " + statementSelectEventsWithPredefinedInputs.toString());
-                    rs = statementSelectEventsWithPredefinedInputs.executeQuery();
-                    if(!rs.next()) {
-                      break;
-                    } else {
-                      rs.beforeFirst();
-                      eventIdsToBeUpdatedWithNewGroupName = Sets.newLinkedHashSet();
-                      eventIdsOldGroupName = Lists.newArrayList();
-                      while (rs.next()) {
-                        eventId = rs.getLong(Constants.UNDERSCORE_ID);
-                        if (eventIdsToBeUpdatedWithNewGroupName.add(eventId)) {
-                          eventIdsOldGroupName.add(rs.getString(EventServerColumns.GROUP_NAME));
-                          expIdVersionDao.upsertExperimentIdVersionGroupName(expLite.getExperimentId(), expLite.getExperimentVersion(), featureName, 1);
-                        }
-                      }// 250 records
-                      // update events in batch
-                      eventDaoImpl.updateGroupName(Lists.newArrayList(eventIdsToBeUpdatedWithNewGroupName), eventIdsOldGroupName, featureName);
-                    } // if records present
-//                    log.info("continue for more records for same feature");
-                  }// while loop finish all records
-                } // for loop on each variable name in predefined input
-              } finally {
-                if ( rs != null) { 
-                  rs.close();
-                }
-                if (statementSelectEventsWithPredefinedInputs != null) { 
-                  statementSelectEventsWithPredefinedInputs.close();
-                }
-              }   
-            } // predefined map of all predefined grps
+            }
           } // if grp name not in predefined grps
           // finally if there is no exception after checking for all predefined grps, delete this exp id version in expidversion table, since it is processed
           expIdVersionDao.updateExperimentIdVersionGroupNameStatus(expLite.getExperimentId(), expLite.getExperimentVersion(), expLite.getExperimentGroupName(), 2);
         }// for loop on each exp id version combination
       }
     } finally {
+      if ( rs != null) { 
+        rs.close();
+      }
+      if (statementSelectEventsWithPredefinedInputs != null) { 
+        statementSelectEventsWithPredefinedInputs.close();
+      }
       if (conn != null) { 
         conn.close();
       }
