@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 
 import com.google.sampling.experiential.server.migration.MigrationDataRetriever;
 import com.google.sampling.experiential.server.migration.MigrationJob;
+import com.pacoapp.paco.shared.util.Constants;
 
 public class CatchUpDateRangeJobOldVersion implements MigrationJob {
 
@@ -13,7 +14,7 @@ public class CatchUpDateRangeJobOldVersion implements MigrationJob {
 
     @Override
     public boolean doMigration(String cursor, DateTime startTime, DateTime endTime) {
-      boolean populateExperimentInfoInEventsTable = true;
-      return MigrationDataRetriever.getInstance().catchUpEventsFromDSToCS(cursor, startTime, endTime, populateExperimentInfoInEventsTable);
+      boolean populateEventsTableOldFormat = Constants.USE_OLD_FORMAT_FLAG;
+      return MigrationDataRetriever.getInstance().catchUpEventsFromDSToCS(cursor, startTime, endTime, populateEventsTableOldFormat);
     }
 }

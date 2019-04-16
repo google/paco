@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import com.google.appengine.api.utils.SystemProperty;
-import com.google.sampling.experiential.datastore.EventServerColumns;
+import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.server.PacoUrl;
 
 public class ReportRequestProcessor {

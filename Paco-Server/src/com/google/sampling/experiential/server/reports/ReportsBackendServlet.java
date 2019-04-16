@@ -32,7 +32,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 
 import com.google.appengine.api.ThreadManager;
-import com.google.sampling.experiential.datastore.EventServerColumns;
+import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.server.HttpUtil;
 import com.google.sampling.experiential.server.ReportJobStatusManager;
 

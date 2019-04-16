@@ -60,8 +60,10 @@ pacoApp.controller('ExperimentCtrl', [
   '$routeParams',
   '$location',
   'experimentService',
-  function ($scope, $mdDialog, $filter, config, template, $routeParams, $location, experimentService) {
+  'PacoConstantsService',
+  function ($scope, $mdDialog, $filter, config, template, $routeParams, $location, experimentService, PacoConstantsService) {
     $scope.ace = {};
+    $scope.useOldColumns = PacoConstantsService.useOldColumns;
     $scope.feedbackTypes = config.feedbackTypes;
     $scope.ringtones = config.ringtones;
     $scope.tabs = config.editTabs;
@@ -119,7 +121,20 @@ pacoApp.controller('ExperimentCtrl', [
 
     if ($scope.experimentId === -1) {
       $scope.experiment = angular.copy(template.experiment);
-
+      // TODO
+//      $scope.experiment.groups = angular.copy(template.group);
+      var grObject = angular.copy(template.group);
+      var matchingInputObj = [];
+      matchingInputObj = template.inputsForPredefinedGroupSystem;
+      grObject.fixedDuration = false;
+      grObject.groupType = 'SYSTEM';
+      grObject.name = 'SYSTEM';
+      
+      angular.forEach(matchingInputObj, function(value, key){
+        grObject.inputs.push(value); 
+      })
+      $scope.experiment.groups.push(grObject);
+      
       if ($scope.user) {
         $scope.experiment.creator = $scope.user;
         $scope.experiment.contactEmail = $scope.user;
@@ -174,16 +189,15 @@ pacoApp.controller('ExperimentCtrl', [
     }
 
     $scope.$watch('experiment.groups', function (newValue, oldValue) {
+      var groups = [];
       if (newValue) {
-
         $scope.admin = ($scope.experiment.admins.indexOf($scope.user) !== -1);
-
-        var groups = [];
+       
         for (var groupId in $scope.experiment.groups) {
           var group = $scope.experiment.groups[groupId];
-          if (group.customRendering != true && group.inputs.length > 0) {
+          if (group.inputs.length > 0 && (group.groupType === "SURVEY" || ($scope.useOldColumns && !group.groupType))) {
             groups.push(group);
-          }
+          } 
         }
         $scope.respondableGroups = groups;
         if ($scope.respondableGroups.length === 1) {
@@ -279,11 +293,70 @@ pacoApp.controller('ExperimentCtrl', [
         }
       });
     };
-
-    $scope.addGroup = function () {
-      $scope.experiment.groups.push(angular.copy(template.group));
+    $scope.closeDialog = function() { 
+      $mdDialog.cancel();
+    };
+    
+    $scope.addGroup = function (groupType) {
+      var grObject = angular.copy(template.group);
+      var crGrpsInExperiment = $scope.experiment.groups;
+      for (var groupId in crGrpsInExperiment) {
+        var crGroup = $scope.experiment.groups[groupId];
+        $scope.hiding=true;
+      }
+      grObject.groupType = groupType;
+      $scope.experiment.groups.push(grObject); 
+      
     };
 
+    $scope.showSensorGroupPopup = function () {
+      $mdDialog.show({
+        controller: function () {
+        return self;
+      },
+      controllerAs: 'ExperimentCtrl',
+      templateUrl: 'partials/sensorgroup.html',
+      scope: $scope,
+      preserveScope: true,
+      parent: angular.element(document.body),
+      clickOutsideToClose: true
+      });
+    };
+    $scope.dateToString = function (d) {
+      var s = d.getUTCFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
+      return s;
+    };
+   
+    $scope.addSensorGroup = function (groupType) {
+      experiment = $scope.experiment;
+      var grObject = angular.copy(template.group);
+      var matchingInputObj = [];
+      if (groupType === 'APPUSAGE_ANDROID') {
+        matchingInputObj = template.inputsForPredefinedGroupAppUsageAndroid;
+        grObject.fixedDuration = true;
+        grObject.logActions = true;
+      } else if (groupType === 'PHONESTATUS') {
+        matchingInputObj = template.inputsForPredefinedGroupPhoneStatus;
+        grObject.fixedDuration = true;
+        grObject.logShutdown = true;
+      } 
+      
+      if (grObject.fixedDuration) {
+        $scope.startDate = new Date();
+        $scope.endDate = new Date($scope.startDate.getTime() + (24 * 60 * 60 * 1000));
+        grObject.startDate = $scope.dateToString($scope.startDate);      
+        grObject.endDate = $scope.dateToString($scope.endDate);
+      }
+      grObject.groupType = groupType;
+      grObject.name = groupType;
+      
+      angular.forEach(matchingInputObj, function(value, key){
+        grObject.inputs.push(value); 
+      })
+      $scope.experiment.groups.push(grObject);
+      $scope.closeDialog();
+    }
+   
     $scope.remove = function (arr, index) {
       arr.splice(index, 1);
     };
@@ -308,6 +381,7 @@ pacoApp.controller('ExperimentCtrl', [
       }
       return false;
     }
+  
 
     $scope.toggleDeclaration = function (item, list) {
       var id = parseInt(item);
@@ -722,6 +796,7 @@ pacoApp.controller('HackCtrl', ['$scope', '$http', function ($scope, $http) {
   $scope.hackRequest = '';
   $scope.errorResponse = '';
   var searchUrlWithVersion = '';
+  
   $scope.submitForm = function (protocolVersion) {
     if (protocolVersion == 5) {
       searchUrlWithVersion = '/csSearch?pacoProtocol=5';
@@ -841,8 +916,9 @@ pacoApp.controller('ReportCtrl', [
     }
   }]);
 
-pacoApp.controller('GroupsCtrl', ['$scope', 'template', function ($scope, template) {
+pacoApp.controller('GroupsCtrl', ['$scope', 'template', 'PacoConstantsService',  function ($scope, template, PacoConstantsService) {
   $scope.hiding = false;
+  $scope.useOldColumns = PacoConstantsService.useOldColumns;
   $scope.defaultFeedback = 'Thanks for Participating!';
   
   if ($scope.group.startDate) {
@@ -856,6 +932,22 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template', function ($scope, templa
     $scope.endDate = null;
   }
 
+
+  $scope.moreThanOneSurveyGroupPresent = function(experiment) {
+    var expGroups = experiment.groups;
+    var surveyGrpCt = 0;
+    if (expGroups.length > 1) {
+      for (var i = 0; i < expGroups.length; i++) {
+        if (expGroups[i].groupType === 'SURVEY') {
+          surveyGrpCt++;
+          if (surveyGrpCt > 1) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  };
   $scope.dateToString = function (d) {
     var s = d.getUTCFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
     return s;
@@ -880,6 +972,7 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template', function ($scope, templa
   }
 
   $scope.addInput = function (event, expandFn, index) {
+   
     var input = angular.copy(template.input);
     input.name = $scope.newInputName();
 
@@ -895,7 +988,7 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template', function ($scope, templa
     event.stopPropagation();
   };
 
-  $scope.toggleGroup = function ($event) {
+  $scope.toggleHide = function ($event) {
     $scope.hiding = !$scope.hiding;
   };
 
@@ -911,13 +1004,13 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template', function ($scope, templa
     expandFn(true);
     event.stopPropagation();
   };
-
+ 
   $scope.$watch('group.fixedDuration', function (newVal, oldVal) {
     if (newVal && !oldVal) {
       $scope.startDate = new Date();
       $scope.endDate = new Date($scope.startDate.getTime() + (24 * 60 * 60 * 1000));
-      $scope.group.startDate = $scope.dateToString(today);      
-      $scope.group.endDate = $scope.dateToString(tomorrow);
+      $scope.group.startDate = $scope.dateToString($scope.startDate);      
+      $scope.group.endDate = $scope.dateToString($scope.endDate);
     }
 
     if (newVal === false) {
@@ -927,11 +1020,10 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template', function ($scope, templa
       $scope.endDate = null;
     }
   });
-  
 }]);
 
-pacoApp.controller('InputCtrl', ['$scope', 'config', function ($scope, config) {
-
+pacoApp.controller('InputCtrl', ['$scope', 'config', 'template', function ($scope, config, template) {
+  $scope.predefinedChecked = [];
   $scope.responseTypes = config.responseTypes;
 
   $scope.$watch('input.responseType', function (newValue, oldValue) {
@@ -939,7 +1031,29 @@ pacoApp.controller('InputCtrl', ['$scope', 'config', function ($scope, config) {
       $scope.input.listChoices = [''];
     }
   });
-
+  
+  $scope.isPredefinedInputForGroupType = function(groupType, inputObject) {
+    var inputVarName = inputObject.name;
+    var matchingInputObj = [];
+    if (groupType === 'APPUSAGE_ANDROID') {
+      matchingInputObj = template.inputsForPredefinedGroupAppUsageAndroid;
+    } else if (groupType === 'PHONESTATUS') {
+      matchingInputObj = template.inputsForPredefinedGroupPhoneStatus;
+    } else if (groupType === 'SYSTEM') {
+      matchingInputObj = template.inputsForPredefinedGroupSystemAndAdvanced;
+    } else {
+      return false;
+    }
+   // TODO This works, but there is a lot of scope to improve. This method is getting called so many times.
+      for (var i = 0; i < matchingInputObj.length; i++) {
+        var inputObj = matchingInputObj[i];
+        if (inputObj.name === inputVarName) {
+          return true;
+        }
+      }
+    return false;
+  }
+  
   $scope.addChoice = function (index) {
     if (index !== undefined) {
       $scope.input.listChoices.splice(index, 0, '');
@@ -953,7 +1067,9 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
   function ($scope, $mdDialog, config, template) {
 
     $scope.scheduleTypes = config.scheduleTypes;
-
+    if($scope.group.groupType !== 'SURVEY' && $scope.group.groupType !== 'undefined') {
+      $scope.disabled = true;
+    }
     $scope.addAction = function (event) {
       var action = angular.copy(template.defaultAction);
       $scope.trigger.actions.push(action);
@@ -1256,8 +1372,8 @@ pacoApp.controller('HubCtrl', ['$scope', '$mdDialog', '$filter', 'config', 'temp
   }]);
 
 pacoApp.controller('Experiment2Ctrl', ['$scope', '$mdDialog', '$filter', 'config', 'template', '$routeParams',
-  '$location', 'pubExperimentService',
-  function ($scope, $mdDialog, $filter, config, template, $routeParams, $location, experimentService) {
+  '$location', 'pubExperimentService', 'PacoConstantsService',
+  function ($scope, $mdDialog, $filter, config, template, $routeParams, $location, experimentService, PacoConstantsService) {
     $scope.state = {
       tabId: 0,
       groupIndex: null
@@ -1274,14 +1390,15 @@ pacoApp.controller('Experiment2Ctrl', ['$scope', '$mdDialog', '$filter', 'config
       });
     }
     $scope.$watch('experiment.groups', function (newValue, oldValue) {
+      $scope.useOldColumns = PacoConstantsService.useOldColumns;
+      
       if (newValue) {
-
         $scope.admin = ($scope.experiment.admins.indexOf($scope.user) !== -1);
 
         var groups = [];
         for (var groupId in $scope.experiment.groups) {
           var group = $scope.experiment.groups[groupId];
-          if (group.customRendering != true && group.inputs.length > 0) {
+          if (group.inputs.length > 0 && ($scope.useOldColumns || group.groupType === "SURVEY")) {
             groups.push(group);
           }
         }

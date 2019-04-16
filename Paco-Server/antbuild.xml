@@ -16,7 +16,7 @@
  -->
  <project default="build" basedir=".">
   <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
-  <property name="sdk.dir" location="../tools/appengine-java-sdk-1.9.54" />
+  <property name="sdk.dir" location="../tools/appengine-java-sdk-1.9.64" />
   <property file="${environ}.properties"></property>
   <import file="${sdk.dir}/config/user/ant-macros.xml" />
 
@@ -185,7 +185,7 @@
     <mkdir dir="ear/default/WEB-INF/classes"/>
     <javac srcdir="src" includes="**" encoding="utf-8"
         destdir="ear/default/WEB-INF/classes"
-        source="1.5" target="1.5" nowarn="true"
+        source="1.7" target="1.7" nowarn="true"
         debug="true" debuglevel="lines,vars,source">
       <classpath refid="gwt.project.class.path"/>
     </javac>
@@ -211,12 +211,12 @@
   </target>
 
   <target name="symlinks_for_reportworker">
-    <symlink link="${basedir}/ear/reportworker/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="false" overwrite="true"/>
-    <symlink link="${basedir}/ear/reportworker/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="false" overwrite="true"/>
-    <symlink link="${basedir}/ear/migration/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="false" overwrite="true"/>
-    <symlink link="${basedir}/ear/migration/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="false" overwrite="true"/>
-    <symlink link="${basedir}/ear/mapreduce/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="false" overwrite="true"/>
-    <symlink link="${basedir}/ear/mapreduce/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="false" overwrite="true"/>
+    <symlink link="${basedir}/ear/reportworker/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="true" overwrite="true"/>
+    <symlink link="${basedir}/ear/reportworker/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="true" overwrite="true"/>
+    <symlink link="${basedir}/ear/migration/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="true" overwrite="true"/>
+    <symlink link="${basedir}/ear/migration/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="true" overwrite="true"/>
+    <symlink link="${basedir}/ear/mapreduce/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="true" overwrite="true"/>
+    <symlink link="${basedir}/ear/mapreduce/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="true" overwrite="true"/>
   </target>
   
   <target name="devmode" depends="javac" description="Run development mode">
@@ -310,6 +310,7 @@ Test targets suppressed because -junit argument was not specified when running w
   </target>
   
   <target name="prep-and-deploy">
+    <antcall target="symlinks_for_reportworker"/>
     <antcall target="prep-for-deploy"/>
     <antcall target="deploy"/>
   </target>

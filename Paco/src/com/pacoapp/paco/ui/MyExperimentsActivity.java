@@ -50,6 +50,7 @@ import com.pacoapp.paco.os.RingtoneUtil;
 import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.GroupTypeEnum;
 import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
@@ -572,6 +573,15 @@ public class MyExperimentsActivity extends ActionBarActivity implements
       DateTime dt = TimeUtil.parseDateWithZone(joinDate);
       return TimeUtil.formatDateLong(dt);
     }
+    private List<ExperimentGroup> getOnlySurveyGroups(List<ExperimentGroup> groups) {
+      List<ExperimentGroup> surveyGroups = Lists.newArrayList();
+      for (ExperimentGroup eg : groups) {
+        if (GroupTypeEnum.SURVEY.equals(eg.getGroupType())) {
+          surveyGroups.add(eg);
+        }
+      }
+      return surveyGroups;
+    }
 
     private OnClickListener myButtonListener = new OnClickListener() {
       @Override
@@ -583,18 +593,19 @@ public class MyExperimentsActivity extends ActionBarActivity implements
           final Long experimentServerId = (Long) v.getTag();
           final Experiment experiment = experiments.get(position);
           final List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
-
+          List<ExperimentGroup> surveyGrps = getOnlySurveyGroups(groups);
           if (v.getId() == R.id.menuButton) {
             showPopup(experiment, v);
           } else {
             Intent experimentIntent = null;
-            if (groups.size() > 1) {
+            // TODO 
+            if (surveyGrps.size() > 1) {
               experimentIntent = new Intent(MyExperimentsActivity.this, ExperimentGroupPicker.class);
               experimentIntent.putExtra(ExperimentGroupPicker.SHOULD_GO_TO_RENDER_NEXT,
                                         ExperimentGroupPicker.RENDER_NEXT);
             } else {
               Class clazz = null;
-              final ExperimentGroup experimentGroup = groups.get(0);
+              final ExperimentGroup experimentGroup = surveyGrps.get(0);
               if (experimentGroup.getCustomRendering()) {
                 clazz = ExperimentExecutorCustomRendering.class;
               } else {
