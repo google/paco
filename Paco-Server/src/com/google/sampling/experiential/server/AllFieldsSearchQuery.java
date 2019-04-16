@@ -53,7 +53,7 @@ public class AllFieldsSearchQuery extends SearchQuery {
     acledQuery = acledQuery.replace("experiment_id", "experiment_version_group_mapping.experiment_id");
     acledQuery = acledQuery.replace("experiment_version_group_mapping.experiment_version_group_mapping.experiment_id", 
                                     "experiment_version_group_mapping.experiment_id");
-    acledQuery.replace("text", "esi1." + ExternStringInputColumns.LABEL );
+    acledQuery = acledQuery.replace("text", "esi1." + ExternStringInputColumns.LABEL );
     return acledQuery;
     
 //    String tempAcledQuery = acledQuery.replace("experiment_id", "experiment_version_group_mapping.experiment_id");
