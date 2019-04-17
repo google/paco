@@ -4,6 +4,7 @@ import java.util.Set;
 
 import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
+import com.google.apphosting.api.ApiProxy;
 
 public class PacoModule {
   String name;
@@ -19,7 +20,7 @@ public class PacoModule {
     String serverNameInParts[] = null;
     String finalUrl = null;
     if (LOCALHOST.equalsIgnoreCase(serverName)) {
-      finalUrl = modulesApi.getVersionHostname(name, modulesApi.getDefaultVersion(name));
+      finalUrl = modulesApi.getVersionHostname(name, modulesApi.getCurrentVersion());
     } else {
       for (String eachModuleName : allModules) {
         if (eachModuleName != null && eachModuleName.equalsIgnoreCase(name)) {
@@ -37,7 +38,7 @@ public class PacoModule {
               finalUrl = "";
             }
           } else {
-            finalUrl = modulesApi.getVersionHostname(moduleName, modulesApi.getDefaultVersion(moduleName));
+            finalUrl = modulesApi.getVersionHostname(moduleName, modulesApi.getCurrentVersion());
           }
           break;
         } else {

@@ -43,6 +43,7 @@ import org.codehaus.jackson.map.util.ISO8601DateFormat;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -335,8 +336,11 @@ public class EventServlet extends HttpServlet {
   private String runReportJob(boolean anon, String loggedInuser, DateTimeZone timeZoneForClient,
                                  HttpServletRequest req, String reportFormat, int limit, String cursor, Float pacoProtocol) throws IOException {
     try {
-      PacoModule backendModule = new PacoModule(REPORT_WORKER, req.getServerName());
+      String serverName = req.getServerName();
+      log.info("request servername = " + serverName);
+      PacoModule backendModule = new PacoModule(REPORT_WORKER, serverName);
       String backendAddress = backendModule.getAddress();
+            
       BufferedReader reader = null;
 
       try {
