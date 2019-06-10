@@ -266,15 +266,20 @@ public class EventJsonUploadProcessor {
           answer = response.getString("answer");
         }
 
-        if (input != null && input.getResponseType() != null && input.getResponseType().equals(Input2.PHOTO) && !Strings.isNullOrEmpty(answer)) {
+        if (isPhotoInput(input, answer)) {
           PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));
           blobs.add(photoBlob);
           answer = "blob";
-        } else if (input != null && input.getResponseType() != null && input.getResponseType().equals(Input2.AUDIO) && !Strings.isNullOrEmpty(answer)) {
+        } else if (isAudioInput(input, answer)) {
           // TODO Store audio in Google Cloud Storage
           PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));
           blobs.add(photoBlob);
           answer = "audioblob";
+        } else if (isTextBlobInput(input, answer)) {
+          // TODO Store audio in Google Cloud Storage
+          PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.substring("textdiff===".length()).getBytes()));
+          blobs.add(photoBlob);
+          answer = "textblob";
         } else if (answer != null && answer.length() >= 500) {
 //          log.info("The response was too long for: " + name + ".");
 //          log.info("Response was " + answer);
@@ -318,6 +323,25 @@ public class EventJsonUploadProcessor {
                                            groupName, actionTriggerId, actionTriggerSpecId, actionId);
 
     return outcome;
+  }
+
+  private boolean isPhotoInput(Input2 input, String answer) {
+    return input != null && input.getResponseType() != null && input.getResponseType().equals(Input2.PHOTO) && !Strings.isNullOrEmpty(answer);
+  }
+
+  private boolean isAudioInput(Input2 input, String answer) {
+    return input != null 
+            && input.getResponseType() != null
+            && input.getResponseType().equals(Input2.AUDIO) 
+            && !Strings.isNullOrEmpty(answer);
+  }
+
+  private boolean isTextBlobInput(Input2 input, String answer) {
+    return (input != null 
+            && input.getResponseType() != null 
+            && input.getResponseType().equals(Input2.TEXTBLOB)
+            && !Strings.isNullOrEmpty(answer)) ||
+            (!Strings.isNullOrEmpty(answer) && answer.startsWith("textdiff==="));
   }
 
   private DateTime parseDate(DateTimeFormatter df, String when) throws ParseException {

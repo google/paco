@@ -483,7 +483,8 @@ pacoApp.service('config', function() {
   {"id" : 'list', "name" : 'List'},
   {"id" : 'photo', "name" : 'Photo'},
   {"id" : 'location', "name" : 'Location'},
-  {"id" : 'audio', "name" : 'Audio'}];
+  {"id" : 'audio', "name" : 'Audio'},
+  {"id" : 'textblob', "name" : 'Text Blob'}];
   
   this.feedbackTypes = [
     'Static Message',

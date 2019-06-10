@@ -34,9 +34,10 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
   public static final String SOUND = "sound";
   public static final String ACTIVITY = "activity";
   public static final String AUDIO = "audio";
+  public static final String TEXTBLOB = "textblob";
 
   public static String[] RESPONSE_TYPES = {LIKERT_SMILEYS, LIKERT, OPEN_TEXT, LIST, NUMBER,
-    LOCATION, PHOTO, SOUND, ACTIVITY, AUDIO};
+    LOCATION, PHOTO, SOUND, ACTIVITY, AUDIO, TEXTBLOB};
 
   private String name;
   private Boolean required = false;

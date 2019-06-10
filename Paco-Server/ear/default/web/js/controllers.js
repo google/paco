@@ -570,6 +570,7 @@ pacoApp.controller('DataCtrl', [
     $scope.photoHeader = 'data:image/jpeg;base64,';
     $scope.photoMarker = '/9j/';
     $scope.audioMarker = 'AAAAGGZ0eXBtc';
+    $scope.textDiffMarker = 'textdiff===';
     $scope.statsDate = new Date();
     $scope.groupNames = [];
     $scope.showGroup = 'all';
@@ -722,6 +723,14 @@ pacoApp.controller('DataCtrl', [
 
     $scope.makeAudioSrc = function (cell) {
       return "data:audio/mpeg;base64," + cell;
+    }
+
+    $scope.isTextDiffData = function (data) {
+      return (typeof (data) === 'string' && data.indexOf($scope.textDiffMarker) === 0);
+    }
+
+    $scope.makeTextDiffCell = function (cell) {
+      return cell; //cell.substring($scope.textDiffMarker.length);
     }
 
     $scope.removeUserChip = function () {
