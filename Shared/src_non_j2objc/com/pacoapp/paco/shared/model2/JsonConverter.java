@@ -109,14 +109,15 @@ public class JsonConverter {
 
       if (experimentDAOCore instanceof ExperimentDAO) {
         ExperimentDAO experimentDAO = (ExperimentDAO)experimentDAOCore;
-        final ExperimentGroup experimentGroup = experimentDAO.getGroups().get(0);
+        // after the compatibility check this should be a safe assumption of one group that is of survey type.
+        final ExperimentGroup experimentGroup = getNonSystemGroups(experimentDAO.getGroups()).get(0);
         com.pacoapp.paco.shared.model.ExperimentDAO bcExperiment = new com.pacoapp.paco.shared.model.ExperimentDAO(experimentDAO.getId(),
                                                           experimentDAO.getTitle(),
                                                           experimentDAO.getDescription(),
                                                           experimentDAO.getInformedConsentForm(),
                                                           experimentDAO.getCreator(),
                                                           experimentDAO.getPublicKey(),
-                                                          getSignalingMechanismsBC(experimentDAO),
+                                                          getSignalingMechanismsBC(experimentGroup),
                                                           experimentGroup.getFixedDuration(),
                                                           false,
                                                           experimentGroup.getStartDate(),
@@ -236,8 +237,8 @@ public class JsonConverter {
     return experimentDAO.getAdmins().toArray(adminUsers);
   }
 
-  private static com.pacoapp.paco.shared.model.SignalingMechanismDAO[] getSignalingMechanismsBC(ExperimentDAO experimentDAO) {
-    final List<ActionTrigger> actionTriggers = experimentDAO.getGroups().get(0).getActionTriggers();
+  private static com.pacoapp.paco.shared.model.SignalingMechanismDAO[] getSignalingMechanismsBC(ExperimentGroup experimentGroup) {
+    final List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
     SignalingMechanismDAO[] daos = new SignalingMechanismDAO[1];
     if (actionTriggers.size() == 0) {
 
@@ -387,6 +388,9 @@ public class JsonConverter {
       }
       ExperimentGroup group = nonSystemGroups.get(0);
       if (group.getCustomRendering()) {
+        return false;
+      }
+      if (group.getGroupType() != GroupTypeEnum.SURVEY) {
         return false;
       }
       List<ActionTrigger> actionTriggers = group.getActionTriggers();
