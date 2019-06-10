@@ -395,11 +395,15 @@ class DefaultExperimentService implements ExperimentService {
 
   private List<ExperimentDAO> removeEnded(List<ExperimentDAO> experiments, DateTimeZone timeZoneForClient) {
     List<ExperimentDAO> keepers = Lists.newArrayList();
-    DateMidnight now = DateTime.now().withZone(timeZoneForClient).toDateMidnight();
+    DateTime now = DateTime.now().withZone(timeZoneForClient);
+    log.info("Removing any experiments ended before now: " + now.toString(TimeUtil.DATETIME_FORMAT));
     for (ExperimentDAO experimentDAO : experiments) {
       final DateTime latestEndDate = getLatestEndDate(experimentDAO);
-      if (latestEndDate == null || !now.isAfter(latestEndDate)) {
+      // previous version: if (latestEndDate == null || !now.isAfter(latestEndDate)) {
+      if (latestEndDate == null || !ActionScheduleGenerator.isOver(now, experimentDAO)) {
         keepers.add(experimentDAO);
+      } else {
+        log.info("expired: " + experimentDAO.getTitle() +". LastEndDate = " + latestEndDate.toString(TimeUtil.DATETIME_FORMAT));
       }
     }
     return keepers;
@@ -407,7 +411,10 @@ class DefaultExperimentService implements ExperimentService {
 
 
   private DateTime getLatestEndDate(ExperimentDAO experimentDAO) {
-    return ActionScheduleGenerator.getLastEndTime(experimentDAO);
+    if (!ActionScheduleGenerator.areAllGroupsFixedDuration(experimentDAO)) {
+      return null;
+    }
+    return ActionScheduleGenerator.getEndDateTime(experimentDAO);
   }
 
 
