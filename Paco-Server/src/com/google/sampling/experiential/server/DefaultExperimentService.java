@@ -1,6 +1,8 @@
 package com.google.sampling.experiential.server;
 
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -368,6 +370,14 @@ class DefaultExperimentService implements ExperimentService {
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, email, timeZoneForClient);
     experiments = removeEnded(experiments, timeZoneForClient);
     removeNonAdminData(email, experiments);
+    Collections.sort(experiments, new Comparator<ExperimentDAO>() {
+
+      @Override
+      public int compare(ExperimentDAO o1, ExperimentDAO o2) {
+        return o1.getTitle().toLowerCase().compareTo(o2.getTitle().toLowerCase());
+      }
+      
+    });
 
     // for now, use the cursor as an offset to return the requested subset.
     int offset = 0;
