@@ -128,18 +128,7 @@
     <url-pattern>/jobStatus</url-pattern>
   </servlet-mapping>
   
-  <filter-mapping>
-    <filter-name>Authenticated Servlet Filter</filter-name>
-    <servlet-name>SimonServlet</servlet-name>
-  </filter-mapping>
-  <servlet>
-    <servlet-name>SimonServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.SimonServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>SimonServlet</servlet-name>
-    <url-pattern>/simon</url-pattern>
-  </servlet-mapping>
+
   
   <servlet>
     <servlet-name>AppUsageSessionServlet</servlet-name>
@@ -172,14 +161,29 @@
   </servlet-mapping>
   +   -->
    <servlet>
-     <servlet-name>inviteServlet</servlet-name>
-     <servlet-class>com.google.sampling.experiential.server.invitations.InvitationServlet</servlet-class>
+     <servlet-name>inviteCheckServlet</servlet-name>
+     <servlet-class>com.google.sampling.experiential.server.invitations.InvitationCheckServlet</servlet-class>
    </servlet>
    <servlet-mapping>
-     <servlet-name>inviteServlet</servlet-name>
-     <url-pattern>/invite</url-pattern>
+     <servlet-name>inviteCheckServlet</servlet-name>
+     <url-pattern>/inviteCheck</url-pattern>
    </servlet-mapping>
- 
+   <servlet>
+     <servlet-name>inviteGeneratorServlet</servlet-name>
+     <servlet-class>com.google.sampling.experiential.server.invitations.InvitationGeneratorServlet</servlet-class>
+   </servlet>
+   <servlet-mapping>
+     <servlet-name>inviteGeneratorServlet</servlet-name>
+     <url-pattern>/inviteGenerator</url-pattern>
+   </servlet-mapping>
+   <servlet>
+     <servlet-name>invitedParticipantEventsServlet</servlet-name>
+     <servlet-class>com.google.sampling.experiential.server.invitations.InvitationParticipantServlet</servlet-class>
+   </servlet>
+   <servlet-mapping>
+     <servlet-name>invitedParticipantEventsServlet</servlet-name>
+     <url-pattern>/invitedParticipantEvents</url-pattern>
+   </servlet-mapping>
   <!--
     <servlet>
     <servlet-name>PipelineServlet</servlet-name>
@@ -210,17 +214,31 @@
     
   <security-constraint>
     <web-resource-collection>       
-      <url-pattern>/*</url-pattern>
-      <url-pattern>/index.html</url-pattern>
+      <url-pattern>/*</url-pattern>      
       <url-pattern>/events*</url-pattern>
       <url-pattern>/experiments*</url-pattern>
       <url-pattern>/participantStats*</url-pattern>
       <url-pattern>/jobStatus*</url-pattern>
-      <url-pattern>/simon*</url-pattern>      
       <url-pattern>/usage*</url-pattern>
       <url-pattern>/csSearch</url-pattern>
       <url-pattern>/lastAppSessionChart</url-pattern> 
-      <url-pattern>/phoneSessions</url-pattern>      
+      <url-pattern>/phoneSessions</url-pattern>    
+      <url-pattern>/invitedParticipantEvents</url-pattern>
+      <url-pattern>/inviteGenerator</url-pattern>      
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>*</role-name>
+    </auth-constraint>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
+
+<!--  list of other servlets -->
+  <security-constraint>
+    <web-resource-collection>       
+      <url-pattern>/inviteCheck</url-pattern>
+      <url-pattern>/index.html</url-pattern>      
     </web-resource-collection>
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>

@@ -17,7 +17,7 @@ import net.sf.jsqlparser.JSQLParserException;
 
 public class AllFieldsSearchQuery extends SearchQuery {
   public static final Logger log = Logger.getLogger(AllFieldsSearchQuery.class.getName());
-  AllFieldsSearchQuery(SQLQuery sqlQueryObj, Float pacoProtocol) {
+  public AllFieldsSearchQuery(SQLQuery sqlQueryObj, Float pacoProtocol) {
     this.pacoProtocol = pacoProtocol;
     this.sqlQueryObj = sqlQueryObj;
   }
