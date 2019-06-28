@@ -18,12 +18,7 @@
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
 
-  <!-- Filters -->
-  <filter>
-    <filter-name>Authenticated Servlet Filter</filter-name>
-    <filter-class>com.google.sampling.experiential.server.AuthenticatedServletFilter</filter-class>
-  </filter>
-  
+ 
   <!-- Servlets -->
   <!--  model & report endpoints -->
   <servlet>
