@@ -67,7 +67,33 @@ public class InvitationParticipantServlet extends HttpServlet {
   }
 
   private void getEventsForAllParticipants(HttpServletRequest req, HttpServletResponse resp, String email) throws IOException {
-    resp.getWriter().println(JsonConverter.convertToJsonString(createErrorOutcome("Not yet implemented")));
+    String experimentIdParam = req.getParameter("experimentId");
+
+    if (Strings.isNullOrEmpty(experimentIdParam) ) {
+      resp.getWriter().println(JsonConverter.convertToJsonString(createErrorOutcome("arguments missing")));
+      return;
+    } else if (!ExperimentAccessManager.isUserAdmin(new Long(experimentIdParam), email)) {
+      resp.getWriter().println(JsonConverter.convertToJsonString(createErrorOutcome("unauthorized")));
+      return;
+    } else {
+      try {
+        String sqlQueryString = buildSqlQueryForAllParticipants(experimentIdParam);
+        AllFieldsSearchQuery searchQuery = new AllFieldsSearchQuery(null, 5.0f);
+        PacoResponse serverResponse = searchQuery.executeAcledQuery(sqlQueryString, false);
+        
+        if (serverResponse != null && serverResponse instanceof EventQueryStatus) {
+          if (Constants.SUCCESS.equals(serverResponse.getStatus())) {
+            EventQueryStatus queryResponse = (EventQueryStatus) serverResponse;
+            final List<EventDAO> events = queryResponse.getEvents();
+            String json = JsonConverter.convertToJsonString(events);
+            resp.getWriter().println(json);
+          }
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
+    }
   }
 
   private void logPacoClientVersion(HttpServletRequest req) {
@@ -154,6 +180,43 @@ public class InvitationParticipantServlet extends HttpServlet {
             "    WHERE experiment_version_group_mapping.experiment_id = " + experimentIdParam + " " + 
             "   AND esi1.label = 'participantId' " + 
             "        AND answer = '" + participantIdParam + "'" + 
+            " ORDER BY events._id DESC);";
+      return query;
+  }
+
+  private String buildSqlQueryForAllParticipants(String experimentIdParam) {
+    String query = "SELECT * FROM events" + 
+            " INNER JOIN outputs ON _id = outputs.event_id " + 
+            " INNER JOIN experiment_version_group_mapping ON events.experiment_version_group_mapping_id = experiment_version_group_mapping.experiment_version_group_mapping_id " + 
+            "           AND experiment_version_group_mapping.events_posted = 1 " + 
+            " INNER JOIN experiment_detail ON " + 
+            "    experiment_detail.experiment_detail_id = experiment_version_group_mapping.experiment_detail_id " + 
+            " INNER JOIN group_detail ON " +  
+            "    group_detail.group_detail_id = experiment_version_group_mapping.group_detail_id " + 
+            " LEFT JOIN input_collection ON input_collection.input_collection_id = experiment_version_group_mapping.input_collection_id " + 
+            "           AND experiment_version_group_mapping.experiment_id = input_collection.experiment_ds_id " + 
+            " INNER JOIN input ON input.input_id = input_collection.input_id " + 
+            "           AND outputs.input_id = input.input_id " + 
+            " INNER JOIN extern_string_input AS esi1 ON esi1.extern_string_input_id = input.name_id " + 
+            "    LEFT JOIN choice_collection ON choice_collection.choice_collection_id = input_collection.choice_collection_id " + 
+            "           AND experiment_version_group_mapping.experiment_id = choice_collection.experiment_ds_id " + 
+            "           AND outputs.answer = choice_collection.choice_order " + 
+            " LEFT JOIN extern_string_list_label ON extern_string_list_label.extern_string_list_label_id = choice_collection.choice_id " + 
+            " where _id in" + 
+            " (SELECT _id FROM events" + 
+            " INNER JOIN outputs ON _id = outputs.event_id " + 
+            "    INNER JOIN experiment_version_group_mapping ON events.experiment_version_group_mapping_id = experiment_version_group_mapping.experiment_version_group_mapping_id " + 
+            "           AND experiment_version_group_mapping.events_posted = 1 " + 
+            "    LEFT JOIN input_collection ON input_collection.input_collection_id = experiment_version_group_mapping.input_collection_id " + 
+            "           AND experiment_version_group_mapping.experiment_id = input_collection.experiment_ds_id " + 
+            " INNER JOIN input ON input.input_id = input_collection.input_id " + 
+            "           AND outputs.input_id = input.input_id " + 
+            " INNER JOIN extern_string_input AS esi1 ON esi1.extern_string_input_id = input.name_id " + 
+            "    LEFT JOIN choice_collection ON choice_collection.choice_collection_id = input_collection.choice_collection_id " + 
+            "           AND experiment_version_group_mapping.experiment_id = choice_collection.experiment_ds_id " + 
+            "           AND outputs.answer = choice_collection.choice_order " + 
+            " LEFT JOIN extern_string_list_label ON extern_string_list_label.extern_string_list_label_id = choice_collection.choice_id " + 
+            "    WHERE experiment_version_group_mapping.experiment_id = " + experimentIdParam + " " + 
             " ORDER BY events._id DESC);";
       return query;
   }
