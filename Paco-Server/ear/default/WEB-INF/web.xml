@@ -240,9 +240,10 @@
       <url-pattern>/invitedParticipantEvents</url-pattern>
       <url-pattern>/inviteGenerator</url-pattern>      
     </web-resource-collection>
-    <auth-constraint>
+<!--    <auth-constraint>
       <role-name>*</role-name>
-    </auth-constraint>
+    </auth-constraint> 
+-->
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>
     </user-data-constraint>
