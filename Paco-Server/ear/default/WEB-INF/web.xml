@@ -29,7 +29,26 @@
     <servlet-name>eventServlet</servlet-name>
     <url-pattern>/events</url-pattern>
   </servlet-mapping>
+   
+  <servlet>
+    <servlet-name>eventBlobServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.EventBlobServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>eventBlobServlet</servlet-name>
+    <url-pattern>/eventblobs</url-pattern>
+  </servlet-mapping>
+  
  
+   <servlet>
+    <servlet-name>eventBlobUrlServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.EventBlobUploadUrlServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>eventBlobUrlServlet</servlet-name>
+    <url-pattern>/eventbloburl</url-pattern>
+  </servlet-mapping>
+  
   <servlet>
     <servlet-name>ServerSearchServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.CloudSqlSearchServlet</servlet-class>
@@ -210,7 +229,7 @@
   <security-constraint>
     <web-resource-collection>       
       <url-pattern>/*</url-pattern>      
-      <url-pattern>/events*</url-pattern>
+      <url-pattern>/event*</url-pattern>
       <url-pattern>/experiments*</url-pattern>
       <url-pattern>/participantStats*</url-pattern>
       <url-pattern>/jobStatus*</url-pattern>
