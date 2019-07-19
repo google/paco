@@ -288,7 +288,9 @@ public class EventJsonUploadProcessor {
 
         if (isPhotoInput(input, answer)) {
           byte[] bytes = Base64.decodeBase64(answer.getBytes());
-          answer = processBlob(who, experimentIdStr, input, "image/jpg", bytes, "image%2Fjpg");            
+          String blobUrl = processBlob(who, experimentIdStr, input, "image/jpg", bytes, "image%2Fjpg");
+          answer = blobUrl;
+          response.put("answer", answer);
         } else if (isAudioInput(input, answer)) {
       // TODO Store audio in Google Cloud Storage
           PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));

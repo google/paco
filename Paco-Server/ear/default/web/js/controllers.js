@@ -567,7 +567,7 @@ pacoApp.controller('DataCtrl', [
     $scope.eventCursor = null;
     $scope.events = null;
     $scope.screenData = null;
-    $scope.photoHeader = 'data:image/jpeg;base64,';
+    $scope.photoHeader = ''; // TODO handle legacy data with header: 'data:image/jpeg;base64,';
     $scope.photoMarker = '/9j/';
     $scope.audioMarker = 'AAAAGGZ0eXBtc';
     $scope.textDiffMarker = 'textdiff===';
@@ -714,7 +714,7 @@ pacoApp.controller('DataCtrl', [
     }
 
     $scope.isPhotoData = function (data) {
-      return (typeof (data) === 'string' && (data.indexOf($scope.photoMarker) === 0 || data.indexOf("iVBORw0K") === 0));
+      return (typeof (data) === 'string' && (data.indexOf($scope.photoMarker) === 0 || data.indexOf("iVBORw0K") === 0 || data.indexOf("/eventblobs?mt=image") === 0));
     }
 
     $scope.isAudioData = function (data) {

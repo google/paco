@@ -3,6 +3,7 @@ package com.google.sampling.experiential.server;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.Inet4Address;
 import java.nio.channels.Channels;
 import java.text.ParseException;
 import java.util.List;
@@ -24,11 +25,15 @@ import com.google.appengine.api.files.AppEngineFile;
 import com.google.appengine.api.files.FileService;
 import com.google.appengine.api.files.FileServiceFactory;
 import com.google.appengine.api.files.FileWriteChannel;
+import com.google.appengine.api.modules.ModulesService;
+import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.tools.cloudstorage.GcsFileOptions;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.appengine.tools.development.ModulesController;
+import com.google.apphosting.utils.config.ApplicationXml.Modules;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
@@ -38,6 +43,7 @@ import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.Input2;
 import com.pacoapp.paco.shared.util.ErrorMessages;
+import com.sun.xml.internal.ws.api.server.Module;
 
 public class HtmlBlobWriter {
 
@@ -48,7 +54,8 @@ public class HtmlBlobWriter {
   public HtmlBlobWriter() {
   }
 
-  public String writeNormalExperimentEventsAsHtml(boolean anon, EventQueryResultPair eventQueryResultPair, String jobId, String experimentId, String timeZone, String originalQuery, String requestorEmail, Float pacoProtocol)
+  public String writeNormalExperimentEventsAsHtml(boolean anon, EventQueryResultPair eventQueryResultPair, String jobId, String experimentId, 
+                                                  String timeZone, String originalQuery, String requestorEmail, Float pacoProtocol)
           throws IOException {
     log.info("writing normal Experiment events as html");
 
@@ -308,6 +315,8 @@ public class HtmlBlobWriter {
   private String getValueAsDisplayString(String value) {
     if (value == null) {
       value = "";
+    } else if (value.startsWith("/eventblobs?mt=image")) {
+      value = "<img height=\"375\" src=\"" + value + "\">";
     } else if (value.startsWith("===")) {
       byte[] photoData = value.getBytes();
       if (photoData != null && photoData.length > 0) {
@@ -334,16 +343,20 @@ public class HtmlBlobWriter {
     if (value == null) {
       value = "";
     } else if (input.getResponseType().equals(Input2.PHOTO)) {
-      byte[] photoData = value.getBytes();
-      if (photoData != null && photoData.length > 0) {
-        String photoString = new String(Base64.encodeBase64(photoData));
-        if (!photoString.equals("==")) {
-          value = "<img height=\"375\" src=\"data:image/jpg;base64," + photoString + "\">";
+      if (value.startsWith("/eventblobs?mt=image")) {
+        value = "<img height=\"375\" src=\"" + value + "\">";
+      } else {
+        byte[] photoData = value.getBytes();
+        if (photoData != null && photoData.length > 0) {
+          String photoString = new String(Base64.encodeBase64(photoData));
+          if (!photoString.equals("==")) {
+            value = "<img height=\"375\" src=\"data:image/jpg;base64," + photoString + "\">";
+          } else {
+            value = "";
+          }
         } else {
           value = "";
         }
-      } else {
-        value = "";
       }
     } else if (value.indexOf(" ") != -1) {
       value = "\"" + StringEscapeUtils.escapeHtml4(value) + "\"";
@@ -357,6 +370,8 @@ public class HtmlBlobWriter {
     String value = event.getWhatByKey(key);
     if (value == null) {
       value = "";
+    } if (value.startsWith("/eventblobs?mt=image")) {
+      value = "<img height=\"375\" src=\"https://" + getHostname() + value + "\">";
     } else if (photoByNames.containsKey(key)) {
       byte[] photoData = photoByNames.get(key).getValue();
       if (photoData != null && photoData.length > 0) {
@@ -375,5 +390,10 @@ public class HtmlBlobWriter {
       value = StringEscapeUtils.escapeHtml4(value);
     }
     return value;
+  }
+
+  private String getHostname() {
+    ModulesService modulesApi = ModulesServiceFactory.getModulesService();
+    return modulesApi.getCurrentVersion() + "-dot-" + "default" + "-dot-" + "quantifiedself.appspot.com";
   }
 }

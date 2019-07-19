@@ -12,6 +12,7 @@ public class PacoModule {
   ModulesService modulesApi = ModulesServiceFactory.getModulesService();
   private static final String DOT = "-dot-";
   private static final String LOCALHOST = "localhost";
+  public static final String DEFAULT = "default";
 
   public PacoModule(String moduleName, String serverName) {
     this.name = moduleName;
