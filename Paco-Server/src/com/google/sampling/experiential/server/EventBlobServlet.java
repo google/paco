@@ -17,6 +17,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import com.google.appengine.api.blobstore.BlobInfo;
 import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.tools.cloudstorage.GcsService;
@@ -50,8 +51,11 @@ public class EventBlobServlet extends HttpServlet {
       
       List<List<String>> blobKeyMap = Lists.newArrayList();
       
-      Map<String, List<BlobKey>> uploads = BlobstoreServiceFactory.getBlobstoreService().getUploads(req);
-      Map<String, List<BlobInfo>> blobInfos = BlobstoreServiceFactory.getBlobstoreService().getBlobInfos(req);
+      BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+      
+      Map<String, List<BlobKey>> uploads = blobstoreService.getUploads(req);
+      Map<String, List<BlobInfo>> blobInfos = blobstoreService.getBlobInfos(req);
+      
       Set<String> blobKeySet = uploads.keySet();
       List<BlobAcl> blobAcls = Lists.newArrayList();
        
@@ -60,12 +64,14 @@ public class EventBlobServlet extends HttpServlet {
         if (value != null && !value.isEmpty()) {
           List<BlobInfo> blobInfoList = blobInfos.get(blobKey);
           BlobInfo currentBlobInfo = blobInfoList.get(0);
+          String gcsFullObjectName = currentBlobInfo.getGsObjectName();
+          String objectName = gcsFullObjectName.substring(gcsFullObjectName.lastIndexOf("/") + 1);
           String contentType = currentBlobInfo.getContentType();
           String media = URLEncoder.encode(contentType);
           String experimentIdForBlob = req.getParameter("experimentId_" + blobKey).trim();          
           String keyString = value.get(0).getKeyString();
           blobKeyMap.add(Lists.newArrayList(blobKey, createBlobGcsUrl(media, keyString)));
-          blobAcls.add(new BlobAcl(keyString, experimentIdForBlob, who));
+          blobAcls.add(new BlobAcl(keyString, experimentIdForBlob, who, gsBucketName, objectName));
         }
       }
       
@@ -96,21 +102,23 @@ public class EventBlobServlet extends HttpServlet {
       AuthUtil.redirectUserToLogin(req, resp);
     } else {
       String blobKeyParam = req.getParameter(BLOB_KEY_PARAM);
-      
+
       if (Strings.isNullOrEmpty(blobKeyParam)) {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "bad or missing parameters");
       } else {
-          String emailOfUser = AuthUtil.getEmailOfUser(req, user);          
-          boolean isOwner = false;
-          BlobAcl acl = BlobAclStore.getInstance().getAcl(blobKeyParam);
-          if (acl != null) {
-            isOwner = acl.getWho().equals(emailOfUser);
-          }
-          boolean isAuthorized = isOwner || ExperimentAccessManager.isAdminForExperiment(emailOfUser, Long.parseLong(acl.getExperimentIdForBlob()));
-          if (isAuthorized) {
-            BlobKey blobKey = new BlobKey(blobKeyParam);
-            BlobstoreServiceFactory.getBlobstoreService().serve(blobKey, resp);
-          } else {
+        String emailOfUser = AuthUtil.getEmailOfUser(req, user);
+        boolean isOwner = false;
+        BlobAcl acl = BlobAclStore.getInstance().getAcl(blobKeyParam);
+        if (acl != null) {
+          isOwner = acl.getWho().equals(emailOfUser);
+        }
+        boolean isAuthorized = isOwner
+                               || ExperimentAccessManager.isAdminForExperiment(emailOfUser,
+                                                                               Long.parseLong(acl.getExperimentId()));
+        if (isAuthorized) {
+          BlobKey blobKey = new BlobKey(blobKeyParam);
+          BlobstoreServiceFactory.getBlobstoreService().serve(blobKey, resp);
+        } else {
           resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "bad or missing parameters");
         }
       }

@@ -30,7 +30,7 @@ public class BlobAclStore {
     List<Entity> entities = Lists.newArrayList();
     for (BlobAcl blobAcl : blobAcls) {
       Entity entity = new Entity(BLOB_ACL_KIND, blobAcl.getKeyString());
-      entity.setProperty("experimentId", Long.parseLong(blobAcl.getExperimentIdForBlob()));
+      entity.setProperty("experimentId", Long.parseLong(blobAcl.getExperimentId()));
       entity.setProperty("who", blobAcl.getWho());
       entities.add(entity);
     }
@@ -44,7 +44,11 @@ public class BlobAclStore {
     try {
       Entity entity = ds.get(KeyFactory.createKey(BLOB_ACL_KIND, blobKeyParam));
       if (entity != null) {
-        BlobAcl blobAcl = new BlobAcl(entity.getKey().getName(), ((Long)entity.getProperty("experimentId")).toString(), (String)entity.getProperty("who"));
+        BlobAcl blobAcl = new BlobAcl(entity.getKey().getName(), 
+                                      ((Long)entity.getProperty("experimentId")).toString(), 
+                                      (String)entity.getProperty("who"), 
+                                      (String)entity.getProperty("bucketName"), 
+                                      (String)entity.getProperty("objectName"));
         return blobAcl;
       }
     } catch (EntityNotFoundException e) {
@@ -59,8 +63,10 @@ public class BlobAclStore {
     }
     
     Entity entity = new Entity(BLOB_ACL_KIND, blobAcl.getKeyString());
-    entity.setProperty("experimentId", Long.parseLong(blobAcl.getExperimentIdForBlob()));
+    entity.setProperty("experimentId", Long.parseLong(blobAcl.getExperimentId()));
     entity.setProperty("who", blobAcl.getWho());
+    entity.setProperty("bucketName", blobAcl.getBucketName());
+    entity.setProperty("objectName", blobAcl.getObjectName());
     
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();    
     ds.put(entity);

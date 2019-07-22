@@ -1,11 +1,15 @@
 package com.google.sampling.experiential.server;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.channels.Channels;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.codec.binary.Base64;
@@ -23,9 +27,11 @@ import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.tools.cloudstorage.GcsFileOptions;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsInputChannel;
 import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.appengine.tools.cloudstorage.RetryParams;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
@@ -40,6 +46,7 @@ public class JSONBlobWriter {
 
   private static final Logger log = Logger.getLogger(JSONBlobWriter.class.getName());
   private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
+  int BUFFER_SIZE = 2 * 1024 * 1024;
 
 
   public JSONBlobWriter() {
@@ -68,35 +75,18 @@ public class JSONBlobWriter {
         DateTime responseDateTime = event.getResponseTimeWithTimeZone(timezoneId);
         DateTime scheduledDateTime = event.getScheduledTimeWithTimeZone(timezoneId);
         List<WhatDAO> whatMap = EventRetriever.convertToWhatDAOs(event.getWhat());
-        List<PhotoBlob> photos = event.getBlobs();
-        String[] photoBlobs = null;
-        if (includePhotos && photos != null && photos.size() > 0) {
-
-          photoBlobs = new String[photos.size()];
-
-          Map<String, PhotoBlob> photoByNames = Maps.newConcurrentMap();
-          for (PhotoBlob photoBlob : photos) {
-            photoByNames.put(photoBlob.getName(), photoBlob);
-          }
-          for(WhatDAO currentWhat : whatMap) {
-            String value = null;
-            if (photoByNames.containsKey(currentWhat.getName())) {
-              byte[] photoData = photoByNames.get(currentWhat.getName()).getValue();
-              if (photoData != null && photoData.length > 0) {
-                String photoString = new String(Base64.encodeBase64(photoData));
-                if (!photoString.equals("==")) {
-                  value = photoString;
-                } else {
-                  value = "";
-                }
-              } else {
-                value = "";
-              }
-              currentWhat.setValue(value);
-            }
-          }
+        
+        // blob version of adding base64 encoded photos
+        
+        if (includePhotos) {
+          // legacy GAE DS blob storage
+          fillInResponsesWithEncodedBlobData(event, whatMap);
+          // new GCS blob storage
+          fillInResponsesWithEncodedBlobDataFromGCS(whatMap);
         }
 
+        EventServlet.rewriteBlobUrlsAsFullyQualified(whatMap);
+        
         eventDAOs.add(new EventDAO(userId,
                                    new DateTime(event.getWhen()),
                                    event.getExperimentName(),
@@ -136,6 +126,100 @@ public class JSONBlobWriter {
     return "Error could not retrieve events as json";
   }
 
+
+  private void fillInResponsesWithEncodedBlobData(Event event, List<WhatDAO> whatMap) {
+    List<PhotoBlob> photoBlobs = event.getBlobs();
+    if (photoBlobs != null && photoBlobs.size() > 0) {        
+      Map<String, PhotoBlob> photoByNames = Maps.newConcurrentMap();
+      for (PhotoBlob photoBlob : photoBlobs) {
+        photoByNames.put(photoBlob.getName(), photoBlob);
+      }
+      for(WhatDAO currentWhat : whatMap) {
+        String value = null;
+        if (photoByNames.containsKey(currentWhat.getName())) {
+          byte[] photoData = photoByNames.get(currentWhat.getName()).getValue();
+          if (photoData != null && photoData.length > 0) {
+            String photoString = new String(Base64.encodeBase64(photoData));
+            if (!photoString.equals("==")) {
+              value = photoString;
+            } else {
+              value = "";
+            }
+          } else {
+            value = "";
+          }
+          currentWhat.setValue(value);
+        }
+      }
+    }
+  }
+
+
+  
+  private void fillInResponsesWithEncodedBlobDataFromGCS(List<WhatDAO> whatMap) {
+    final GcsService gcsService = GcsServiceFactory.createGcsService(new RetryParams.Builder()
+                                                                     .initialRetryDelayMillis(10)
+                                                                     .retryMaxAttempts(10)
+                                                                     .totalRetryPeriodMillis(15000)
+                                                                     .build());
+    BlobAclStore bas = BlobAclStore.getInstance();
+    
+    for(WhatDAO currentWhat : whatMap) {
+      String currentWhatValue = currentWhat.getValue();
+      if (currentWhatValue.startsWith("/eventblobs")) {
+        
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        String blobKey = getBlobKey(currentWhatValue);
+        BlobAcl blobAcl = bas.getAcl(blobKey);
+        if (blobAcl != null && blobAcl.getBucketName() != null && blobAcl.getObjectName() != null) {
+          GcsFilename gcsFileName = getFileName(blobAcl.getBucketName(), blobAcl.getObjectName());
+          GcsInputChannel readChannel = gcsService.openPrefetchingReadChannel(gcsFileName, 0, BUFFER_SIZE);
+          try {
+            copy(Channels.newInputStream(readChannel), byteArrayOutputStream);
+            String photoBlobString = new String(Base64.encodeBase64(byteArrayOutputStream.toByteArray()));
+            currentWhat.setValue(photoBlobString);
+          } catch (IOException e) {
+            log.log(Level.WARNING, "failed to copy blob from GCS", e);
+          }
+        } else {
+          log.warning("Blob key for writing blob was null: " + currentWhatValue);
+        }
+      }
+    }
+  }
+
+  private String getBlobKey(String value) {
+    String[] parts = value.split("&");
+    for (int i = 0; i < parts.length; i++) {
+      if (parts[i].startsWith("blob-key=")) {
+        return parts[i].substring(9);
+      }
+    }
+    return null;
+  }
+
+
+  private GcsFilename getFileName(String bucketName, String objectName) {
+    return new GcsFilename(bucketName, objectName);
+  }
+
+  /**
+   * Transfer the data from the inputStream to the outputStream. Then close both streams.
+   */
+  private void copy(InputStream input, OutputStream output) throws IOException {
+    try {
+      byte[] buffer = new byte[BUFFER_SIZE];
+      int bytesRead = input.read(buffer);
+      while (bytesRead != -1) {
+        output.write(buffer, 0, bytesRead);
+        bytesRead = input.read(buffer);
+      }
+    } finally {
+      input.close();
+      output.close();
+    }
+  }
+  
   public  BlobKey writeBlobUsingNewApi(String jobId, String json) throws IOException,
                                                                      FileNotFoundException {
     GcsService gcsService = GcsServiceFactory.createGcsService();

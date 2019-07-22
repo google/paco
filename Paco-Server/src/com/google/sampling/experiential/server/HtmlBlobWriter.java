@@ -370,7 +370,7 @@ public class HtmlBlobWriter {
     String value = event.getWhatByKey(key);
     if (value == null) {
       value = "";
-    } if (value.startsWith("/eventblobs?mt=image")) {
+    } else if (value.startsWith("/eventblobs?mt=image")) {
       value = "<img height=\"375\" src=\"https://" + getHostname() + value + "\">";
     } else if (photoByNames.containsKey(key)) {
       byte[] photoData = photoByNames.get(key).getValue();
@@ -392,7 +392,7 @@ public class HtmlBlobWriter {
     return value;
   }
 
-  private String getHostname() {
+  public static String getHostname() {
     ModulesService modulesApi = ModulesServiceFactory.getModulesService();
     return modulesApi.getCurrentVersion() + "-dot-" + "default" + "-dot-" + "quantifiedself.appspot.com";
   }

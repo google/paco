@@ -348,10 +348,10 @@ public class EventJsonUploadProcessor {
 
   private String processBlob(String who, String experimentIdStr, Input2 input, String mimeType,
                              byte[] bytes, String mediaTypeName) throws IOException {
-    String key = input.getName() + experimentIdStr + who +  System.currentTimeMillis();
+    String gcsObjectName = input.getName() + experimentIdStr + who +  System.currentTimeMillis();
     // todo - come up with something more unique since names are global in gcs
-    String hashedKey = DigestUtils.shaHex(key);                          
-    GcsFilename filename =  new GcsFilename(gsBucketName, hashedKey);
+    String hashedObjectName = DigestUtils.shaHex(gcsObjectName);                          
+    GcsFilename filename =  new GcsFilename(gsBucketName, hashedObjectName);
     
     
     GcsFileOptions defaultOptions = new GcsFileOptions.Builder()
@@ -366,13 +366,17 @@ public class EventJsonUploadProcessor {
     GcsOutputChannel outputChannel = gcsService.createOrReplace(filename, defaultOptions);
     copy(new ByteArrayInputStream(bytes), Channels.newOutputStream(outputChannel));
     
-    String keyString = com.google.appengine.api.blobstore.BlobstoreServiceFactory
+    String blobKey = com.google.appengine.api.blobstore.BlobstoreServiceFactory
             .getBlobstoreService()
             .createGsBlobKey("/gs/" + filename.getBucketName() + "/" + filename.getObjectName())
             .getKeyString();
-    blobAclStore.saveAcl(new BlobAcl(keyString, experimentIdStr, who));
+    blobAclStore.saveAcl(new BlobAcl(blobKey, 
+                                     experimentIdStr, 
+                                     who, 
+                                     filename.getBucketName(), 
+                                     filename.getObjectName()));
     
-    return EventBlobServlet.createBlobGcsUrl(mediaTypeName, keyString);
+    return EventBlobServlet.createBlobGcsUrl(mediaTypeName, blobKey);
   }
 
 

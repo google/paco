@@ -17,16 +17,21 @@
 package com.google.sampling.experiential.server;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.nio.channels.Channels;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
@@ -43,8 +48,17 @@ import org.codehaus.jackson.map.util.ISO8601DateFormat;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.blobstore.BlobstoreInputStream;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
+
+import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsInputChannel;
+import com.google.appengine.tools.cloudstorage.GcsService;
+import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.appengine.tools.cloudstorage.RetryParams;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -67,6 +81,7 @@ public class EventServlet extends HttpServlet {
   private String defaultAdmin = "bobevans@google.com";
   private List<String> adminUsers = Lists.newArrayList(defaultAdmin);
   private static final String REPORT_WORKER = "reportworker";
+  int BUFFER_SIZE = 2 * 1024 * 1024;
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -146,34 +161,14 @@ public class EventServlet extends HttpServlet {
         DateTime responseDateTime = event.getResponseTimeWithTimeZone(event.getTimeZone());
         DateTime scheduledDateTime = event.getScheduledTimeWithTimeZone(event.getTimeZone());
         final List<WhatDAO> whatMap = EventRetriever.convertToWhatDAOs(event.getWhat());
-        List<PhotoBlob> photos = event.getBlobs();
-        String[] photoBlobs = null;
-        if (includePhotos && photos != null && photos.size() > 0) {
-
-          photoBlobs = new String[photos.size()];
-
-          Map<String, PhotoBlob> photoByNames = Maps.newConcurrentMap();
-          for (PhotoBlob photoBlob : photos) {
-            photoByNames.put(photoBlob.getName(), photoBlob);
-          }
-          for(WhatDAO currentWhat : whatMap) {
-            String value = null;
-            if (photoByNames.containsKey(currentWhat.getName())) {
-              byte[] photoData = photoByNames.get(currentWhat.getName()).getValue();
-              if (photoData != null && photoData.length > 0) {
-                String photoString = new String(Base64.encodeBase64(photoData));
-                if (!photoString.equals("==")) {
-                  value = photoString;
-                } else {
-                  value = "";
-                }
-              } else {
-                value = "";
-              }
-              currentWhat.setValue(value);
-            }
-          }
+        
+        if (includePhotos) { 
+          // legacy GAE DS blob storage
+          fillInResponsesWithEncodedBlobData(event, whatMap);
+          // new GCS blob storage
+          fillInResponsesWithEncodedBlobDataFromGCS(whatMap);
         }
+        rewriteBlobUrlsAsFullyQualified(whatMap); // handles any failed includedPhotos as well.
 
         eventDAOs.add(new EventDAO(userId,
                                    new DateTime(event.getWhen()),
@@ -214,6 +209,148 @@ public class EventServlet extends HttpServlet {
     return "Error could not retrieve events as json";
   }
 
+
+  public static void rewriteBlobUrlsAsFullyQualified(List<WhatDAO> whatMap) {
+    for(WhatDAO currentWhat : whatMap) {
+      String currentWhatValue = currentWhat.getValue();
+      if (currentWhatValue.startsWith("/eventblobs")) {
+        currentWhat.setValue("https://" + HtmlBlobWriter.getHostname() + currentWhatValue);
+      }
+    }
+  }
+
+  private void fillInResponsesWithEncodedBlobData(Event event, List<WhatDAO> whatMap) {
+    List<PhotoBlob> photoBlobs = event.getBlobs();
+    if (photoBlobs != null && photoBlobs.size() > 0) {        
+      Map<String, PhotoBlob> photoByNames = Maps.newConcurrentMap();
+      for (PhotoBlob photoBlob : photoBlobs) {
+        photoByNames.put(photoBlob.getName(), photoBlob);
+      }
+      for(WhatDAO currentWhat : whatMap) {
+        String value = null;
+        if (photoByNames.containsKey(currentWhat.getName())) {
+          byte[] photoData = photoByNames.get(currentWhat.getName()).getValue();
+          if (photoData != null && photoData.length > 0) {
+            String photoString = new String(Base64.encodeBase64(photoData));
+            if (!photoString.equals("==")) {
+              value = photoString;
+            } else {
+              value = "";
+            }
+          } else {
+            value = "";
+          }
+          currentWhat.setValue(value);
+        }
+      }
+    }
+  }
+//
+//  private void fillInResponsesWithEncodedBlobDataFromGCSX(List<WhatDAO> whatMap) {
+//    for(WhatDAO currentWhat : whatMap) {
+//      String currentWhatValue = currentWhat.getValue();
+//      if (currentWhatValue.startsWith("/eventblobs")) {
+//        final GcsService gcsService = GcsServiceFactory.createGcsService(new RetryParams.Builder()
+//                                                                                 .initialRetryDelayMillis(10)
+//                                                                                 .retryMaxAttempts(10)
+//                                                                                 .totalRetryPeriodMillis(15000)
+//                                                                                 .build());
+//        
+//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//        String blobKeyStr = getBlobKey(currentWhatValue);
+//        if (blobKeyStr != null) {
+//          BlobstoreInputStream bsis;
+//          try {
+////            bsis = new BlobstoreInputStream(new BlobKey(blobKeyStr));
+////            copy(bsis, byteArrayOutputStream);
+//            byte[] data = BlobstoreServiceFactory.getBlobstoreService().fetchData(new BlobKey(blobKeyStr), 0, Long.MAX_VALUE);
+//            //String photoBlobString = new String(Base64.encodeBase64(byteArrayOutputStream.toByteArray()));
+//            String photoBlobString = new String(Base64.encodeBase64(data));
+//            currentWhat.setValue(photoBlobString);
+//          } catch (Exception e) {
+//            log.log(Level.WARNING, "failed to copy blob from GCS", e);
+//          } finally {
+//           if (byteArrayOutputStream != null) {
+//             try {
+//              byteArrayOutputStream.close();
+//            } catch (IOException e) {
+//              e.printStackTrace();
+//            }
+//           }
+//          }          
+//        } else {
+//          log.warning("Blob key for writing blob was null: " + currentWhatValue);
+//        }
+//      }
+//    }
+//  }
+  
+  private void fillInResponsesWithEncodedBlobDataFromGCS(List<WhatDAO> whatMap) {
+    final GcsService gcsService = GcsServiceFactory.createGcsService(new RetryParams.Builder()
+                                                                     .initialRetryDelayMillis(10)
+                                                                     .retryMaxAttempts(10)
+                                                                     .totalRetryPeriodMillis(15000)
+                                                                     .build());
+    BlobAclStore bas = BlobAclStore.getInstance();
+    
+    for(WhatDAO currentWhat : whatMap) {
+      String currentWhatValue = currentWhat.getValue();
+      if (currentWhatValue.startsWith("/eventblobs")) {
+        
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        String blobKey = getBlobKey(currentWhatValue);
+        BlobAcl blobAcl = bas.getAcl(blobKey);
+        if (blobAcl != null && blobAcl.getBucketName() != null && blobAcl.getObjectName() != null) {
+          System.out.println("Starting blob retrieval from GCS. bucket: " + blobAcl.getBucketName() + ", blobname: " + blobAcl.getObjectName());
+          GcsFilename gcsFileName = getFileName(blobAcl.getBucketName(), blobAcl.getObjectName());
+          GcsInputChannel readChannel = gcsService.openPrefetchingReadChannel(gcsFileName, 0, BUFFER_SIZE);
+          try {
+            copy(Channels.newInputStream(readChannel), byteArrayOutputStream);
+            String photoBlobString = new String(Base64.encodeBase64(byteArrayOutputStream.toByteArray()));
+            currentWhat.setValue(photoBlobString);
+          } catch (IOException e) {
+            log.log(Level.WARNING, "failed to copy blob from GCS", e);
+          }          
+        } else {
+          log.warning("Blob key component for writing blob was null: " + currentWhatValue);
+        }
+      }
+    }
+  }
+
+  private GcsFilename getFileName(String bucketName, String objectName) {
+    return new GcsFilename(bucketName, objectName);
+  }
+  private String getBlobKey(String value) {
+    String[] parts = value.split("&");
+    for (int i = 0; i < parts.length; i++) {
+      if (parts[i].startsWith("blob-key=")) {
+        String keyValue = parts[i].substring(9).trim();
+        log.info("blbo key = " + keyValue);
+        return keyValue;
+      }
+    }
+    return null;
+  }
+
+
+  /**
+   * Transfer the data from the inputStream to the outputStream. Then close both streams.
+   */
+  private void copy(InputStream input, OutputStream output) throws IOException {
+    try {
+      byte[] buffer = new byte[BUFFER_SIZE];
+      int bytesRead = input.read(buffer);
+      while (bytesRead != -1) {
+        output.write(buffer, 0, bytesRead);
+        bytesRead = input.read(buffer);
+      }
+    } finally {
+      input.close();
+      output.close();
+    }
+  }
+  
   private void dumpEventsCSVExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline, Float pacoProtocol ) throws IOException {
     String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
