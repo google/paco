@@ -12,6 +12,8 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
+import com.google.appengine.api.utils.SystemProperty;
+
 public class AuthUtil {
   private static final String EMAIL_SCOPE = "https://www.googleapis.com/auth/userinfo.email";
   
@@ -69,6 +71,10 @@ public class AuthUtil {
       }
     }
     return email.toLowerCase();
+  }
+
+  public static boolean isDevInstance() {
+    return SystemProperty.environment.value() == SystemProperty.Environment.Value.Development;
   }
 
 }

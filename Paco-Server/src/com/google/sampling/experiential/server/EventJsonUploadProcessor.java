@@ -1,13 +1,19 @@
 package com.google.sampling.experiential.server;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.Channels;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -17,6 +23,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.appengine.tools.cloudstorage.GcsFileOptions;
+import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
+import com.google.appengine.tools.cloudstorage.GcsService;
+import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.appengine.tools.cloudstorage.RetryParams;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -35,7 +47,16 @@ public class EventJsonUploadProcessor {
   private static final Logger log = Logger.getLogger(EventJsonUploadProcessor.class.getName());
   private ExperimentService experimentRetriever;
   private EventRetriever eventRetriever;
+  
+  private final GcsService gcsService = GcsServiceFactory.createGcsService(new RetryParams.Builder()
+                                                                           .initialRetryDelayMillis(10)
+                                                                           .retryMaxAttempts(10)
+                                                                           .totalRetryPeriodMillis(15000)
+                                                                           .build());
 
+  private String gsBucketName = System.getProperty("com.pacoapp.eventBlobBucketName");
+  BlobAclStore blobAclStore = BlobAclStore.getInstance();
+  
   public EventJsonUploadProcessor(ExperimentService experimentRetriever, EventRetriever eventRetriever) {
     this.eventRetriever = eventRetriever;
     this.experimentRetriever = experimentRetriever;
@@ -239,47 +260,39 @@ public class EventJsonUploadProcessor {
       return outcome;
     }
 
-//    log.info("Starting to read responses");
     Set<What> whats = Sets.newHashSet();
     List<PhotoBlob> blobs = Lists.newArrayList();
     if (eventJson.has("responses")) {
       JSONArray responses = eventJson.getJSONArray("responses");
-//      log.info("There are " + responses.length() + " response objects");
 
       for (int i = 0; i < responses.length(); i++) {
         JSONObject response = responses.getJSONObject(i);
         String name = response.getString("name");
-
-
-        Input2 input = null;
-        if (input == null) {
-          input = ExperimentHelper.getInputWithName(experiment, name, groupName);
-        }
-//        if (input != null) {
-//          log.info("Input name, responseType: " + input.getName() + ", " + input.getResponseType());
-//        } else {
-//          log.info("input is null for name, group: " + name +", " + groupName);
-//        }
-
+        Input2 input = ExperimentHelper.getInputWithName(experiment, name, groupName);                
         String answer = null;
         if (response.has("answer")) {
           answer = response.getString("answer");
         }
 
-        if (isPhotoInput(input, answer)) {
-          PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));
-          blobs.add(photoBlob);
-          answer = "blob";
-        } else if (isAudioInput(input, answer)) {
-          // TODO Store audio in Google Cloud Storage
-          PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));
-          blobs.add(photoBlob);
-          answer = "audioblob";
-        } else if (isTextBlobInput(input, answer)) {
-          // TODO Store audio in Google Cloud Storage
-          PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.substring("textdiff===".length()).getBytes()));
-          blobs.add(photoBlob);
-          answer = "textblob";
+        if (!persistInCloudSqlOnly && isPhotoInput(input, answer)) {
+          log.info("Received a photo blob");
+          byte[] bytes = Base64.decodeBase64(answer.getBytes());
+          String blobUrl = processBlob(who, experimentIdStr, name, "image/jpg", bytes, "image%2Fjpg");
+          answer = blobUrl;
+          response.put("answer", answer);
+        } else if (!persistInCloudSqlOnly && isAudioInput(input, answer)) {
+          log.info("Received an audio blob");
+          byte[] bytes = Base64.decodeBase64(answer.getBytes());
+          String blobUrl = processBlob(who, experimentIdStr, name, "audio", bytes, "audio");
+          answer = blobUrl;
+          response.put("answer", answer);        
+        } else if (!persistInCloudSqlOnly && isTextBlobInput(input, answer)) {
+          log.info("Received a text blob: " + answer);
+          byte[] bytes = Base64.decodeBase64(answer.substring("textdiff===".length()).getBytes());
+          String blobUrl = processBlob(who, experimentIdStr, name, "text/plain;charset=UTF-8", bytes, "textdiff");
+          answer = blobUrl;
+          log.info("Url for text blob: " + blobUrl);
+          response.put("answer", answer);
         } else if (answer != null && answer.length() >= 500) {
 //          log.info("The response was too long for: " + name + ".");
 //          log.info("Response was " + answer);
@@ -323,6 +336,63 @@ public class EventJsonUploadProcessor {
                                            groupName, actionTriggerId, actionTriggerSpecId, actionId);
 
     return outcome;
+  }
+
+  private String processBlob(String who, String experimentIdStr, String inputName, String mimeType,
+                             byte[] bytes, String mediaTypeName) throws IOException {
+    log.info("processBlob enter");
+    try {
+      String gcsObjectName = inputName + experimentIdStr + who +  System.currentTimeMillis();
+      // todo - come up with something more unique since names are global in gcs
+      String hashedObjectName = DigestUtils.shaHex(gcsObjectName);
+      log.info("processBlob step o");
+      GcsFilename filename =  new GcsFilename(gsBucketName, hashedObjectName);
+      log.info("processBlob step 1");
+//    String contentEncoding = "binary";
+      
+      GcsFileOptions defaultOptions = new GcsFileOptions.Builder()
+          .mimeType(mimeType)
+//        .contentEncoding("binary") // todo is it really binary or is it base 64 or is it different for text files
+//                .acl(acl)
+//                .addUserMetadata(hashedKey, value)
+//                .contentDisposition(contentDisposition)
+          .build();
+              
+      log.info("processBlob step 2");
+      GcsOutputChannel outputChannel = gcsService.createOrReplace(filename, defaultOptions);
+      copy(new ByteArrayInputStream(bytes), Channels.newOutputStream(outputChannel));
+      log.info("processBlob step 3");
+      String blobKey = com.google.appengine.api.blobstore.BlobstoreServiceFactory
+              .getBlobstoreService()
+              .createGsBlobKey("/gs/" + filename.getBucketName() + "/" + filename.getObjectName())
+              .getKeyString();
+      blobAclStore.saveAcl(new BlobAcl(blobKey, 
+                                       experimentIdStr, 
+                                       who, 
+                                       filename.getBucketName(), 
+                                       filename.getObjectName()));
+      log.info("processBlob step 4");
+      return EventBlobServlet.createBlobGcsUrl(mediaTypeName, blobKey);
+    } catch (Exception e) {
+      log.log(Level.SEVERE, "Could not process blob", e);
+      throw e;
+    }
+  }
+
+
+  private void copy(InputStream input, OutputStream output) throws IOException {
+    int BUFFER_SIZE = 2 * 1024 * 1024;
+    try {
+      byte[] buffer = new byte[BUFFER_SIZE];
+      int bytesRead = input.read(buffer);
+      while (bytesRead != -1) {
+        output.write(buffer, 0, bytesRead);
+        bytesRead = input.read(buffer);
+      }
+    } finally {
+      input.close();
+      output.close();
+    }
   }
 
   private boolean isPhotoInput(Input2 input, String answer) {

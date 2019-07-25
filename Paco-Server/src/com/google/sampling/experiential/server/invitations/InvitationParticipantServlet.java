@@ -20,11 +20,17 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.server.AllFieldsSearchQuery;
 import com.google.sampling.experiential.server.AuthUtil;
+import com.google.sampling.experiential.server.EventDAOQueryResultPair;
+import com.google.sampling.experiential.server.EventJsonDownloader;
+import com.google.sampling.experiential.server.EventQueryResultPair;
 import com.google.sampling.experiential.server.EventQueryStatus;
 import com.google.sampling.experiential.server.ExperimentAccessManager;
+import com.google.sampling.experiential.server.HttpUtil;
 import com.google.sampling.experiential.server.PacoResponse;
 import com.google.sampling.experiential.server.QueryFactory;
+import com.google.sampling.experiential.server.RequestProcessorUtil;
 import com.google.sampling.experiential.server.SearchQuery;
+import com.google.sampling.experiential.server.TimeUtil;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.pacoapp.paco.shared.comm.Outcome;
 import com.pacoapp.paco.shared.model2.JsonConverter;
@@ -85,7 +91,11 @@ public class InvitationParticipantServlet extends HttpServlet {
           if (Constants.SUCCESS.equals(serverResponse.getStatus())) {
             EventQueryStatus queryResponse = (EventQueryStatus) serverResponse;
             final List<EventDAO> events = queryResponse.getEvents();
-            String json = JsonConverter.convertToJsonString(events);
+            boolean anon = getAnonFromReq(req);
+            boolean inlineBlobs = getInlineBlobsFromReq(req);
+            boolean fullBlobAddress = getFullBlobAddressFromReq(req, true);
+            Float pacoProtocol = RequestProcessorUtil.getPacoProtocolVersionAsFloat(req);            
+            String json = EventJsonDownloader.jsonifyEventDAOs(anon, inlineBlobs, pacoProtocol, events, null, fullBlobAddress);            
             resp.getWriter().println(json);
           }
         }
@@ -133,8 +143,14 @@ public class InvitationParticipantServlet extends HttpServlet {
           if (Constants.SUCCESS.equals(serverResponse.getStatus())) {
             EventQueryStatus queryResponse = (EventQueryStatus) serverResponse;
             final List<EventDAO> events = queryResponse.getEvents();
-            String json = JsonConverter.convertToJsonString(events);
+            boolean anon = getAnonFromReq(req);
+            boolean inlineBlobs = getInlineBlobsFromReq(req);
+            boolean fullBlobAddress = getFullBlobAddressFromReq(req, true);
+            Float pacoProtocol = RequestProcessorUtil.getPacoProtocolVersionAsFloat(req);            
+            String json = EventJsonDownloader.jsonifyEventDAOs(anon, inlineBlobs, pacoProtocol, events, null, fullBlobAddress);
             resp.getWriter().println(json);
+          } else {
+            resp.getWriter().println(JsonConverter.convertToJsonString(serverResponse));
           }
         }
       } catch (Exception e) {
@@ -143,6 +159,27 @@ public class InvitationParticipantServlet extends HttpServlet {
 
     }
     
+  }
+
+  public static boolean getInlineBlobsFromReq(HttpServletRequest req) {
+    return getBooleanFromReq(req, "includePhotos", false);
+  }
+
+  public static boolean getBooleanFromReq(HttpServletRequest req, String paramName, boolean defaultValue) {
+    String anonStr = HttpUtil.getParam(req, paramName);
+    boolean anon = defaultValue;
+    if (!Strings.isNullOrEmpty(anonStr)) {
+      anon = Boolean.parseBoolean(anonStr);
+    }
+    return anon;
+  }
+
+  public static boolean getAnonFromReq(HttpServletRequest req) {
+    return getBooleanFromReq(req, "anon", false);
+  }
+  
+  public static boolean getFullBlobAddressFromReq(HttpServletRequest req, boolean defaultValue) {
+    return getBooleanFromReq(req, "fullBlobAddress", defaultValue);
   }
 
   private String buildSqlQuery(String experimentIdParam, String participantIdParam) {

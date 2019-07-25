@@ -219,7 +219,8 @@ public class ExperimentDAOConverter {
     CSGroupTypeInputMappingDao gtimDaoImpl = new CSGroupTypeInputMappingDaoImpl();
     ExperimentGroup predefinedGrp = new ExperimentGroup();
     ExperimentDAOConverter daoConverter = new ExperimentDAOConverter();
-    List<Input> predefinedInputOrigLst = gtimDaoImpl.getAllFeatureInputs().get(groupType.name());
+    Map<String, List<Input>> allFeatureInputs = gtimDaoImpl.getAllFeatureInputs();
+    List<Input> predefinedInputOrigLst = allFeatureInputs.get(groupType.name());
     List<Input> predefinedInputModifiedLst = null;
     
     if (!recordPhoneDetails && GroupTypeEnum.SYSTEM.equals(groupType)) {

@@ -211,7 +211,7 @@ public class EventRetriever {
         } else if (!isScheduleEvent && !isStopEvent) {
           new ParticipationStatsService().updateResponseCountWithEvent(event);
         }
-        replaceEachBlobInJsonWithTheWordBlob(eventJson, event);
+        //replaceEachBlobInJsonWithTheWordBlob(eventJson, event);
         // TODO remove this so events can get posted to cloud sql while they are posted to data store
         sendToCloudSqlQueue(eventJson, event);
         tx.commit();

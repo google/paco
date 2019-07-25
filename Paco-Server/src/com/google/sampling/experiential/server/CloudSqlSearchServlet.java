@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -17,6 +18,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 
 import com.google.appengine.api.users.User;
+import com.google.sampling.experiential.server.invitations.InvitationParticipantServlet;
+import com.google.sampling.experiential.shared.EventDAO;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.model2.SQLQuery;
 import com.pacoapp.paco.shared.util.Constants;
@@ -58,8 +61,21 @@ public class CloudSqlSearchServlet extends HttpServlet {
         PacoResponse pr = searchQuery.process(loggedInUser, oldFormatFlag);
         long diff = System.currentTimeMillis() - startTime;
         log.info("complete search qry took " + diff + " seconds");
-        resp.setContentType("text/html");
-        resp.getWriter().println(pr);
+        
+        if (searchQuery instanceof AllFieldsSearchQuery) {
+          log.info("We are in an AllFieldsSearchQuery result");
+          final List<EventDAO> events = ((EventQueryStatus)pr).getEvents();
+          boolean anon = InvitationParticipantServlet.getAnonFromReq(req);
+          boolean inlineBlobs = InvitationParticipantServlet.getInlineBlobsFromReq(req);
+          boolean fullBlobAddress = InvitationParticipantServlet.getFullBlobAddressFromReq(req, true);
+          String json = EventJsonDownloader.jsonifyEventDAOs(anon, inlineBlobs, pacoProtocol, events, null, fullBlobAddress);
+          resp.setContentType("text/json");
+          resp.getWriter().println(json);
+        } else {
+          log.info("We are NOT in an AllFieldsSearchQuery result");
+          resp.setContentType("text/json");
+          resp.getWriter().println(pr);
+        }
       } catch (JSONException jsonEx) {
         String exceptionString = ExceptionUtil.getStackTraceAsString(jsonEx);
         log.warning( ErrorMessages.JSON_EXCEPTION.getDescription() + exceptionString);
