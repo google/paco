@@ -23,6 +23,7 @@
   <!-- Configure java.util.logging -->
   <system-properties>
     <property value="WEB-INF/logging.properties" name="java.util.logging.config.file"/>
+    <property name="com.pacoapp.eventBlobBucketName" value="quantifiedself-eventblob"/>
     <property name="ae-cloudsql.database-url" value="AAA"/>
     <property name="ae-cloudsql.database-username" value="BBB"/>
     <property name="ae-cloudsql.database-password" value="CCC"/>
