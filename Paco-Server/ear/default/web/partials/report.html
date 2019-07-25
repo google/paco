@@ -12,9 +12,9 @@
         <md-switch ng-model="options.anonymous" aria-label="Anonymize report">
           Anonymous report
         </md-switch>
-        <md-switch ng-model="options.photos" aria-label="Include photos" 
+        <md-switch ng-model="options.photos" aria-label="Inline blobs" 
           ng-if="reportType === 'json'">
-          Include photos in report
+          Inline blobs (photos, audio, text diffs) in report
         </md-switch>
       </div>
   </md-dialog-content>

@@ -32,8 +32,6 @@ import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
-import com.google.appengine.tools.development.ModulesController;
-import com.google.apphosting.utils.config.ApplicationXml.Modules;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
@@ -43,12 +41,11 @@ import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.Input2;
 import com.pacoapp.paco.shared.util.ErrorMessages;
-import com.sun.xml.internal.ws.api.server.Module;
 
 public class HtmlBlobWriter {
 
   private static final Logger log = Logger.getLogger(HtmlBlobWriter.class.getName());
-  private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
+  private static DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
 
 
   public HtmlBlobWriter() {
@@ -74,7 +71,7 @@ public class HtmlBlobWriter {
 
   }
 
-  private BlobKey writeBlobUsingNewApi(EventQueryResultPair eventQueryResultPair, String jobId, String timeZone,
+  private static BlobKey writeBlobUsingNewApi(EventQueryResultPair eventQueryResultPair, String jobId, String timeZone,
                                        ExperimentDAO experiment, String eventPage) throws IOException,
                                                                                FileNotFoundException {
     GcsService gcsService = GcsServiceFactory.createGcsService();
@@ -135,16 +132,16 @@ public class HtmlBlobWriter {
   }
 
 
-  private String getExperimentTitle(ExperimentDAO experiment) {
+  private static String getExperimentTitle(ExperimentDAO experiment) {
     String experimentTitle = experiment != null ? experiment.getTitle() : null;
     return escapeText(experimentTitle);
   }
 
-  private String escapeText(String experimentTitle) {
+  private static String escapeText(String experimentTitle) {
     return StringEscapeUtils.escapeHtml4(experimentTitle);
   }
 
-  private String printHeader(int eventCount, String experimentTitle, String clientTimeZone) {
+  private static String printHeader(int eventCount, String experimentTitle, String clientTimeZone) {
     StringBuilder out = new StringBuilder();
     out.append("<html><head><title>Current Results for "
                + experimentTitle
@@ -394,6 +391,11 @@ public class HtmlBlobWriter {
 
   public static String getHostname() {
     ModulesService modulesApi = ModulesServiceFactory.getModulesService();
-    return modulesApi.getCurrentVersion() + "-dot-" + "default" + "-dot-" + "quantifiedself.appspot.com";
+    String currentVersion = modulesApi.getCurrentVersion();
+    if (currentVersion.equals(modulesApi.getDefaultVersion("default"))) {
+      return "www.pacoapp.com";
+    } else {
+      return currentVersion + "-dot-" + "default" + "-dot-" + "quantifiedself.appspot.com";
+    }
   }
 }

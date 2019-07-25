@@ -195,7 +195,7 @@ public class CSVBlobWriter {
    for (EventDAO event : eventDAOs) {
      List<WhatDAO> whatMap = event.getWhat();
      // no inlining of blobs in csv
-     EventServlet.rewriteBlobUrlsAsFullyQualified(whatMap);
+     EventJsonDownloader.rewriteBlobUrlsAsFullyQualified(whatMap);
      
      for (WhatDAO output : whatMap) {
        String name = output.getName();

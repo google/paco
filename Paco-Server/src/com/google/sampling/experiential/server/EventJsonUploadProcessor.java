@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.codec.binary.Base64;
@@ -259,48 +260,39 @@ public class EventJsonUploadProcessor {
       return outcome;
     }
 
-//    log.info("Starting to read responses");
     Set<What> whats = Sets.newHashSet();
     List<PhotoBlob> blobs = Lists.newArrayList();
     if (eventJson.has("responses")) {
       JSONArray responses = eventJson.getJSONArray("responses");
-//      log.info("There are " + responses.length() + " response objects");
 
       for (int i = 0; i < responses.length(); i++) {
         JSONObject response = responses.getJSONObject(i);
         String name = response.getString("name");
-
-
-        Input2 input = null;
-        if (input == null) {
-          input = ExperimentHelper.getInputWithName(experiment, name, groupName);
-        }
-//        if (input != null) {
-//          log.info("Input name, responseType: " + input.getName() + ", " + input.getResponseType());
-//        } else {
-//          log.info("input is null for name, group: " + name +", " + groupName);
-//        }
-
+        Input2 input = ExperimentHelper.getInputWithName(experiment, name, groupName);                
         String answer = null;
         if (response.has("answer")) {
           answer = response.getString("answer");
         }
 
-        if (isPhotoInput(input, answer)) {
+        if (!persistInCloudSqlOnly && isPhotoInput(input, answer)) {
+          log.info("Received a photo blob");
           byte[] bytes = Base64.decodeBase64(answer.getBytes());
-          String blobUrl = processBlob(who, experimentIdStr, input, "image/jpg", bytes, "image%2Fjpg");
+          String blobUrl = processBlob(who, experimentIdStr, name, "image/jpg", bytes, "image%2Fjpg");
           answer = blobUrl;
           response.put("answer", answer);
-        } else if (isAudioInput(input, answer)) {
-      // TODO Store audio in Google Cloud Storage
-          PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));
-          blobs.add(photoBlob);
-          answer = "audioblob";
-        } else if (isTextBlobInput(input, answer)) {
-          // TODO Store audio in Google Cloud Storage
-          PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.substring("textdiff===".length()).getBytes()));
-          blobs.add(photoBlob);
-          answer = "textblob";
+        } else if (!persistInCloudSqlOnly && isAudioInput(input, answer)) {
+          log.info("Received an audio blob");
+          byte[] bytes = Base64.decodeBase64(answer.getBytes());
+          String blobUrl = processBlob(who, experimentIdStr, name, "audio", bytes, "audio");
+          answer = blobUrl;
+          response.put("answer", answer);        
+        } else if (!persistInCloudSqlOnly && isTextBlobInput(input, answer)) {
+          log.info("Received a text blob: " + answer);
+          byte[] bytes = Base64.decodeBase64(answer.substring("textdiff===".length()).getBytes());
+          String blobUrl = processBlob(who, experimentIdStr, name, "text/plain;charset=UTF-8", bytes, "textdiff");
+          answer = blobUrl;
+          log.info("Url for text blob: " + blobUrl);
+          response.put("answer", answer);
         } else if (answer != null && answer.length() >= 500) {
 //          log.info("The response was too long for: " + name + ".");
 //          log.info("Response was " + answer);
@@ -346,37 +338,45 @@ public class EventJsonUploadProcessor {
     return outcome;
   }
 
-  private String processBlob(String who, String experimentIdStr, Input2 input, String mimeType,
+  private String processBlob(String who, String experimentIdStr, String inputName, String mimeType,
                              byte[] bytes, String mediaTypeName) throws IOException {
-    String gcsObjectName = input.getName() + experimentIdStr + who +  System.currentTimeMillis();
-    // todo - come up with something more unique since names are global in gcs
-    String hashedObjectName = DigestUtils.shaHex(gcsObjectName);                          
-    GcsFilename filename =  new GcsFilename(gsBucketName, hashedObjectName);
-    
-    
-    GcsFileOptions defaultOptions = new GcsFileOptions.Builder()
-        .mimeType(mimeType)
-        .contentEncoding("binary")
+    log.info("processBlob enter");
+    try {
+      String gcsObjectName = inputName + experimentIdStr + who +  System.currentTimeMillis();
+      // todo - come up with something more unique since names are global in gcs
+      String hashedObjectName = DigestUtils.shaHex(gcsObjectName);
+      log.info("processBlob step o");
+      GcsFilename filename =  new GcsFilename(gsBucketName, hashedObjectName);
+      log.info("processBlob step 1");
+//    String contentEncoding = "binary";
+      
+      GcsFileOptions defaultOptions = new GcsFileOptions.Builder()
+          .mimeType(mimeType)
+//        .contentEncoding("binary") // todo is it really binary or is it base 64 or is it different for text files
 //                .acl(acl)
 //                .addUserMetadata(hashedKey, value)
 //                .contentDisposition(contentDisposition)
-        .build();
-            
-    
-    GcsOutputChannel outputChannel = gcsService.createOrReplace(filename, defaultOptions);
-    copy(new ByteArrayInputStream(bytes), Channels.newOutputStream(outputChannel));
-    
-    String blobKey = com.google.appengine.api.blobstore.BlobstoreServiceFactory
-            .getBlobstoreService()
-            .createGsBlobKey("/gs/" + filename.getBucketName() + "/" + filename.getObjectName())
-            .getKeyString();
-    blobAclStore.saveAcl(new BlobAcl(blobKey, 
-                                     experimentIdStr, 
-                                     who, 
-                                     filename.getBucketName(), 
-                                     filename.getObjectName()));
-    
-    return EventBlobServlet.createBlobGcsUrl(mediaTypeName, blobKey);
+          .build();
+              
+      log.info("processBlob step 2");
+      GcsOutputChannel outputChannel = gcsService.createOrReplace(filename, defaultOptions);
+      copy(new ByteArrayInputStream(bytes), Channels.newOutputStream(outputChannel));
+      log.info("processBlob step 3");
+      String blobKey = com.google.appengine.api.blobstore.BlobstoreServiceFactory
+              .getBlobstoreService()
+              .createGsBlobKey("/gs/" + filename.getBucketName() + "/" + filename.getObjectName())
+              .getKeyString();
+      blobAclStore.saveAcl(new BlobAcl(blobKey, 
+                                       experimentIdStr, 
+                                       who, 
+                                       filename.getBucketName(), 
+                                       filename.getObjectName()));
+      log.info("processBlob step 4");
+      return EventBlobServlet.createBlobGcsUrl(mediaTypeName, blobKey);
+    } catch (Exception e) {
+      log.log(Level.SEVERE, "Could not process blob", e);
+      throw e;
+    }
   }
 
 
