@@ -137,7 +137,7 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
         endpoint += ':who=' + user;
       }
 
-      endpoint += '\'&json&includePhotos=true';
+      endpoint += '\'&json&includePhotos=false';
 
       if (anonymous) {
         endpoint += '&anon=true';
@@ -176,6 +176,9 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
         if (photos) {
           endpoint += '&includePhotos=true';
         }
+        
+        endpoint += '&fullBlobAddress=true';
+        
 
         $http.get(endpoint).then(
           function(data) {
@@ -483,7 +486,8 @@ pacoApp.service('config', function() {
   {"id" : 'list', "name" : 'List'},
   {"id" : 'photo', "name" : 'Photo'},
   {"id" : 'location', "name" : 'Location'},
-  {"id" : 'audio', "name" : 'Audio'}];
+  {"id" : 'audio', "name" : 'Audio'},
+  {"id" : 'textblob', "name" : 'Text Blob'}];
   
   this.feedbackTypes = [
     'Static Message',

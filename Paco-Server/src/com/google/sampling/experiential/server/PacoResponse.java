@@ -5,6 +5,7 @@ import com.pacoapp.paco.shared.util.Constants;
 public class PacoResponse {
   String status;
   String errorMessage;
+  
   public String getStatus() {
     return status;
   }

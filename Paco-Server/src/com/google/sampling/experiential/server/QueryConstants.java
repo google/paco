@@ -171,4 +171,11 @@ public enum QueryConstants {
   public String toString(){
     return  query;
   }
+  
+  static String q = "select * from group_type_input_mapping gtim join input " + 
+  " i on i.input_id=gtim.input_id join extern_string_input " + 
+  " esi1 on i.name_id = esi1.extern_string_input_id " + 
+  " join extern_string_input esi2 on i.text_id = esi2.extern_string_input_id " +  
+  " join data_type dt on i.response_data_type_id = dt.data_type_id " +
+  " join group_type gt on gt.group_type_id = gtim.group_type_id";
 }

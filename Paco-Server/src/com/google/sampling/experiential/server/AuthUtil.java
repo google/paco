@@ -1,6 +1,7 @@
 package com.google.sampling.experiential.server;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,8 +12,12 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
+import com.google.appengine.api.utils.SystemProperty;
+
 public class AuthUtil {
   private static final String EMAIL_SCOPE = "https://www.googleapis.com/auth/userinfo.email";
+  
+  public static final Logger log = Logger.getLogger(AuthUtil.class.getName());
 
   private AuthUtil() {
 
@@ -25,7 +30,8 @@ public class AuthUtil {
         try {
           currentUser = OAuthServiceFactory.getOAuthService().getCurrentUser(EMAIL_SCOPE);
         } catch (OAuthRequestException e) {
-          e.printStackTrace();
+          log.info("OAuthService exception: " + e.getMessage());
+          //e.printStackTrace();
         }
       }
       return currentUser;
@@ -65,6 +71,10 @@ public class AuthUtil {
       }
     }
     return email.toLowerCase();
+  }
+
+  public static boolean isDevInstance() {
+    return SystemProperty.environment.value() == SystemProperty.Environment.Value.Development;
   }
 
 }

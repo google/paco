@@ -194,6 +194,9 @@ public class CSVBlobWriter {
    List<String> undeclaredExperimentColumnNames = Lists.newArrayList();
    for (EventDAO event : eventDAOs) {
      List<WhatDAO> whatMap = event.getWhat();
+     // no inlining of blobs in csv
+     EventJsonDownloader.rewriteBlobUrlsAsFullyQualified(whatMap);
+     
      for (WhatDAO output : whatMap) {
        String name = output.getName();
        if (!experimentColumnNames.contains(name) && !undeclaredExperimentColumnNames.contains(name)) {

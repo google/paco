@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
   <application>quantifiedself</application>
+  <runtime>java8</runtime>
   <module>mapreduce</module>
   <version>211</version>
   <threadsafe>true</threadsafe>
@@ -21,6 +22,7 @@
   </automatic-scaling>
   <system-properties>
     <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
+    <property name="com.pacoapp.eventBlobBucketName" value="quantifiedself-eventblob"/>    
     <property name="ae-cloudsql.database-url" value="AAA"/>
     <property name="ae-cloudsql.database-username" value="BBB"/>
     <property name="ae-cloudsql.database-password" value="CCC"/>

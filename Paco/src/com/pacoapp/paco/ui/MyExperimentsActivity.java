@@ -573,15 +573,6 @@ public class MyExperimentsActivity extends ActionBarActivity implements
       DateTime dt = TimeUtil.parseDateWithZone(joinDate);
       return TimeUtil.formatDateLong(dt);
     }
-    private List<ExperimentGroup> getOnlySurveyGroups(List<ExperimentGroup> groups) {
-      List<ExperimentGroup> surveyGroups = Lists.newArrayList();
-      for (ExperimentGroup eg : groups) {
-        if (GroupTypeEnum.SURVEY.equals(eg.getGroupType())) {
-          surveyGroups.add(eg);
-        }
-      }
-      return surveyGroups;
-    }
 
     private OnClickListener myButtonListener = new OnClickListener() {
       @Override
@@ -593,7 +584,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
           final Long experimentServerId = (Long) v.getTag();
           final Experiment experiment = experiments.get(position);
           final List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
-          List<ExperimentGroup> surveyGrps = getOnlySurveyGroups(groups);
+          List<ExperimentGroup> surveyGrps = ExperimentGroupPicker.getOnlySurveyGroups(groups);
           if (v.getId() == R.id.menuButton) {
             showPopup(experiment, v);
           } else {
@@ -603,7 +594,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
               experimentIntent = new Intent(MyExperimentsActivity.this, ExperimentGroupPicker.class);
               experimentIntent.putExtra(ExperimentGroupPicker.SHOULD_GO_TO_RENDER_NEXT,
                                         ExperimentGroupPicker.RENDER_NEXT);
-            } else {
+            } else if (surveyGrps.size() == 1){
               Class clazz = null;
               final ExperimentGroup experimentGroup = surveyGrps.get(0);
               if (experimentGroup.getCustomRendering()) {
@@ -614,6 +605,8 @@ public class MyExperimentsActivity extends ActionBarActivity implements
               experimentIntent = new Intent(MyExperimentsActivity.this, clazz);
               experimentIntent.putExtra(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY, experimentGroup.getName());
 
+            } else {
+              // TODO show them the experiment has no operable elements
             }
             experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experimentServerId);
             startActivity(experimentIntent);

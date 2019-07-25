@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.google.sampling.experiential.cloudsql.columns.ExternStringInputColumns;
 import com.google.sampling.experiential.dao.CSEventOutputDao;
 import com.google.sampling.experiential.dao.impl.CSEventOutputDaoImpl;
 import com.google.sampling.experiential.shared.EventDAO;
@@ -16,7 +17,7 @@ import net.sf.jsqlparser.JSQLParserException;
 
 public class AllFieldsSearchQuery extends SearchQuery {
   public static final Logger log = Logger.getLogger(AllFieldsSearchQuery.class.getName());
-  AllFieldsSearchQuery(SQLQuery sqlQueryObj, Float pacoProtocol) {
+  public AllFieldsSearchQuery(SQLQuery sqlQueryObj, Float pacoProtocol) {
     this.pacoProtocol = pacoProtocol;
     this.sqlQueryObj = sqlQueryObj;
   }
@@ -50,8 +51,18 @@ public class AllFieldsSearchQuery extends SearchQuery {
   public String renameTextColumn(String acledQuery) {
     // TODO following replaces will only be needed during the big migration phase. This should be cleaned up.
     acledQuery = acledQuery.replace("experiment_id", "experiment_version_group_mapping.experiment_id");
-    acledQuery = acledQuery.replace("experiment_version_group_mapping.experiment_version_group_mapping.experiment_id", "experiment_version_group_mapping.experiment_id");
+    acledQuery = acledQuery.replace("experiment_version_group_mapping.experiment_version_group_mapping.experiment_id", 
+                                    "experiment_version_group_mapping.experiment_id");
+    acledQuery = acledQuery.replace("text", "esi1." + ExternStringInputColumns.LABEL );
     return acledQuery;
+    
+//    String tempAcledQuery = acledQuery.replace("experiment_id", "experiment_version_group_mapping.experiment_id");
+//    tempAcledQuery = tempAcledQuery.replace("experiment_version_group_mapping.experiment_version_group_mapping.experiment_id", 
+//                                            "experiment_version_group_mapping.experiment_id");;
+//    tempAcledQuery = tempAcledQuery.replace("group_name", "group_detail.group_name");
+//    return acledQuery.replace("text", "esi1." + ExternStringInputColumns.LABEL );
+
+    
   }
   
 //  @Override

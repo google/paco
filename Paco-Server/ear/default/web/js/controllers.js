@@ -567,9 +567,10 @@ pacoApp.controller('DataCtrl', [
     $scope.eventCursor = null;
     $scope.events = null;
     $scope.screenData = null;
-    $scope.photoHeader = 'data:image/jpeg;base64,';
+    $scope.photoHeader = ''; // TODO handle legacy data with header: 'data:image/jpeg;base64,';
     $scope.photoMarker = '/9j/';
     $scope.audioMarker = 'AAAAGGZ0eXBtc';
+    $scope.textDiffMarker = 'SW5';
     $scope.statsDate = new Date();
     $scope.groupNames = [];
     $scope.showGroup = 'all';
@@ -713,7 +714,7 @@ pacoApp.controller('DataCtrl', [
     }
 
     $scope.isPhotoData = function (data) {
-      return (typeof (data) === 'string' && (data.indexOf($scope.photoMarker) === 0 || data.indexOf("iVBORw0K") === 0));
+      return (typeof (data) === 'string' && (data.indexOf($scope.photoMarker) === 0 || data.indexOf("iVBORw0K") === 0 || data.indexOf("mt=image") !== -1));
     }
 
     $scope.isAudioData = function (data) {
@@ -722,6 +723,14 @@ pacoApp.controller('DataCtrl', [
 
     $scope.makeAudioSrc = function (cell) {
       return "data:audio/mpeg;base64," + cell;
+    }
+
+    $scope.isTextDiffData = function (data) {
+      return (typeof (data) === 'string' && data.indexOf("mt=textdiff") !== -1); 
+    }
+
+    $scope.makeTextDiffCell = function (cell) {
+      return cell; //cell.substring($scope.textDiffMarker.length);
     }
 
     $scope.removeUserChip = function () {
@@ -799,7 +808,7 @@ pacoApp.controller('HackCtrl', ['$scope', '$http', function ($scope, $http) {
   
   $scope.submitForm = function (protocolVersion) {
     if (protocolVersion == 5) {
-      searchUrlWithVersion = '/csSearch?pacoProtocol=5';
+      searchUrlWithVersion = '/csSearch?pacoProtocol=5&fullBlobAddress=true';
     } else {
       searchUrlWithVersion = '/csSearch?pacoProtocol=4';
     }

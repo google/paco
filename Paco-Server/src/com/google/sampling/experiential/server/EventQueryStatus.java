@@ -21,12 +21,16 @@ public class EventQueryStatus extends PacoResponse {
   
   @JsonIgnore
   Float pacoProtocol;
+  
   @JsonIgnore
   ObjectMapper mapper = JsonConverter.getObjectMapper();
+  
   public static final Logger log = Logger.getLogger(EventQueryStatus.class.getName());
+  
   public EventQueryStatus(Float pacoProtocol) { 
     this.pacoProtocol = pacoProtocol;
   }
+  
   public EventQueryStatus() { 
     this.pacoProtocol = 5.0f;
   }
@@ -41,8 +45,7 @@ public class EventQueryStatus extends PacoResponse {
   
   @Override
   public String toString() { 
-   
-    String results = null;
+    String results = "";
     final String error = " during string conversion";
     try {
       if (pacoProtocol != null && pacoProtocol < 5) {

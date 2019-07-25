@@ -16,6 +16,7 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  --><appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
+  <runtime>java8</runtime>
   <application>quantifiedself</application>
   <module>reportworker</module>
   <version>211</version>
@@ -23,6 +24,7 @@
   <system-properties>
     <property value="WEB-INF/logging.properties" name="java.util.logging.config.file"/>
     <property name="com.pacoapp.reportbucketname" value="reportbucket"/>
+    <property name="com.pacoapp.eventBlobBucketName" value="quantifiedself-eventblob"/>
     <property name="com.pacoapp.adminDomain" value="google.com"/>
     <property name="ae-cloudsql.database-url" value="AAA"/>
     <property name="ae-cloudsql.database-username" value="BBB"/>

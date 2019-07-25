@@ -16,12 +16,14 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  --><appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
+  <runtime>java8</runtime>
   <application>quantifiedself</application>
   <module>migration</module>
   <version>211</version>
   <!-- Configure java.util.logging -->
   <system-properties>
     <property value="WEB-INF/logging.properties" name="java.util.logging.config.file"/>
+    <property name="com.pacoapp.eventBlobBucketName" value="quantifiedself-eventblob"/>
     <property name="ae-cloudsql.database-url" value="AAA"/>
     <property name="ae-cloudsql.database-username" value="BBB"/>
     <property name="ae-cloudsql.database-password" value="CCC"/>

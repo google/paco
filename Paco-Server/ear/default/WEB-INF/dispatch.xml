@@ -9,4 +9,9 @@
       <url>*/migration/*</url>
       <module>migration</module>
   </dispatch>
+  <dispatch>
+      <url>*/backendReportJobExecutor*</url>
+      <module>reportworker</module>
+  </dispatch>
+  
 </dispatch-entries>

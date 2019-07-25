@@ -1,6 +1,8 @@
 package com.google.sampling.experiential.server;
 
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -368,6 +370,14 @@ class DefaultExperimentService implements ExperimentService {
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, email, timeZoneForClient);
     experiments = removeEnded(experiments, timeZoneForClient);
     removeNonAdminData(email, experiments);
+    Collections.sort(experiments, new Comparator<ExperimentDAO>() {
+
+      @Override
+      public int compare(ExperimentDAO o1, ExperimentDAO o2) {
+        return o1.getTitle().toLowerCase().compareTo(o2.getTitle().toLowerCase());
+      }
+      
+    });
 
     // for now, use the cursor as an offset to return the requested subset.
     int offset = 0;
@@ -395,11 +405,15 @@ class DefaultExperimentService implements ExperimentService {
 
   private List<ExperimentDAO> removeEnded(List<ExperimentDAO> experiments, DateTimeZone timeZoneForClient) {
     List<ExperimentDAO> keepers = Lists.newArrayList();
-    DateMidnight now = DateTime.now().withZone(timeZoneForClient).toDateMidnight();
+    DateTime now = DateTime.now().withZone(timeZoneForClient);
+    log.info("Removing any experiments ended before now: " + now.toString(TimeUtil.DATETIME_FORMAT));
     for (ExperimentDAO experimentDAO : experiments) {
       final DateTime latestEndDate = getLatestEndDate(experimentDAO);
-      if (latestEndDate == null || !now.isAfter(latestEndDate)) {
+      // previous version: if (latestEndDate == null || !now.isAfter(latestEndDate)) {
+      if (latestEndDate == null || !ActionScheduleGenerator.isOver(now, experimentDAO)) {
         keepers.add(experimentDAO);
+      } else {
+        log.info("expired: " + experimentDAO.getTitle() +". LastEndDate = " + latestEndDate.toString(TimeUtil.DATETIME_FORMAT));
       }
     }
     return keepers;
@@ -407,7 +421,10 @@ class DefaultExperimentService implements ExperimentService {
 
 
   private DateTime getLatestEndDate(ExperimentDAO experimentDAO) {
-    return ActionScheduleGenerator.getLastEndTime(experimentDAO);
+    if (!ActionScheduleGenerator.areAllGroupsFixedDuration(experimentDAO)) {
+      return null;
+    }
+    return ActionScheduleGenerator.getEndDateTime(experimentDAO);
   }
 
 
