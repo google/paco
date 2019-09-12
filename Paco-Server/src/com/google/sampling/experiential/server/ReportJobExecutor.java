@@ -1,6 +1,7 @@
 package com.google.sampling.experiential.server;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -10,9 +11,11 @@ import org.joda.time.DateTimeZone;
 
 import com.google.appengine.api.ThreadManager;
 import com.google.common.base.Strings;
+import com.google.sampling.experiential.gcs.GCSFetcher;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.server.stats.usage.UsageStatsBlobWriter;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 
 /**
@@ -100,7 +103,7 @@ public class ReportJobExecutor {
       //EventRetriever.sortEvents(events);
       log.info("Got events for job: " + jobId);
 
-      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, pacoProtocol);
+      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, pacoProtocol, includePhotos);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("json")) {
       // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved.
       log.info("Getting events for job: " + jobId);
@@ -124,7 +127,8 @@ public class ReportJobExecutor {
       //EventRetriever.sortEvents(events);
       log.info("Got events for job: " + jobId);
 
-      return generateHtmlReport(timeZoneForClient, anon, jobId, experimentId, eventQueryResultPair, originalQuery, requestorEmail, pacoProtocol);
+      return generateHtmlReport(timeZoneForClient, anon, jobId, experimentId, eventQueryResultPair, originalQuery, 
+                                requestorEmail, pacoProtocol, includePhotos, fullBlobAddress);
     }
   }
 
@@ -176,12 +180,12 @@ public class ReportJobExecutor {
     log.info("Got events for job: " + jobId);
 
     if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("csv2")) {
-      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, pacoProtocol);
+      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, pacoProtocol, includePhotos);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("json2")) {
       return generateJsonReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, includePhotos, pacoProtocol, fullBlobAddress);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("html2")) {
       return generateHtmlReport(timeZoneForClient, anon, jobId, experimentId, eventQueryResultPair, originalQuery,
-                                requestorEmail, pacoProtocol);
+                                requestorEmail, pacoProtocol, includePhotos, fullBlobAddress);
     }
     return null;
 
@@ -205,7 +209,7 @@ public class ReportJobExecutor {
                                                                                                        requestorEmail,
                                                                                                        timeZoneForClient);
       log.info("Got events for job: " + jobId);
-      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, pacoProtocol);
+      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, pacoProtocol, includePhotos);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("json2")) {
       log.info("Getting events for json job: " + jobId);
       EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsFromLowLevelDS(query,
@@ -215,7 +219,7 @@ public class ReportJobExecutor {
       return generateJsonReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, includePhotos, pacoProtocol, fullBlobAddress);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("html2")) {
       return generateHtmlReportSplitLargeFiles(requestorEmail, timeZoneForClient, query, anon, jobId, originalQuery,
-                                             experimentId, pacoProtocol);
+                                             experimentId, pacoProtocol, includePhotos, fullBlobAddress);
     }
     return null;
 
@@ -223,7 +227,7 @@ public class ReportJobExecutor {
 
   private String generateHtmlReportSplitLargeFiles(String requestorEmail, DateTimeZone timeZoneForClient,
                                                  List<Query> query, boolean anon, String jobId, String originalQuery,
-                                                 String experimentId, Float pacoProtocol) throws IOException {
+                                                 String experimentId, Float pacoProtocol, boolean inlineBlobs, boolean fullBlobAddress) throws IOException {
     log.info("Getting events for html job: " + jobId);
     EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsFromLowLevelDS(query,
                                                                                                      requestorEmail,
@@ -236,7 +240,7 @@ public class ReportJobExecutor {
 //      }
 //    }
     return new HtmlBlobWriter().writeNormalExperimentEventsAsHtml(anon, eventQueryResultPair, jobId, experimentId,
-                                                                  timeZoneForClient.getID(), originalQuery, requestorEmail, pacoProtocol);
+                                                                  timeZoneForClient.getID(), originalQuery, requestorEmail, pacoProtocol, inlineBlobs, fullBlobAddress);
   }
 
   private String generateJsonReport(boolean anon, String jobId, String experimentId,
@@ -265,14 +269,17 @@ public class ReportJobExecutor {
   }
 
   private String generateHtmlReport(DateTimeZone timeZoneForClient, boolean anon, String jobId, String experimentId,
-                                    EventQueryResultPair eventQueryResultPair, String originalQuery, String requestorEmail, Float pacoProtocol) throws IOException {
+                                    EventQueryResultPair eventQueryResultPair, String originalQuery, String requestorEmail, Float pacoProtocol, 
+                                    boolean inlineBlobs, boolean fullBlobAddress) throws IOException {
     if (!Strings.isNullOrEmpty(experimentId)) {
       String eodFile = generateEODHtml(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient.getID(), pacoProtocol);
       if (eodFile != null) {
         return eodFile;
       }
     }
-    return new HtmlBlobWriter().writeNormalExperimentEventsAsHtml(anon, eventQueryResultPair, jobId, experimentId, timeZoneForClient.getID(), originalQuery, requestorEmail, pacoProtocol);
+    return new HtmlBlobWriter().writeNormalExperimentEventsAsHtml(anon, eventQueryResultPair, jobId, experimentId, 
+                                                                  timeZoneForClient.getID(), originalQuery, requestorEmail, 
+                                                                  pacoProtocol, inlineBlobs, fullBlobAddress);
   }
 
   private String generateEODHtml(boolean anon, String jobId, String experimentId, EventQueryResultPair eventQueryResultPair, String timeZoneForClient, Float pacoProtocol) throws IOException {
@@ -290,15 +297,27 @@ public class ReportJobExecutor {
     return ExperimentServiceFactory.getExperimentService().getReferredExperiment(Long.parseLong(experimentId));
   }
 
-  private String generateCSVReport(boolean anon, String jobId, String experimentId, EventQueryResultPair eventQueryResultPair, Float pacoProtocol)
+  private String generateCSVReport(boolean anon, String jobId, String experimentId, EventQueryResultPair eventQueryResultPair, Float pacoProtocol, boolean inlineBlobs)
                                                                                                        throws IOException {
+    List<Event> events = eventQueryResultPair.getEvents();
+    for (Iterator iterator = events.iterator(); iterator.hasNext();) {
+      Event event2 = (Event) iterator.next();
+      if (inlineBlobs) {
+        // legacy GAE DS blob storage
+        List<WhatDAO> whatMap = EventRetriever.convertToWhatDAOs(event2.getWhat());
+        EventJsonDownloader.fillInResponsesWithEncodedBlobData(event2, whatMap);
+        // new GCS blob storage
+        GCSFetcher.fillInResponsesWithEncodedBlobDataFromGCS(whatMap);
+      }  
+    }
+    
     if (!Strings.isNullOrEmpty(experimentId)) {
-      String eodFile = generateEODCSV(anon, jobId, experimentId, eventQueryResultPair.getEvents(), pacoProtocol);
+      String eodFile = generateEODCSV(anon, jobId, experimentId, events, pacoProtocol);
       if (eodFile != null) {
         return eodFile;
       }
     }
-    List<EventDAO> eodEventDAOs = EventRetriever.convertEventsToDAOs(eventQueryResultPair.getEvents());
+    List<EventDAO> eodEventDAOs = EventRetriever.convertEventsToDAOs(events);
     try {
       Long experimentIdLong = Long.parseLong(experimentId);
       ExperimentService es = ExperimentServiceFactory.getExperimentService();

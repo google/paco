@@ -13,5 +13,9 @@
       <url>*/backendReportJobExecutor*</url>
       <module>reportworker</module>
   </dispatch>
+  <dispatch>
+      <url>*/phoneSessions*</url>
+      <module>reportworker</module>
+  </dispatch>
   
 </dispatch-entries>

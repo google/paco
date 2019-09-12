@@ -732,6 +732,11 @@ pacoApp.controller('DataCtrl', [
     $scope.makeTextDiffCell = function (cell) {
       return cell; //cell.substring($scope.textDiffMarker.length);
     }
+    
+    $scope.isZipFileData = function (data) {
+      return (typeof (data) === 'string' && data.indexOf("mt=zipfile") !== -1); 
+    }
+
 
     $scope.removeUserChip = function () {
       var newPath = $scope.currentView + '/' + $scope.experimentId;

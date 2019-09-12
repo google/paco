@@ -47,17 +47,22 @@ public class PhoneSessionServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+    System.out.println("TEST Enttering PhoneSessionServlet.doGet");
+    log.info("DoGet of PhoneSessionServlet 1");
     setCharacterEncoding(req, resp);
     User user = AuthUtil.getWhoFromLogin();
 
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
     } else {
+      log.info("DoGet of PhoneSessionServlet 2");
+      
+    
       String userEmail = AuthUtil.getEmailOfUser(req, user);
       Long experimentId = getExperimentId(req);
       String groupName = getGroupName(req);
       String who = req.getParameter("who");
-      Float pacoProtocol = RequestProcessorUtil.getPacoProtocolVersionAsFloat(req);;
+      Float pacoProtocol = RequestProcessorUtil.getPacoProtocolVersionAsFloat(req);
 
       DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(DATETIME_FORMAT);
       String startDatetimeParam = req.getParameter("startTime");
@@ -75,11 +80,13 @@ public class PhoneSessionServlet extends HttpServlet {
           endTime = null;
         }
       }
-
+      
       if (experimentId != null) {
         DateTimeZone tzForClient = TimeUtil.getTimeZoneForClient(req);
         try {
+          log.info("pre produceAppUsageChart");
           produceAppUsageChart(userEmail, who, experimentId, resp, tzForClient, groupName, startTime, endTime, pacoProtocol);
+          log.info("post produceAppUsageChart");
         } catch (Exception e) {
           throw new ServletException("Exception while processing app usage information"+ e.getMessage());
         }
@@ -96,6 +103,8 @@ public class PhoneSessionServlet extends HttpServlet {
 
   private void produceAppUsageChart(String userEmail, String who, Long experimentId, HttpServletResponse resp,
                                     DateTimeZone timezone, String groupName, String startTime, String endTime, Float pacoProtocol) throws Exception {
+    log.info("Entering produceAppUsageChart");
+    
     Boolean oldMethodFlag = Constants.USE_OLD_FORMAT_FLAG;
     String responseTimeClause = "";
     String responseTimeValues = "";
@@ -151,11 +160,19 @@ public class PhoneSessionServlet extends HttpServlet {
               + "order : \"who,response_time\"};";
     boolean enableGrpByAndProjection = true;
     SQLQuery sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(query, enableGrpByAndProjection);
+    
     SearchQuery searchQuery = QueryFactory.createSearchQuery(sqlQueryObj, pacoProtocol);
+    
+    
     long qryStartTime = System.currentTimeMillis();
+    
+    log.info("Starting phoneSession query");
     PacoResponse pr = searchQuery.process(userEmail, oldMethodFlag);
+    
     long diff = System.currentTimeMillis() - qryStartTime;
-    log.info("complete search qry took " + diff + " seconds");
+    
+    log.info("complete search qry took " + diff + " milliseconds");
+    
     
     EventQueryStatus evQryStatus = null;
     String page = "Unable to retrieve user app sessions";

@@ -52,13 +52,25 @@ public class UsageCronJobServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     setCharacterEncoding(req, resp);
     
-    String isLaunchedByCron = req.getHeader("X-Appengine-Cron");
-    if (Strings.isNullOrEmpty(isLaunchedByCron) || !Boolean.parseBoolean(isLaunchedByCron)) {
-      resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-    } else {      
-      dumpStats(resp, req); 
-    }
+//    String isLaunchedByCron = req.getHeader("X-Appengine-Cron");
+//    if (Strings.isNullOrEmpty(isLaunchedByCron) || !Boolean.parseBoolean(isLaunchedByCron)) {
+//      resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+//    } else {
+    
+      //dumpStats(resp, req);
+//    resp.sendRedirect(this.getRunnerQueryPath(TimeUtil.getTimeZoneForClient(req), "stats", req.getParameter("q")));
+    runStats(req,resp,100000);
+    //}
   }
+  
+  private void runStats(HttpServletRequest req, HttpServletResponse resp, int limit) throws IOException {
+    String requestorEmail = "cron"; // bypass the admins check since it can only be launched by cron or an admin
+    DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
+    //paco protocol is immaterial, so passing null
+    String jobId = ReportJobExecutor.getInstance().runReportJob(requestorEmail, timeZoneForClient, null, false, "stats", null, limit, null, false, null, false);
+    resp.setContentType("text/plain;charset=UTF-8");
+    resp.getWriter().println(jobId);
+}
   
   private void dumpStats(HttpServletResponse resp, HttpServletRequest req) throws IOException {
     DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
@@ -87,8 +99,13 @@ public class UsageCronJobServlet extends HttpServlet {
    */
   private String runReportJob(String loggedInuser, DateTimeZone timeZoneForClient,
                                  HttpServletRequest req, String reportFormat) throws IOException {
-    ModulesService modulesApi = ModulesServiceFactory.getModulesService();
-    String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
+    //ModulesService modulesApi = ModulesServiceFactory.getModulesService();
+    String serverName = req.getServerName();
+    log.info("request servername = " + serverName);
+    PacoModule backendModule = new PacoModule(EventServlet.REPORT_WORKER, serverName);
+    
+    String backendAddress = "reportworker-dot-quantifiedself.appspot.com"; //backendModule.getAddress();
+    //String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
      try {
 
       BufferedReader reader = null;
@@ -119,22 +136,33 @@ public class UsageCronJobServlet extends HttpServlet {
 
   private BufferedReader sendToBackend(DateTimeZone timeZoneForClient, HttpServletRequest req,
                                        String backendAddress, String reportFormat) throws MalformedURLException, IOException {
+    String qParameter = req.getParameter("q");
+    URL url = getRunnerUrl(timeZoneForClient, req, backendAddress, reportFormat, qParameter);
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection.setInstanceFollowRedirects(false);
+    InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
+    return new BufferedReader(inputStreamReader);
+  }
+
+  public URL getRunnerUrl(DateTimeZone timeZoneForClient, HttpServletRequest req, String backendAddress,
+                          String reportFormat, String qParameter) throws MalformedURLException {
     String httpScheme = "https";
     String localAddr = req.getLocalAddr();
     if (localAddr != null && localAddr.matches("127.0.0.1")) {
       httpScheme = "http";
     }
-    URL url = new URL(httpScheme + "://" + backendAddress + "/backendReportJobExecutor?q=" +
-            req.getParameter("q") +
-            "&who="+"cron" +
-            "&tz=" + timeZoneForClient +
-            "&reportFormat=" + reportFormat);
+    
+    URL url = new URL(httpScheme + "://" + backendAddress + getRunnerQueryPath(timeZoneForClient, reportFormat, qParameter));
     log.info("URL to backend = " + url.toString());
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-    connection.setInstanceFollowRedirects(false);
-    InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
-    BufferedReader reader = new BufferedReader(inputStreamReader);
-    return reader;
+    return url;
+  }
+
+  public String getRunnerQueryPath(DateTimeZone timeZoneForClient, String reportFormat, String qParameter) {
+    return "/backendReportJobExecutor?q=" +
+                qParameter +
+                "&who="+"cron" +
+                "&tz=" + timeZoneForClient +
+                "&reportFormat=" + reportFormat;
   }
 
     private void setCharacterEncoding(HttpServletRequest req, HttpServletResponse resp)

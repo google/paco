@@ -37,6 +37,7 @@ import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.TimeUtil;
 import com.pacoapp.paco.shared.comm.Outcome;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.Input2;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.util.ErrorMessages;
@@ -175,8 +176,9 @@ public class EventJsonUploadProcessor {
       experimentName = eventJson.getString("experimentName");
     }
 
+    String experimentVersionStr = null;
     if (eventJson.has("experimentVersion")) {
-      String experimentVersionStr= eventJson.getString("experimentVersion");
+      experimentVersionStr= eventJson.getString("experimentVersion");
       if (!Strings.isNullOrEmpty(experimentVersionStr)) {
         try {
           experimentVersion = Integer.parseInt(experimentVersionStr);
@@ -259,6 +261,27 @@ public class EventJsonUploadProcessor {
       //outcome.setError("No existing experiment for this event: " + eventId);
       return outcome;
     }
+    
+    DateTimeFormatter df = org.joda.time.format.DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
+
+    String responseTimeStr = null;
+    if (eventJson.has("responseTime")) {
+      responseTimeStr = eventJson.getString("responseTime");
+      if (!responseTimeStr.equals("null") && !responseTimeStr.isEmpty()) {
+        responseTime = parseDate(df, responseTimeStr);
+//        log.info("Response TIME check" + responseTimeStr);
+//        log.info(" = " + responseTime != null ? responseTime.toString() : "");
+      }
+    }
+    if (eventJson.has("scheduledTime")) {
+      String timeStr = eventJson.getString("scheduledTime");
+      if (!timeStr.equals("null") && !timeStr.isEmpty()) {
+        scheduledTime = parseDate(df, timeStr);
+//        log.info("Schedule TIME check" + timeStr);
+//        log.info(" = " + scheduledTime != null ? scheduledTime.toString() : "");
+      }
+    }
+
 
     Set<What> whats = Sets.newHashSet();
     List<PhotoBlob> blobs = Lists.newArrayList();
@@ -277,21 +300,28 @@ public class EventJsonUploadProcessor {
         if (!persistInCloudSqlOnly && isPhotoInput(input, answer)) {
           log.info("Received a photo blob");
           byte[] bytes = Base64.decodeBase64(answer.getBytes());
-          String blobUrl = processBlob(who, experimentIdStr, name, "image/jpg", bytes, "image%2Fjpg");
+          String blobUrl = processBlob(who, experimentIdStr, experimentVersionStr, groupName, name, responseTimeStr, "image/jpg", bytes, "image%2Fjpg", "jpg");
           answer = blobUrl;
           response.put("answer", answer);
         } else if (!persistInCloudSqlOnly && isAudioInput(input, answer)) {
           log.info("Received an audio blob");
           byte[] bytes = Base64.decodeBase64(answer.getBytes());
-          String blobUrl = processBlob(who, experimentIdStr, name, "audio", bytes, "audio");
+          String blobUrl = processBlob(who, experimentIdStr, experimentVersionStr, groupName, name, responseTimeStr, "audio", bytes, "audio", "mp3");
           answer = blobUrl;
           response.put("answer", answer);        
         } else if (!persistInCloudSqlOnly && isTextBlobInput(input, answer)) {
           log.info("Received a text blob: " + answer);
           byte[] bytes = Base64.decodeBase64(answer.substring("textdiff===".length()).getBytes());
-          String blobUrl = processBlob(who, experimentIdStr, name, "text/plain;charset=UTF-8", bytes, "textdiff");
+          String blobUrl = processBlob(who, experimentIdStr, experimentVersionStr, groupName, name, responseTimeStr, "text/plain;charset=UTF-8", bytes, "textdiff", "patch");
           answer = blobUrl;
           log.info("Url for text blob: " + blobUrl);
+          response.put("answer", answer);
+        } else if (!persistInCloudSqlOnly && isZipBlobInput(input, answer)) {
+          log.info("Received a zip blob: " + answer);
+          byte[] bytes = Base64.decodeBase64(answer.substring("zipfile===".length()).getBytes());
+          String blobUrl = processBlob(who, experimentIdStr, experimentVersionStr, groupName, name, responseTimeStr, "applization/zip", bytes, "zipfile", "zip");
+          answer = blobUrl;
+          log.info("Url for zip blob: " + blobUrl);
           response.put("answer", answer);
         } else if (answer != null && answer.length() >= 500) {
 //          log.info("The response was too long for: " + name + ".");
@@ -306,24 +336,6 @@ public class EventJsonUploadProcessor {
 //      log.info("There is no responses section for this event");
     }
 
-    DateTimeFormatter df = org.joda.time.format.DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
-
-    if (eventJson.has("responseTime")) {
-      String responseTimeStr = eventJson.getString("responseTime");
-      if (!responseTimeStr.equals("null") && !responseTimeStr.isEmpty()) {
-        responseTime = parseDate(df, responseTimeStr);
-//        log.info("Response TIME check" + responseTimeStr);
-//        log.info(" = " + responseTime != null ? responseTime.toString() : "");
-      }
-    }
-    if (eventJson.has("scheduledTime")) {
-      String timeStr = eventJson.getString("scheduledTime");
-      if (!timeStr.equals("null") && !timeStr.isEmpty()) {
-        scheduledTime = parseDate(df, timeStr);
-//        log.info("Schedule TIME check" + timeStr);
-//        log.info(" = " + scheduledTime != null ? scheduledTime.toString() : "");
-      }
-    }
 
 
 //    log.info("Sanity check: who = " + who + ", when = "
@@ -338,15 +350,27 @@ public class EventJsonUploadProcessor {
     return outcome;
   }
 
-  private String processBlob(String who, String experimentIdStr, String inputName, String mimeType,
-                             byte[] bytes, String mediaTypeName) throws IOException {
+  private String processBlob(String who, 
+                             String experimentIdStr, 
+                             String experimentVersion, 
+                             String groupName,
+                             String inputName, 
+                             String responseTime, 
+                             String mimeType,
+                             byte[] bytes, 
+                             String mediaTypeName, 
+                             String fileExtension) throws IOException {
     log.info("processBlob enter");
-    try {
-      String gcsObjectName = inputName + experimentIdStr + who +  System.currentTimeMillis();
+    try {      
+      String gcsObjectName = inputName + "_" + experimentIdStr + "_" + 
+                experimentVersion + "_" + groupName + "_" + who + "_" + responseTime.replace('/', '-');      
       // todo - come up with something more unique since names are global in gcs
-      String hashedObjectName = DigestUtils.shaHex(gcsObjectName);
+      //String hashedObjectName = DigestUtils.shaHex(gcsObjectName);
+      if (!Strings.isNullOrEmpty(fileExtension)) {
+        gcsObjectName += "." + fileExtension;
+      }
       log.info("processBlob step o");
-      GcsFilename filename =  new GcsFilename(gsBucketName, hashedObjectName);
+      GcsFilename filename =  new GcsFilename(gsBucketName, gcsObjectName);
       log.info("processBlob step 1");
 //    String contentEncoding = "binary";
       
@@ -412,6 +436,14 @@ public class EventJsonUploadProcessor {
             && input.getResponseType().equals(Input2.TEXTBLOB)
             && !Strings.isNullOrEmpty(answer)) ||
             (!Strings.isNullOrEmpty(answer) && answer.startsWith("textdiff==="));
+  }
+
+  private boolean isZipBlobInput(Input2 input, String answer) {
+    return (input != null 
+            && input.getResponseType() != null 
+            && input.getResponseType().equals(Input2.ZIPFILE)
+            && !Strings.isNullOrEmpty(answer)) ||
+            (!Strings.isNullOrEmpty(answer) && answer.startsWith("zipfile==="));
   }
 
   private DateTime parseDate(DateTimeFormatter df, String when) throws ParseException {

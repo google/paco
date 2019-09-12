@@ -66,6 +66,37 @@ public class GCSFetcher {
     }
   }
 
+  public static String fillInResponseForKeyWithEncodedBlobDataFromGCS(String currentWhatValue) {
+    final GcsService gcsService = GcsServiceFactory.createGcsService(new RetryParams.Builder()
+                                                                     .initialRetryDelayMillis(10)
+                                                                     .retryMaxAttempts(10)
+                                                                     .totalRetryPeriodMillis(15000)
+                                                                     .build());
+    BlobAclStore bas = BlobAclStore.getInstance();
+    
+      if (currentWhatValue != null && currentWhatValue.startsWith("/eventblobs")) {        
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        String blobKey = GCSFetcher.getBlobKey(currentWhatValue);
+        BlobAcl blobAcl = bas.getAcl(blobKey);
+        if (blobAcl != null && blobAcl.getBucketName() != null && blobAcl.getObjectName() != null) {
+          GcsFilename gcsFileName = GCSFetcher.getFileName(blobAcl.getBucketName(), blobAcl.getObjectName());
+          GcsInputChannel readChannel = gcsService.openPrefetchingReadChannel(gcsFileName, 0, GCSFetcher.BUFFER_SIZE);
+          try {
+            GCSFetcher.copy(Channels.newInputStream(readChannel), byteArrayOutputStream);
+            String photoBlobString = new String(Base64.encodeBase64(byteArrayOutputStream.toByteArray()));
+            return photoBlobString;
+          } catch (IOException e) {
+            JSONBlobWriter.log.log(Level.WARNING, "failed to copy blob from GCS", e);
+          }
+        } else {
+          JSONBlobWriter.log.warning("Blob key for writing blob was null: " + currentWhatValue);
+        }
+      }
+      return null;
+    }
+  
+
+  
   public static String getBlobKey(String value) {
     String[] parts = value.split("&");
     for (int i = 0; i < parts.length; i++) {

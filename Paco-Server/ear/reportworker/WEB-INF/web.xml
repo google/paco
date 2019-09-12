@@ -75,6 +75,15 @@
     <url-pattern>/hubJobExecutor</url-pattern>
   </servlet-mapping>
   
+    <servlet>
+    <servlet-name>PhoneSessionServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.viz.appusage.PhoneSessionServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PhoneSessionServlet</servlet-name>
+    <url-pattern>/phoneSessions</url-pattern>
+  </servlet-mapping>
+  
   <!--  workers are only called internally should not be accessible by others -->
   <security-constraint>
     <web-resource-collection>
@@ -83,6 +92,7 @@
       <url-pattern>/hubJobExecutor*</url-pattern>
       <url-pattern>/hub_cron*</url-pattern>
       <url-pattern>/migrate*</url-pattern>
+      <url-pattern>/phoneSessions*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
       <role-name>admin</role-name>
