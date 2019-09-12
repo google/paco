@@ -82,10 +82,10 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
 
     if (reportFormat != null && reportFormat.equals("csv2")) {
       log.info("Backend generating csv experimental report");
-      dumpEventsCSVExperimental(resp, req, anon, pacoProtocol, /*fullBlobAddress*/true);
+      dumpEventsCSVExperimental(resp, req, anon, pacoProtocol, /*fullBlobAddress*/true, includePhotos);
     } else if (reportFormat != null && reportFormat.equals("csv")) {
       log.info("Backend generating csv report");
-      dumpEventsCSV(resp, req, anon, cursor, limit, pacoProtocol, /*fullBlobAddress*/true);
+      dumpEventsCSV(resp, req, anon, cursor, limit, pacoProtocol, /*fullBlobAddress*/true, includePhotos);
     } else if (reportFormat != null && reportFormat.equals("json2")) {
       log.info("Backend generating json report");
       dumpEventsJsonExperimental(resp, req, anon, includePhotos, pacoProtocol, /*fullBlobAddress*/true);
@@ -130,23 +130,23 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
   }
 
 
-  private void dumpEventsCSV(HttpServletResponse resp, HttpServletRequest req, boolean anon, String cursor, int limit, Float pacoProtocol, boolean fullBlobAddress) throws IOException {
+  private void dumpEventsCSV(HttpServletResponse resp, HttpServletRequest req, boolean anon, String cursor, int limit, Float pacoProtocol, boolean fullBlobAddress, boolean includePhotos) throws IOException {
     String queryParam = getParamForQuery(req);
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(queryParam));
     String requestorEmail = getRequestorEmail(req);
     DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
-    String jobId = ReportJobExecutor.getInstance().runReportJob(requestorEmail, timeZoneForClient, query, anon, "csv", queryParam, limit, cursor, false, pacoProtocol, fullBlobAddress);
+    String jobId = ReportJobExecutor.getInstance().runReportJob(requestorEmail, timeZoneForClient, query, anon, "csv", queryParam, limit, cursor, includePhotos, pacoProtocol, fullBlobAddress);
     resp.setContentType("text/plain;charset=UTF-8");
     resp.getWriter().println(jobId);
   }
 
 
-  private void dumpEventsCSVExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, Float pacoProtocol, boolean fullBlobAddress) throws IOException {
+  private void dumpEventsCSVExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, Float pacoProtocol, boolean fullBlobAddress, boolean includePhotos) throws IOException {
     String queryParam = getParamForQuery(req);
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(queryParam));
     String requestorEmail = getRequestorEmail(req);
     DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
-    String jobId = ReportJobExecutor.getInstance().runReportJobExperimental(requestorEmail, timeZoneForClient, query, anon, "csv2", queryParam, false, pacoProtocol, fullBlobAddress);
+    String jobId = ReportJobExecutor.getInstance().runReportJobExperimental(requestorEmail, timeZoneForClient, query, anon, "csv2", queryParam, includePhotos, pacoProtocol, fullBlobAddress);
     resp.setContentType("text/plain;charset=UTF-8");
     resp.getWriter().println(jobId);
   }

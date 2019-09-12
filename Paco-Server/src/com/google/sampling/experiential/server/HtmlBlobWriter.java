@@ -34,6 +34,7 @@ import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.sampling.experiential.gcs.GCSFetcher;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.shared.EventDAO;
@@ -52,14 +53,14 @@ public class HtmlBlobWriter {
   }
 
   public String writeNormalExperimentEventsAsHtml(boolean anon, EventQueryResultPair eventQueryResultPair, String jobId, String experimentId, 
-                                                  String timeZone, String originalQuery, String requestorEmail, Float pacoProtocol)
+                                                  String timeZone, String originalQuery, String requestorEmail, Float pacoProtocol, boolean inlineBlobs, boolean fullBlobAddress)
           throws IOException {
     log.info("writing normal Experiment events as html");
 
     ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(Long.parseLong(experimentId));
     String eventPage;
     try {
-      eventPage = printEvents(eventQueryResultPair, experiment, anon, originalQuery, requestorEmail, pacoProtocol);
+      eventPage = printEvents(eventQueryResultPair, experiment, anon, originalQuery, requestorEmail, pacoProtocol, inlineBlobs, fullBlobAddress);
     } catch (IOException e) {
       log.severe("Could not run printEvents. " + e.getMessage());
       e.printStackTrace();
@@ -164,7 +165,9 @@ public class HtmlBlobWriter {
 
   }
 
-  private String printEvents(EventQueryResultPair eventQueryResultPair, ExperimentDAO experiment, boolean anon, String originalQuery, String whoFromLogin, Float pacoProtocol) throws IOException {
+  private String printEvents(EventQueryResultPair eventQueryResultPair, ExperimentDAO experiment,
+                             boolean anon, String originalQuery, String whoFromLogin, 
+                             Float pacoProtocol, boolean inlineBlobs, boolean fullBlobAddress) throws IOException {
     if (eventQueryResultPair.getEvents().isEmpty()) {
       return "No events in experiment: " + getExperimentTitle(experiment) + ".";
     } else {
@@ -188,9 +191,10 @@ public class HtmlBlobWriter {
       }
       out.append("<th>Other Responses</th>");
       out.append("</tr>");
+      
+      
 
-      for (Event event : eventQueryResultPair.getEvents()) {
-
+      for (Event event : eventQueryResultPair.getEvents()) {        
         try {
           out.append("<tr>");
           out.append("<td>").append(event.getExperimentName()).append("</td>");
@@ -216,9 +220,10 @@ public class HtmlBlobWriter {
           for (PhotoBlob photoBlob : photos) {
             photoByNames.put(photoBlob.getName(), photoBlob);
           }
+          
           for (String key : inputKeys) {
             out.append("<td>");
-            out.append(getValueAsDisplayString(event, photoByNames, key));
+            out.append(getValueAsDisplayString(event, photoByNames, key, inlineBlobs));
             out.append("</td>");
           }
 
@@ -228,7 +233,7 @@ public class HtmlBlobWriter {
             out.append("<td>");
             out.append(extraKey);
             out.append(" = ");
-            out.append(getValueAsDisplayString(event, photoByNames, extraKey));
+            out.append(getValueAsDisplayString(event, photoByNames, extraKey, inlineBlobs));
             out.append("</td>");
           }
           out.append("<tr>");
@@ -363,13 +368,23 @@ public class HtmlBlobWriter {
     return value;
   }
 
-  private String getValueAsDisplayString(Event event, Map<String, PhotoBlob> photoByNames, String key) {
+  private String getValueAsDisplayString(Event event, Map<String, PhotoBlob> photoByNames, String key, boolean inlineBlobs) {
     String value = event.getWhatByKey(key);
     if (value == null) {
       value = "";
     } else if (value.startsWith("/eventblobs?mt=image")) {
-      value = "<img height=\"375\" src=\"https://" + getHostname() + value + "\">";
-    } else if (photoByNames.containsKey(key)) {
+      if (inlineBlobs) {
+        // new GCS blob storage
+        String photoData = GCSFetcher.fillInResponseForKeyWithEncodedBlobDataFromGCS(value);
+        if (photoData != null && photoData.length() > 0) {
+            value = "<img height=\"375\" src=\"data:image/jpg;base64," + photoData + "\">";
+        } else {
+          value = "";
+        }
+      } else {
+        value = "<img height=\"375\" src=\"https://" + getHostname() + value + "\">";
+      }
+    } else if (photoByNames.containsKey(key)) { // The old way of doing it
       byte[] photoData = photoByNames.get(key).getValue();
       if (photoData != null && photoData.length > 0) {
         String photoString = new String(Base64.encodeBase64(photoData));
