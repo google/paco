@@ -133,6 +133,7 @@ public abstract class SearchQuery {
         acledQuery = renameTextColumn(acledQuery);
       }
       // 7. execute acl-ed query
+            
       pacoResp = executeAcledQuery(acledQuery, oldMethodFlag);
     } else {
       return evStatus;
