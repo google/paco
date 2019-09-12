@@ -35,9 +35,10 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
   public static final String ACTIVITY = "activity";
   public static final String AUDIO = "audio";
   public static final String TEXTBLOB = "textblob";
+  public static final String ZIPFILE = "zipfile";  
 
   public static String[] RESPONSE_TYPES = {LIKERT_SMILEYS, LIKERT, OPEN_TEXT, LIST, NUMBER,
-    LOCATION, PHOTO, SOUND, ACTIVITY, AUDIO, TEXTBLOB};
+    LOCATION, PHOTO, SOUND, ACTIVITY, AUDIO, TEXTBLOB, ZIPFILE};
 
   private String name;
   private Boolean required = false;
@@ -58,8 +59,8 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
   /**
    *
    */
-  public static final Integer DEFAULT_LIKERT_STEPS = 5;  
-
+  public static final Integer DEFAULT_LIKERT_STEPS = 5;
+  
   /**
    *
    * @param name

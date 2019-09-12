@@ -117,6 +117,7 @@ public class EventBlobServlet extends HttpServlet {
                                                                                Long.parseLong(acl.getExperimentId()));
         if (isAuthorized) {
           BlobKey blobKey = new BlobKey(blobKeyParam);
+          resp.setHeader("Content-Disposition", "filename=\""+ acl.getObjectName() + "\"");
           BlobstoreServiceFactory.getBlobstoreService().serve(blobKey, resp);
         } else {
           resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "bad or missing parameters");

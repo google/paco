@@ -72,10 +72,14 @@
               </div>
               <div ng-if="table.header[$index]!='who' || users || anon"
                 ng-switch="isTextDiffData(cell)">
-                <a ng-switch-when="true" href="{{cell}}">View text diff</a>                
+                <a ng-switch-when="true" href="{{cell}}" target=”_blank”>View text diff</a>                
+              </div>
+              <div ng-if="table.header[$index]!='who' || users || anon"
+                ng-switch="isZipFileData(cell)">
+                <a ng-switch-when="true" href="{{cell}}">Get zip file</a>                
               </div> 
               <div ng-if="table.header[$index]!='who' || users || anon"
-                ng-switch="isPhotoData(cell) || isAudioData(cell) || isTextDiffData(cell)">
+                ng-switch="isPhotoData(cell) || isAudioData(cell) || isTextDiffData(cell) || isZipFileData(cell)">
                 <span ng-switch-when="false">{{cell}}&nbsp;</span>
               </div>
             </td>

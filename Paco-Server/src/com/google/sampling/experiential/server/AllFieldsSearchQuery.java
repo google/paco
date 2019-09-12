@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.google.common.collect.Lists;
 import com.google.sampling.experiential.cloudsql.columns.ExternStringInputColumns;
 import com.google.sampling.experiential.dao.CSEventOutputDao;
 import com.google.sampling.experiential.dao.impl.CSEventOutputDaoImpl;
@@ -27,8 +28,10 @@ public class AllFieldsSearchQuery extends SearchQuery {
     List<EventDAO> evtList = null;
     CSEventOutputDao impl = new CSEventOutputDaoImpl();
     EventQueryStatus pacoResponse = new EventQueryStatus(pacoProtocol);
-    log.info("af-acled qry"+ aclQuery);
+    log.info("af-acled qry: "+ aclQuery);
+    
     evtList = impl.getEvents(aclQuery, withOutputs, oldMethodFlag);
+    
     pacoResponse.setEvents(evtList);
     log.info("all fields execute - records size:" + evtList.size());
     pacoResponse.setStatus(Constants.SUCCESS);

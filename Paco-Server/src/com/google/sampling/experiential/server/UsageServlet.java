@@ -137,8 +137,13 @@ public class UsageServlet extends HttpServlet {
    */
   private String runReportJob(String loggedInuser, DateTimeZone timeZoneForClient,
                                  HttpServletRequest req, String reportFormat) throws IOException {
-    ModulesService modulesApi = ModulesServiceFactory.getModulesService();
-    String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
+//    ModulesService modulesApi = ModulesServiceFactory.getModulesService();
+//    String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
+    String serverName = req.getServerName();
+    log.info("request servername = " + serverName);
+    PacoModule backendModule = new PacoModule(EventServlet.REPORT_WORKER, serverName);
+    
+    String backendAddress = backendModule.getAddress();
      try {
 
       BufferedReader reader = null;

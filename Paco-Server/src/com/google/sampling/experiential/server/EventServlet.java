@@ -79,7 +79,7 @@ public class EventServlet extends HttpServlet {
   public static final Logger log = Logger.getLogger(EventServlet.class.getName());
   private String defaultAdmin = "bobevans@google.com";
   private List<String> adminUsers = Lists.newArrayList(defaultAdmin);
-  private static final String REPORT_WORKER = "reportworker";
+  static final String REPORT_WORKER = "reportworker";
   int BUFFER_SIZE = 2 * 1024 * 1024;
 
   @Override
@@ -125,6 +125,11 @@ public class EventServlet extends HttpServlet {
       } else if (req.getParameter("photozip") != null) {
         dumpPhotosZip(resp, req, anon, limit, cursor, cmdline, fullBlobAddress);
       } else if (req.getParameter("csv") != null) {
+        String includePhotos = req.getParameter("includePhotos");
+        if (includePhotos != null && includePhotos.toLowerCase().equals("true")) {
+          resp.getWriter().println("CSV Does not support inlining of blobs");
+          return;
+        }
         dumpEventsCSVExperimental(resp, req, anon, limit, cursor, cmdline, pacoProtocol, fullBlobAddress);
       } else if (req.getParameter("html2") != null) {
         dumpEventsHtmlExperimental(resp, req, anon, limit, cursor, cmdline, pacoProtocol, fullBlobAddress);
@@ -169,7 +174,9 @@ public class EventServlet extends HttpServlet {
     resp.getWriter().println(jsonOutput);
   }
 
-  private void dumpEventsCSVExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline, Float pacoProtocol, boolean fullBlobAddress ) throws IOException {
+  private void dumpEventsCSVExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, 
+                                         int limit, String cursor, boolean cmdline, Float pacoProtocol, 
+                                         boolean fullBlobAddress ) throws IOException {
     String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
@@ -290,7 +297,8 @@ public class EventServlet extends HttpServlet {
    * @throws IOException
    */
   private String runReportJob(boolean anon, String loggedInuser, DateTimeZone timeZoneForClient,
-                                 HttpServletRequest req, String reportFormat, int limit, String cursor, Float pacoProtocol, boolean fullBlobAddress) throws IOException {
+                                 HttpServletRequest req, String reportFormat, int limit, String cursor, 
+                                 Float pacoProtocol, boolean fullBlobAddress) throws IOException {
     try {
       String serverName = req.getServerName();
       log.info("request servername = " + serverName);
@@ -325,7 +333,9 @@ public class EventServlet extends HttpServlet {
   }
 
   private BufferedReader sendToBackend(DateTimeZone timeZoneForClient, HttpServletRequest req,
-                                       String backendAddress, String reportFormat, String cursor, int limit, Float pacoProtocol, boolean fullBlobAddress) throws MalformedURLException, IOException {
+                                       String backendAddress, String reportFormat, 
+                                       String cursor, int limit, Float pacoProtocol, 
+                                       boolean fullBlobAddress) throws MalformedURLException, IOException {
 
     String httpScheme = "https";
     String localAddr = req.getLocalAddr();
