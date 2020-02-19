@@ -2,3 +2,4 @@
 /bulkloader-*
 /logs_*
 /.classpath
+/ear/reportworker/classes
