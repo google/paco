@@ -22,6 +22,7 @@ import com.google.sampling.experiential.server.migration.jobs.ExperimentTitleLow
 import com.google.sampling.experiential.server.migration.jobs.FeedbackTypeRepairMigration;
 import com.google.sampling.experiential.server.migration.jobs.TestJDODSCompat;
 import com.google.sampling.experiential.server.stats.usage.UsageStatsBackfillJob;
+import com.google.sampling.experiential.server.migration.jobs.AddDesktopStudyGroupTypes;
 
 public class MigrationLookupTable {
   private static final Logger log = Logger.getLogger(MigrationLookupTable.class.getName());
@@ -45,6 +46,7 @@ public class MigrationLookupTable {
     migrations.put("28", EVGMigrationVerificationJob.class);
     migrations.put("29", DeleteExperimentDataJob.class);
     migrations.put("100", ExperimentTitleLowercaseMigrationJob.class);
+    migrations.put("101", AddDesktopStudyGroupTypes.class);
   }
   
   public static MigrationJob getMigrationByName(String name) {
