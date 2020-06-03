@@ -23,26 +23,24 @@ import java.util.logging.Logger;
 public class AddDesktopStudyGroupTypes {
   public static final Logger log = Logger.getLogger(AddDesktopStudyGroupTypes.class.getName());
 
-  final String insertDataTypeSql1000 = "INSERT INTO `pacodb`.`" + GroupTypeColumns.TABLE_NAME +
+  final String insertAppUsageDesktopType = "INSERT INTO `pacodb`.`" + GroupTypeColumns.TABLE_NAME +
           "` (`" + GroupTypeColumns.GROUP_TYPE_NAME + "`) VALUES ('" + GroupTypeEnum.APPUSAGE_DESKTOP + "')";
-  final String insertDataTypeSql1001 = "INSERT INTO `pacodb`.`" + GroupTypeColumns.TABLE_NAME +
+  final String insertAppUsageShellType = "INSERT INTO `pacodb`.`" + GroupTypeColumns.TABLE_NAME +
           "` (`" + GroupTypeColumns.GROUP_TYPE_NAME + "`) VALUES ('" + GroupTypeEnum.APPUSAGE_SHELL + "')";
-  final String insertDataTypeSql1002 = "INSERT INTO `pacodb`.`" + GroupTypeColumns.TABLE_NAME +
+  final String insertIdeIdeaUsageType = "INSERT INTO `pacodb`.`" + GroupTypeColumns.TABLE_NAME +
           "` (`" + GroupTypeColumns.GROUP_TYPE_NAME + "`) VALUES ('" + GroupTypeEnum.IDE_IDEA_USAGE + "')";
 
-  public boolean dataCleanupInsertPredefinedRecords() throws Exception {
-    String[] insertionQueries = new String[]{
-            insertDataTypeSql1000,
-            insertDataTypeSql1001,
-            insertDataTypeSql1002
-    };
-    executeCreationOrInsertionQuerys(insertionQueries);
-    // pop grp type input
-    populateGroupTypeInput();
+  public boolean insertNewGroupTypes() throws Exception {
+    executeCreationOrInsertionQueries(new String[]{
+            insertAppUsageDesktopType,
+            insertAppUsageShellType,
+            insertIdeIdeaUsageType
+    });
+    populateInputsForGroupTypes();
     return true;
   }
 
-  private boolean populateGroupTypeInput() throws Exception {
+  private boolean populateInputsForGroupTypes() throws Exception {
 
     CSInputDao inputDaoImpl = new CSInputDaoImpl();
     CSGroupTypeInputMappingDao predfinedDaoImpl = new CSGroupTypeInputMappingDaoImpl();
@@ -146,7 +144,7 @@ public class AddDesktopStudyGroupTypes {
   }
 
 
-  private boolean executeCreationOrInsertionQuerys(String[] creationQrys) throws SQLException {
+  private boolean executeCreationOrInsertionQueries(String[] creationQrys) throws SQLException {
     boolean isComplete = false;
 
     Connection conn = null;

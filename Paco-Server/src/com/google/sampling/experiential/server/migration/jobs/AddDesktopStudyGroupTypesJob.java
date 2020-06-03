@@ -9,27 +9,19 @@ import java.util.logging.Logger;
 
 public class AddDesktopStudyGroupTypesJob implements MigrationJob {
 
-    public static final Logger log = Logger.getLogger(AddDesktopStudyGroupTypesJob.class.getName());
+  public static final Logger log = Logger.getLogger(AddDesktopStudyGroupTypesJob.class.getName());
 
-    @Override
-    public boolean doMigration(String cursor, DateTime startTime, DateTime endTime) {
-      try {
-        cleanupDataBeforeMigration(cursor);
-        return true;
-      } catch (Exception e) { 
-        log.warning(ExceptionUtil.getStackTraceAsString(e));
-        return false;
-      }
+  @Override
+  public boolean doMigration(String cursor, DateTime startTime, DateTime endTime) {
+    try {
+      log.info("------------------------------------------------Begin------------------------------------------------");
+      AddDesktopStudyGroupTypes migrator = new AddDesktopStudyGroupTypes();
+      migrator.insertNewGroupTypes();
+      log.info("------------------------------------------------End------------------------------------------------");
+      return true;
+    } catch (Exception e) {
+      log.warning(ExceptionUtil.getStackTraceAsString(e));
     }
-    
-    private void cleanupDataBeforeMigration(String cursor) throws Exception {
-      try {
-        log.info("------------------------------------------------Begin------------------------------------------------");
-        AddDesktopStudyGroupTypes migrator = new AddDesktopStudyGroupTypes();
-        migrator.dataCleanupInsertPredefinedRecords();
-        log.info("------------------------------------------------End------------------------------------------------");
-      } catch (SQLException e) {
-        throw new SQLException("Failed to insert data types.", e);
-      }
-    }
+    return false;
+  }
 }
