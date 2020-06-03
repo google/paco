@@ -29,7 +29,7 @@
 			          		<a href="" class="removeGroup" ng-click="remove(experiment.groups, $index)"></a>
 						</div>
 					 </div>	
-      				<div ng-switch-when="PHONESTATUS|APPUSAGE_ANDROID" ng-switch-when-separator="|">
+      				<div ng-switch-when="PHONESTATUS|APPUSAGE_ANDROID|APPUSAGE_DESKTOP|APPUSAGE_SHELL|IDE_IDEA_USAGE" ng-switch-when-separator="|">
 	      				<div class="section">
 			          			<div class="title" ng-click="toggleHide()">
 						            <a href="" class="group-toggle" ng-class="{hiding: hiding}"></a>
@@ -72,7 +72,7 @@
 		          		</md-radio-group>
 					</div>
 					
-					<div class="title" ng-switch-when="APPUSAGE_ANDROID|PHONESTATUS" ng-switch-when-separator="|">
+					<div class="title" ng-switch-when="APPUSAGE_ANDROID|PHONESTATUS|APPUSAGE_DESKTOP|APPUSAGE_SHELL|IDE_IDEA_USAGE" ng-switch-when-separator="|">
 					<!-- Nothing -->
 						<label>Fixed</label>
 					</div>

@@ -664,6 +664,27 @@ pacoApp.service('template', function() {
     {"name" : 'accessibilityEventType',"required": false,"conditional": false, "text" : 'accessibilityEventType', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
     {"name" : 'accessibilityEventContentDescription',"required": false,"conditional": false, "text" : 'accessibilityEventContentDescription', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true}
     ];
+  this.inputsForPredefinedGroupAppUsageDesktop =[
+    {"name" : 'apps_used', "required": false,"conditional": false, "text" : 'apps_used', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'apps_used_raw',"required": false, "conditional": false,"text" : 'apps_used_raw',"likertSteps": 5, "responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'foreground',"required": false,"conditional": false, "text" : 'foreground', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'userPresent',"required": false,"conditional": false, "text" : 'userPresent', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'userNotPresent',"required": false,"conditional": false, "text" : 'userNotPresent', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true}
+    ];
+  this.inputsForPredefinedGroupAppUsageShell =[
+    {"name" : 'apps_used', "required": false,"conditional": false, "text" : 'apps_used', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'apps_used_raw',"required": false, "conditional": false,"text" : 'apps_used_raw',"likertSteps": 5, "responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'foreground',"required": false,"conditional": false, "text" : 'foreground', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'userPresent',"required": false,"conditional": false, "text" : 'userPresent', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'userNotPresent',"required": false,"conditional": false, "text" : 'userNotPresent', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true}
+    ];
+  this.inputsForPredefinedGroupIdeIdeaUsage =[
+    {"name" : 'apps_used', "required": false,"conditional": false, "text" : 'apps_used', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'apps_used_raw',"required": false, "conditional": false,"text" : 'apps_used_raw',"likertSteps": 5, "responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'foreground',"required": false,"conditional": false, "text" : 'foreground', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'userPresent',"required": false,"conditional": false, "text" : 'userPresent', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'userNotPresent',"required": false,"conditional": false, "text" : 'userNotPresent', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true}
+    ];
 });
 
 
