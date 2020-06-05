@@ -339,8 +339,20 @@ pacoApp.controller('ExperimentCtrl', [
         matchingInputObj = template.inputsForPredefinedGroupPhoneStatus;
         grObject.fixedDuration = true;
         grObject.logShutdown = true;
-      } 
-      
+      } else if (groupType === 'APPUSAGE_DESKTOP') {
+         matchingInputObj = template.inputsForPredefinedGroupAppUsageDesktop;
+         grObject.fixedDuration = true;
+         grObject.logActions = true;
+      } else if (groupType === 'APPUSAGE_SHELL') {
+        matchingInputObj = template.inputsForPredefinedGroupAppUsageShell;
+        grObject.fixedDuration = true;
+        grObject.logActions = true;
+      }  else if (groupType === 'IDE_IDEA_USAGE') {
+         matchingInputObj = template.inputsForPredefinedGroupIdeIdeaUsage;
+         grObject.fixedDuration = true;
+         grObject.logActions = true;
+      }
+
       if (grObject.fixedDuration) {
         $scope.startDate = new Date();
         $scope.endDate = new Date($scope.startDate.getTime() + (24 * 60 * 60 * 1000));
@@ -1055,6 +1067,12 @@ pacoApp.controller('InputCtrl', ['$scope', 'config', 'template', function ($scop
       matchingInputObj = template.inputsForPredefinedGroupPhoneStatus;
     } else if (groupType === 'SYSTEM') {
       matchingInputObj = template.inputsForPredefinedGroupSystemAndAdvanced;
+    } else if (groupType === 'APPUSAGE_DESKTOP') {
+      matchingInputObj = template.inputsForPredefinedGroupAppUsageDesktop;
+    } else if (groupType === 'APPUSAGE_SHELL') {
+      matchingInputObj = template.inputsForPredefinedGroupAppUsageShell;
+    } else if (groupType === 'IDE_IDEA_USAGE') {
+      matchingInputObj = template.inputsForPredefinedGroupIdeIdeaUsage;
     } else {
       return false;
     }
