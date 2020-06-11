@@ -461,7 +461,12 @@ pacoApp.service('config', function() {
     "Notification shade dismiss all",
     "Notification shade dismiss notification",
     "Notification shade closed",
-    "Notification tapped in shade"
+    "Notification tapped in shade",
+    "App Started on Desktop",
+    "App Stopped on Desktop",
+    "App Started in Shell",
+    "App Stopped in Shell",
+    "Idea-based IDE Usage"
   ];
 
   this.esmPeriods = [
