@@ -116,6 +116,8 @@ public class BroadcastTriggerService extends Service {
       }
 
 
+      // Note: This code now diverges from the Desktop Taqo code because that code will also need a cueKey in addition to the
+      // cueSource (sourceIdentifier) for a trigger. This version on Android does not need this cueKey field.
       List<Trio<ExperimentGroup, InterruptTrigger, InterruptCue>> triggersThatMatch = ExperimentHelper.shouldTriggerBy(experiment.getExperimentDAO(),
                                                                                                          triggerEvent,
                                                                                                          sourceIdentifier,
