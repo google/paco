@@ -22,8 +22,8 @@ import java.io.InputStream;
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.webkit.WebView;
@@ -37,7 +37,7 @@ import com.pacoapp.paco.utils.EulaLocaleHelper;
  *
  * @author Bob Evans
  */
-public class EulaDisplayActivity extends ActionBarActivity {
+public class EulaDisplayActivity extends AppCompatActivity {
 
   private WebView webView;
 

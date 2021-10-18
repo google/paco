@@ -56,7 +56,7 @@ public class NotificationCreatorService extends Service {
     final Bundle extras = (intent != null) ? intent.getExtras() : null;
 
     PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-    final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Paco NotificationCreatorService wakelock");
+    final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "com.pacoapp.Paco:NotificationCreatorService wakelock");
     wl.acquire();
 
 

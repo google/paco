@@ -16,34 +16,14 @@
  */
 package com.pacoapp.paco.ui;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.io.Files;
-import com.pacoapp.paco.R;
-import com.pacoapp.paco.UserPreferences;
-import com.pacoapp.paco.shared.model2.Input2;
-
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
@@ -56,26 +36,31 @@ import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Parcelable;
+import android.os.StrictMode;
+import androidx.core.app.ActivityCompat;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
+import android.widget.*;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
+import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.shared.model2.Input2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class InputLayout extends LinearLayout implements SpeechRecognitionListener {
 
@@ -561,6 +546,14 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       String dateString = createTimeStamp();
       file = getOutputMediaFile(MEDIA_TYPE_IMAGE);
       requestCode = code++;
+
+      // TODO fix this properly
+      // https://stackoverflow.com/questions/48117511/exposed-beyond-app-through-clipdata-item-geturi
+
+      StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+      StrictMode.setVmPolicy(builder.build());
+
+
       i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
       ((Activity) getContext()).startActivityForResult(i, CAMERA_REQUEST_CODE + requestCode);
     } catch (Exception e) {
@@ -981,6 +974,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   }
 
   private void setVisible(boolean match) {
+    System.out.println("Set Visibile Thread: " + Thread.currentThread().getName());
     boolean previousVisibility = isVisible();
     if (match) {
       setVisibility(VISIBLE);
@@ -1123,9 +1117,6 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     deleteButton.setEnabled(enabled);
   }
 
-
-
-
   private void onRecord(boolean start) {
     if (start) {
       startRecording();
@@ -1159,24 +1150,37 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     audioPlayer = null;
   }
 
-  private void startRecording() {
-    if (audioFileName != null) {
-      deleteAudioFile();
-    }
-    createAudioFileName();
-    audioRecorder = new MediaRecorder();
-    audioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-    audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4/* THREE_GPP */);
-    audioRecorder.setOutputFile(audioFileName);
-    audioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC/* AMR_NB */);
 
-    try {
-      audioRecorder.prepare();
-    } catch (IOException e) {
-      Log.error("prepare() failed");
-    }
 
-    audioRecorder.start();
+
+  void startRecording() {
+    if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED) {
+
+      ExperimentExecutor parentActivity = (ExperimentExecutor) getContext();
+      parentActivity.addAudioRecordingPermissionRequester(10, this);
+      ActivityCompat.requestPermissions(parentActivity, new String[] { Manifest.permission.RECORD_AUDIO },
+              10);
+
+    } else {
+      if (audioFileName != null) {
+        deleteAudioFile();
+      }
+      createAudioFileName();
+      audioRecorder = new MediaRecorder();
+      audioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+      audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4/* THREE_GPP */);
+      audioRecorder.setOutputFile(audioFileName);
+      audioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC/* AMR_NB */);
+
+      try {
+        audioRecorder.prepare();
+      } catch (IOException e) {
+        Log.error("prepare() failed");
+      }
+
+      audioRecorder.start();
+    }
   }
 
   private void stopRecording() {

@@ -3,7 +3,7 @@ package com.pacoapp.paco.net;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.v4.net.ConnectivityManagerCompat;
+import androidx.core.net.ConnectivityManagerCompat;
 
 import com.pacoapp.paco.UserPreferences;
 

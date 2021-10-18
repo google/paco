@@ -6,8 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,7 +18,7 @@ import com.pacoapp.paco.R;
 import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.os.RingtoneUtil;
 
-public class SettingsActivity extends ActionBarActivity {
+public class SettingsActivity extends AppCompatActivity {
 
   private TextView ringtoneTextView;
   private CheckBox wifiOnlyCheckBox;

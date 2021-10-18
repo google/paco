@@ -2,6 +2,7 @@ package com.pacoapp.paco.ui;
 
 import java.util.List;
 
+import androidx.appcompat.app.AppCompatActivity;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +23,7 @@ import com.pacoapp.paco.utils.IntentExtraHelper;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import androidx.appcompat.app.ActionBar;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +33,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class ExperimentGroupPicker extends ActionBarActivity implements ExperimentLoadingActivity {
+public class ExperimentGroupPicker extends AppCompatActivity implements ExperimentLoadingActivity {
 
   public static final String SHOULD_GO_TO_RENDER_NEXT = "should_render_next";
   public static final int FEEDBACK_NEXT = 1;

@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,7 +17,7 @@ import android.widget.ListView;
 
 import com.pacoapp.paco.R;
 
-public class OpenSourceLicenseListActivity extends ActionBarActivity  {
+public class OpenSourceLicenseListActivity extends AppCompatActivity {
 
   private ArrayList<String> sites;
   private ArrayList<String> libNames;

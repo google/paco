@@ -6,7 +6,10 @@ public enum GroupTypeEnum {
   APPUSAGE_ANDROID(3), 
   NOTIFICATION(4),
   ACCESSIBILITY(5),
-  PHONESTATUS(6);
+  PHONESTATUS(6),
+  APPUSAGE_DESKTOP(7),
+  APPUSAGE_SHELL(8),
+  IDE_IDEA_USAGE(9);
   
   private int groupTypeId;
   

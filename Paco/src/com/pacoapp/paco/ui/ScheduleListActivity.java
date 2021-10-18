@@ -2,6 +2,7 @@ package com.pacoapp.paco.ui;
 
 import java.util.List;
 
+import androidx.appcompat.app.AppCompatActivity;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +29,8 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import androidx.core.app.NavUtils;
+import androidx.appcompat.app.ActionBar;
 import android.telephony.TelephonyManager;
 import android.view.Display;
 import android.view.MenuItem;
@@ -52,7 +52,7 @@ import android.widget.Toast;
  * {@link ScheduleListFragment.Callbacks} interface to listen for item
  * selections.
  */
-public class ScheduleListActivity extends ActionBarActivity implements ScheduleListFragment.Callbacks,
+public class ScheduleListActivity extends AppCompatActivity implements ScheduleListFragment.Callbacks,
                                                            ExperimentLoadingActivity {
 
   private static Logger Log = LoggerFactory.getLogger(ScheduleListActivity.class);

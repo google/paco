@@ -19,8 +19,8 @@ package com.pacoapp.paco.ui;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.webkit.WebView;
@@ -34,7 +34,7 @@ import com.pacoapp.paco.utils.AndroidLocaleHelper;
  *
  * @author Bob Evans
  */
-public class HelpActivity extends ActionBarActivity {
+public class HelpActivity extends AppCompatActivity {
 
   private WebView webView;
 

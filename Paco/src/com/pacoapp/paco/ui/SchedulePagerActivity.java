@@ -3,12 +3,12 @@ package com.pacoapp.paco.ui;
 import java.util.List;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
+import androidx.appcompat.app.AppCompatActivity;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
@@ -17,7 +17,7 @@ import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.utils.IntentExtraHelper;
 
-public class SchedulePagerActivity extends ActionBarActivity implements ScheduleDetailFragment.Callbacks, ExperimentLoadingActivity {
+public class SchedulePagerActivity extends AppCompatActivity implements ScheduleDetailFragment.Callbacks, ExperimentLoadingActivity {
     ViewPager mViewPager;
     private ExperimentProviderUtil experimentProviderUtil;
     private ExperimentGroup experimentGroup;

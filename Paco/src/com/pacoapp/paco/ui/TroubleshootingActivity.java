@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import androidx.appcompat.app.AppCompatActivity;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,15 +32,14 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import androidx.appcompat.app.ActionBar;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class TroubleshootingActivity extends ActionBarActivity {
+public class TroubleshootingActivity extends AppCompatActivity {
 
   private static final int EMAIL_INTENT_REQUEST_CODE = 1093;
   private static Logger Log = LoggerFactory.getLogger(TroubleshootingActivity.class);

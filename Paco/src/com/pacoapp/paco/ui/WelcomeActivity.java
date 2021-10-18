@@ -23,8 +23,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,7 +40,7 @@ import com.pacoapp.paco.utils.AndroidLocaleHelper;
  *
  * @author Sandor Dornbush, Bob Evans
  */
-public class WelcomeActivity extends ActionBarActivity {
+public class WelcomeActivity extends AppCompatActivity {
 
   static final String WELCOME_PAGE = "welcome_page";
 

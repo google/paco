@@ -1,5 +1,6 @@
 package com.pacoapp.paco.ui;
 
+import androidx.appcompat.app.AppCompatActivity;
 import org.joda.time.DateTime;
 
 import android.content.Context;
@@ -7,9 +8,8 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import androidx.core.app.NavUtils;
+import androidx.appcompat.app.ActionBar;
 import android.telephony.TelephonyManager;
 import android.view.Display;
 import android.view.MenuItem;
@@ -39,7 +39,7 @@ import com.pacoapp.paco.utils.IntentExtraHelper;
  * This activity is mostly just a 'shell' activity containing nothing more than
  * a {@link ScheduleDetailFragment}.
  */
-public class ScheduleDetailActivity extends ActionBarActivity implements ScheduleDetailFragment.Callbacks,
+public class ScheduleDetailActivity extends AppCompatActivity implements ScheduleDetailFragment.Callbacks,
                                                              ExperimentLoadingActivity {
 
   private ScheduleTrigger scheduleTrigger;

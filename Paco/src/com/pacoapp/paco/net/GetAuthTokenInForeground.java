@@ -1,5 +1,8 @@
 package com.pacoapp.paco.net;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+
 import java.io.IOException;
 
 import com.google.android.gms.auth.GoogleAuthException;
@@ -20,7 +23,8 @@ public class GetAuthTokenInForeground extends AbstractAuthTokenTask {
     @Override
     protected String fetchToken() throws IOException {
         try {
-            return GoogleAuthUtil.getToken(networkClient.getContext(), userPrefs.getSelectedAccount(), oAuthScope);
+            return GoogleAuthUtil.getToken(networkClient.getContext(), getSelectedAccount(), oAuthScope);
+            //return GoogleAuthUtil.getToken(networkClient.getContext(), userPrefs.getSelectedAccount(), oAuthScope);
         } catch (UserRecoverableAuthException userRecoverableException) {
             // GooglePlayServices.apk is either old, disabled, or not present, which is
             // recoverable, so we need to show the user some UI through the networkClient.
@@ -28,6 +32,19 @@ public class GetAuthTokenInForeground extends AbstractAuthTokenTask {
         } catch (GoogleAuthException fatalException) {
             onError("Unrecoverable error " + fatalException.getMessage(), fatalException);
         }
+        return null;
+    }
+
+    private Account getSelectedAccount() {
+        AccountManager accountManager = AccountManager.get(networkClient.getContext());
+        Account[] accounts = accountManager.getAccounts();
+        for (int i = 0; i < accounts.length; i++) {
+            if (accounts[i].name.equals(userPrefs.getSelectedAccount())) {
+                return accounts[i];
+            }
+
+        }
+
         return null;
     }
 

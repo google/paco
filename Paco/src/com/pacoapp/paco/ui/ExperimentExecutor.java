@@ -19,7 +19,11 @@ package com.pacoapp.paco.ui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
+import android.content.pm.PackageManager;
+import androidx.appcompat.app.AppCompatActivity;
+import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import org.joda.time.Seconds;
 import org.slf4j.Logger;
@@ -64,8 +68,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.speech.RecognizerIntent;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import androidx.appcompat.app.ActionBar;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -80,7 +83,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ExperimentExecutor extends ActionBarActivity implements ChangeListener, LocationListener, ExperimentLoadingActivity  {
+public class ExperimentExecutor extends AppCompatActivity implements ChangeListener, LocationListener, ExperimentLoadingActivity  {
 
   private static Logger Log = LoggerFactory.getLogger(ExperimentExecutor.class);
 
@@ -697,13 +700,20 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
 
 
   public void onChange(InputLayout input) {
-    synchronized (updateLock) {
+    System.out.println("onChange outside sync Thread: " + Thread.currentThread().getName());
+    //synchronized (updateLock) {
+      System.out.println("onChange inside sync Thread: " + Thread.currentThread().getName());
       Environment interpreter = updateInterpreter(input);
       ExpressionEvaluator main = new ExpressionEvaluator(interpreter);
       for (InputLayout inputLayout : inputs) {
         inputLayout.checkConditionalExpression(main);
       }
-    }
+    //
+    //
+    //
+    //
+    //
+    // }
   }
 
   private Environment updateInterpreter(InputLayout input) {
@@ -799,4 +809,22 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
     }
   }
 
+  private Map<Integer, InputLayout> recordingInputLayouts = Maps.newHashMap();
+
+  public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                         int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    if (requestCode >= 10 && requestCode <= 20) {
+      if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        InputLayout recordingInputLayout = recordingInputLayouts.get(requestCode);
+        recordingInputLayout.startRecording();
+      } else {
+        //User denied Permission.
+      }
+    }
+  }
+
+  public void addAudioRecordingPermissionRequester(int i, InputLayout inputLayout) {
+    recordingInputLayouts.put(i, inputLayout);
+  }
 }

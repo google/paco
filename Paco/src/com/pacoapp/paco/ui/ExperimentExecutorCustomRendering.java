@@ -33,6 +33,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import androidx.appcompat.app.AppCompatActivity;
+import com.pacoapp.paco.js.bridge.*;
 import org.joda.time.DateTime;
 import org.joda.time.Seconds;
 import org.json.JSONArray;
@@ -43,16 +47,6 @@ import com.google.android.apps.paco.questioncondparser.Binding;
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
 import com.google.common.base.Strings;
 import com.pacoapp.paco.R;
-import com.pacoapp.paco.js.bridge.Environment;
-import com.pacoapp.paco.js.bridge.JavascriptCalendarManager;
-import com.pacoapp.paco.js.bridge.JavascriptEmail;
-import com.pacoapp.paco.js.bridge.JavascriptEventLoader;
-import com.pacoapp.paco.js.bridge.JavascriptExperimentLoader;
-import com.pacoapp.paco.js.bridge.JavascriptNotificationService;
-import com.pacoapp.paco.js.bridge.JavascriptPackageManager;
-import com.pacoapp.paco.js.bridge.JavascriptPhotoService;
-import com.pacoapp.paco.js.bridge.JavascriptSensorManager;
-import com.pacoapp.paco.js.bridge.JavascriptStringResources;
 import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.EventUtil;
 import com.pacoapp.paco.model.Experiment;
@@ -93,8 +87,9 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.speech.RecognizerIntent;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import androidx.appcompat.app.ActionBar;
+import androidx.core.app.ActivityCompat;
+
 import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -113,8 +108,9 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
-public class ExperimentExecutorCustomRendering extends ActionBarActivity implements ChangeListener, LocationListener, ExperimentLoadingActivity  {
+public class ExperimentExecutorCustomRendering extends AppCompatActivity implements ChangeListener, LocationListener, ExperimentLoadingActivity {
 
+  public static final int LOCATION_REQUEST_CODE = 1010101;
   private static Logger Log = LoggerFactory.getLogger(ExperimentExecutorCustomRendering.class);
 
   private Experiment experiment;
@@ -187,7 +183,7 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
 
       actionBar.setTitle(experiment.getExperimentDAO().getTitle());
 
-      inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+      inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       optionsMenu = new OptionsMenu(this, experiment.getExperimentDAO().getId(), scheduledTime != null && scheduledTime != 0L);
 
 
@@ -196,7 +192,7 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
 
       // webRecommended layout pieces
       ((LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.experiment_web_recommended_buttons,
-                                                                           mainLayout, true);
+              mainLayout, true);
       buttonView = findViewById(R.id.ExecutorButtonLayout);
       buttonView.setVisibility(View.GONE);
 
@@ -225,7 +221,7 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
   }
 
   private void renderWebRecommendedMessage() {
-    final ScrollView scrollView = (ScrollView)findViewById(R.id.ScrollView01);
+    final ScrollView scrollView = (ScrollView) findViewById(R.id.ScrollView01);
     scrollView.setVisibility(View.GONE);
     buttonView.setVisibility(View.VISIBLE);
 
@@ -245,7 +241,7 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
         actionId = notificationHolder.getActionId();
         actionTriggerSpecId = notificationHolder.getActionTriggerSpecId();
         scheduledTime = notificationHolder.getAlarmTime();
-        Log.info("Starting experimentExecutor from signal: " + experiment.getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
+        Log.info("Starting experimentExecutor from signal: " + experiment.getExperimentDAO().getTitle() + ". alarmTime: " + new DateTime(scheduledTime).toString());
         timeoutMillis = notificationHolder.getTimeoutMillis();
       } else {
         scheduledTime = null;
@@ -283,7 +279,7 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
         notificationHolderId = notificationHolder.getId();
         scheduledTime = notificationHolder.getAlarmTime();
         shouldExpireNotificationHolder = true;
-        Log.info("ExperimentExecutor: Self report, but found signal still active : " + experiment.getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
+        Log.info("ExperimentExecutor: Self report, but found signal still active : " + experiment.getExperimentDAO().getTitle() + ". alarmTime: " + new DateTime(scheduledTime).toString());
       } else {
         NotificationCreator.create(this).timeoutNotification(notificationHolder);
       }
@@ -329,28 +325,61 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
   // Location
 
   private void registerLocationListener() {
+// TODO remove redundant permission check
+    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+      // TODO: Consider calling
+      //    ActivityCompat#requestPermissions
+      // here to request the missing permissions, and then overriding
+
+      ActivityCompat
+              .requestPermissions(
+                      ExperimentExecutorCustomRendering.this,
+                      new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                      LOCATION_REQUEST_CODE);
+
+    } else {
+      registerLocationManagerOncePermitted();
+    }
+  }
+
+  private void registerLocationManagerOncePermitted() {
     LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
     if (!lm.isProviderEnabled("gps")) {
       new AlertDialog.Builder(this)
-      .setMessage(R.string.gps_message)
-      .setCancelable(true)
-      .setPositiveButton(R.string.enable_button, new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int which) {
-          launchGpsSettings();
-          dialog.dismiss();
-        }
-      })
-      .setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int which) {
-          dialog.cancel();
-        }
-      })
-      .create()
-      .show();
+              .setMessage(R.string.gps_message)
+              .setCancelable(true)
+              .setPositiveButton(R.string.enable_button, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                  launchGpsSettings();
+                  dialog.dismiss();
+                }
+              })
+              .setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                  dialog.cancel();
+                }
+              })
+              .create()
+              .show();
     }
     if (lm != null) {
       getBestProvider(lm);
     }
+  }
+
+  public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                         int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode,
+                    permissions,
+                    grantResults);
+    if (requestCode == LOCATION_REQUEST_CODE && grantResults.length > 0
+            && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+      registerLocationManagerOncePermitted();
+    }
+
   }
 
   void launchGpsSettings() {
@@ -359,35 +388,52 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
 
 
   private void getBestProvider(LocationManager lm) {
-    Criteria criteria = new Criteria();
-    criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-    criteria.setAccuracy(Criteria.ACCURACY_FINE);
+    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+      // TODO: Consider calling
+      //    ActivityCompat#requestPermissions
+      // here to request the missing permissions, and then overriding
 
-    String bestProvider = lm.getBestProvider(criteria, true);
-    if (bestProvider != null) {
-      lm.requestLocationUpdates(bestProvider, 0, 0, this);
-      location = lm.getLastKnownLocation(bestProvider);
-      for (InputLayout input : locationInputs) {
-        input.setLocation(location);
-      }
+      ActivityCompat
+              .requestPermissions(
+                      ExperimentExecutorCustomRendering.this,
+                      new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                      LOCATION_REQUEST_CODE);
 
     } else {
-      new AlertDialog.Builder(this)
-      .setMessage(R.string.need_location)
-      .setCancelable(true)
-      .setPositiveButton(R.string.enable_button, new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int which) {
-          launchGpsSettings();
-          dialog.dismiss();
+      Criteria criteria = new Criteria();
+      criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+      criteria.setAccuracy(Criteria.ACCURACY_FINE);
+
+      String bestProvider = lm.getBestProvider(criteria, true);
+      if (bestProvider != null) {
+
+        lm.requestLocationUpdates(bestProvider, 0, 0, this);
+        location = lm.getLastKnownLocation(bestProvider);
+        for (InputLayout input : locationInputs) {
+          input.setLocation(location);
         }
-      })
-      .setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int which) {
-          dialog.cancel();
-        }
-      })
-      .create()
-      .show();
+
+      } else {
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.need_location)
+                .setCancelable(true)
+                .setPositiveButton(R.string.enable_button, new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int which) {
+                    launchGpsSettings();
+                    dialog.dismiss();
+                  }
+                })
+                .setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                  }
+                })
+                .create()
+                .show();
+      }
     }
   }
 
@@ -483,7 +529,8 @@ private void injectObjectsIntoJavascriptEnvironment() {
   webView.addJavascriptInterface(env, "env");
 
   String text = experimentGroup.getCustomRenderingCode();
-  webView.addJavascriptInterface(text, "additions");
+
+  webView.addJavascriptInterface(new JavascriptStringHolder(text), "additions");
 
   webView.addJavascriptInterface(new JavascriptExperimentLoader(this, experimentProviderUtil, experiment.getExperimentDAO(), experiment, experimentGroup), "experimentLoader");
 

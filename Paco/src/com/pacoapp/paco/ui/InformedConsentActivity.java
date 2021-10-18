@@ -19,6 +19,7 @@ package com.pacoapp.paco.ui;
 import java.io.IOException;
 import java.util.List;
 
+import androidx.appcompat.app.AppCompatActivity;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
@@ -33,10 +34,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import androidx.appcompat.app.ActionBar;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.Display;
 import android.view.MenuItem;
 import android.view.View;
@@ -68,7 +67,7 @@ import com.pacoapp.paco.triggering.ExperimentExpirationManagerService;
 import com.pacoapp.paco.triggering.PacoExperimentActionBroadcaster;
 import com.pacoapp.paco.utils.IntentExtraHelper;
 
-public class InformedConsentActivity extends ActionBarActivity implements ExperimentLoadingActivity, NetworkClient {
+public class InformedConsentActivity extends AppCompatActivity implements ExperimentLoadingActivity, NetworkClient {
 
   public static final String INFORMED_CONSENT_PAGE_EXTRA_KEY = "InformedConsentPage";
 

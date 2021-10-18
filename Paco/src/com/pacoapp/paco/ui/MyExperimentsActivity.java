@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import androidx.appcompat.app.AppCompatActivity;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
@@ -73,11 +74,10 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.PopupMenu;
+import androidx.fragment.app.FragmentManager;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -95,7 +95,7 @@ import android.widget.Toast;
 /**
  *
  */
-public class MyExperimentsActivity extends ActionBarActivity implements
+public class MyExperimentsActivity extends AppCompatActivity implements
     NavigationDrawerFragment.NavigationDrawerCallbacks, NetworkClient {
 
   private static final int RINGTONE_REQUESTCODE = 945;

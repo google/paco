@@ -20,8 +20,8 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.Html;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,7 +38,7 @@ import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.utils.IntentExtraHelper;
 
-public class PostJoinInstructionsActivity extends ActionBarActivity implements ExperimentLoadingActivity {
+public class PostJoinInstructionsActivity extends AppCompatActivity implements ExperimentLoadingActivity {
 
   public static final int REFRESHING_JOINED_EXPERIMENT_DIALOG_ID = 1002;
 

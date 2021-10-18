@@ -19,14 +19,14 @@ package com.pacoapp.paco.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.appcompat.app.AppCompatActivity;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import androidx.appcompat.app.ActionBar;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -41,7 +41,7 @@ import com.pacoapp.paco.shared.model2.Input2;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.utils.IntentExtraHelper;
 
-public class RawDataActivity extends ActionBarActivity implements ExperimentLoadingActivity {
+public class RawDataActivity extends AppCompatActivity implements ExperimentLoadingActivity {
 
   DateTimeFormatter df = DateTimeFormat.forPattern("MM/dd/yy HH:mm");
 

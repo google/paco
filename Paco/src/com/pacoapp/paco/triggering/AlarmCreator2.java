@@ -117,7 +117,7 @@ public class AlarmCreator2 {
     PendingIntent intent = createAlarmReceiverIntentForExperiment(alarmTime);
     alarmManager.cancel(intent);
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-      alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime.getMillis(), intent);
+      alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTime.getMillis(), intent);
     } else {
       alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getMillis(), intent);
     }

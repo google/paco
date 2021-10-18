@@ -19,6 +19,7 @@ package com.pacoapp.paco.ui;
 import java.util.Iterator;
 import java.util.List;
 
+import androidx.appcompat.app.AppCompatActivity;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -47,8 +48,7 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import androidx.appcompat.app.ActionBar;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -56,7 +56,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ExperimentDetailActivity extends ActionBarActivity implements ExperimentLoadingActivity, NetworkClient {
+public class ExperimentDetailActivity extends AppCompatActivity implements ExperimentLoadingActivity, NetworkClient {
 
   public static final String ID_FROM_MY_EXPERIMENTS_FILE = "my_experimentsFile";
 
@@ -240,7 +240,7 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
 
 
   private boolean isJoinedExperiment() {
-    return experiment.getJoinDate() != null;
+    return experiment != null && experiment.getJoinDate() != null;
   }
 
 

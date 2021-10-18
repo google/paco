@@ -16,6 +16,8 @@
 */
 package com.pacoapp.paco.os;
 
+import android.os.PowerManager;
+import com.pacoapp.paco.triggering.AndroidActionExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +47,51 @@ public class AlarmReceiver extends BroadcastReceiver {
       Log.info("AlarmTime = " + extras.getLong(Experiment.SCHEDULED_TIME, -1L));
       notificationServiceIntent.putExtras(intent);
     }
-    context.startService(notificationServiceIntent);
+    //context.startService(notificationServiceIntent);
+    onStart(notificationServiceIntent, context);
+  }
+
+  public void onStart(Intent intent, final Context context) {
+    //super.onStart(intent, startId);
+    Log.debug("NotificationCreatorService onStart");
+    final Bundle extras = (intent != null) ? intent.getExtras() : null;
+
+    PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "com.pacoapp.Paco:NotificationCreatorService wakelock");
+    wl.acquire();
+
+
+    Runnable runnable = new Runnable() {
+      public void run() {
+        try {
+          NotificationCreator notificationCreator = NotificationCreator.create(context);
+          long notificationId = -1;
+          long alarmTime = -1;
+          boolean isSnoozeWakeup = false;
+          if (extras != null) {
+            notificationId = extras.getLong(NotificationCreator.NOTIFICATION_ID, -1);
+            alarmTime = extras.getLong(Experiment.SCHEDULED_TIME, -1);
+            isSnoozeWakeup = extras.getBoolean(NotificationCreator.SNOOZE_REPEATER_EXTRA_KEY, false);
+          }
+
+          // assuming the alarm is for an actionTrigger/action to create a Notification
+          if (isSnoozeWakeup && notificationId != -1) {
+            notificationCreator.createSnoozeWakeupNotification(notificationId);
+          } else if (notificationId != -1) {
+            notificationCreator.timeoutNotification(notificationId);
+          } else if (alarmTime != -1) {
+            notificationCreator.createNotificationsForAlarmTime(alarmTime);
+            AndroidActionExecutor.getInstance(context).runAllActionsForAlarmTime(alarmTime);
+          } else {
+            notificationCreator.recreateActiveNotifications();
+          }
+
+        } finally {
+          wl.release();
+//          stopSelf();
+        }
+      }
+    };
+    (new Thread(runnable)).start();
   }
 }

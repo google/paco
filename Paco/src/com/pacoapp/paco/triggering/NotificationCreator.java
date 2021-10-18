@@ -18,6 +18,8 @@ package com.pacoapp.paco.triggering;
 
 import java.util.List;
 
+import android.app.*;
+import android.os.Build;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,15 +49,13 @@ import com.pacoapp.paco.shared.util.ExperimentHelper.Trio;
 import com.pacoapp.paco.ui.ExperimentExecutor;
 
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
+
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 public class NotificationCreator {
 
@@ -358,6 +358,7 @@ public class NotificationCreator {
     return notificationHolder;
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.O)
   private void fireNotification(Context context, NotificationHolder notificationHolder, String experimentTitle,
                                 String message, String experimentSpecificRingtone, Integer color, Boolean dismissible) {
     String alarmTimeString = "";
@@ -379,6 +380,7 @@ public class NotificationCreator {
 
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.O)
   private Notification createAndroidNotification(Context context, NotificationHolder notificationHolder,
                                                  String experimentTitle, String message,
                                                  String experimentSpecificRingtone, Integer color, Boolean dismissible) {
@@ -414,6 +416,7 @@ public class NotificationCreator {
     	dismissible = PacoNotificationAction.DEFAULT_DISMISSIBLE;
     }
 
+    String channelId = makeNotificationChannel();
     NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context).setSmallIcon(icon)
                                                                                             .setContentTitle(experimentTitle)
                                                                                             .setTicker(tickerText)
@@ -423,12 +426,30 @@ public class NotificationCreator {
                                                                                             .setOngoing(!dismissible) //whether it's dismissible
                                                                                             .setAutoCancel(dismissible) //whether it should disappear on user click
                                                                                             .setLights(color,PacoNotificationAction.DEFAULT_NOTIFICATION_DELAY,PacoNotificationAction.DEFAULT_NOTIFICATION_DELAY)
-                                                                                            .setStyle(bigStyle);
+                                                                                            .setStyle(bigStyle)
+            .setChannelId(channelId);
 
     int defaults = Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;
     defaults = getRingtone(context, notificationBuilder, defaults, experimentSpecificRingtone);
     notificationBuilder.setDefaults(defaults);
     return notificationBuilder.build();
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.O)
+  public String makeNotificationChannel() {
+    NotificationChannel notificationChannel =
+            new NotificationChannel("pacoChannel", "Paco Experiment Notifications", NotificationManager.IMPORTANCE_DEFAULT);
+    notificationChannel.setDescription("Notices to participate in your Paco Experiment");
+    notificationChannel.enableVibration(true);
+    notificationChannel.setLockscreenVisibility(0);
+
+    // Adds NotificationChannel to system. Attempting to create an existing notification
+    // channel with its original values performs no operation, so it's safe to perform the
+    // below sequence.
+    NotificationManager notificationManager =
+            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+    notificationManager.createNotificationChannel(notificationChannel);
+    return "pacoChannel";
   }
 
   public int getRingtone(Context context, NotificationCompat.Builder notificationBuilder, int defaults,
@@ -479,7 +500,7 @@ public class NotificationCreator {
     AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     alarmManager.cancel(intent);
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-      alarmManager.setExact(AlarmManager.RTC_WAKEUP, elapsedDurationInMillis, intent);
+      alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, elapsedDurationInMillis, intent);
     } else {
       alarmManager.set(AlarmManager.RTC_WAKEUP, elapsedDurationInMillis, intent);
     }
