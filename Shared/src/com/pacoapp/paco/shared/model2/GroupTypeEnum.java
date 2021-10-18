@@ -10,7 +10,7 @@ public enum GroupTypeEnum {
   APPUSAGE_DESKTOP(7),
   APPUSAGE_SHELL(8),
   IDE_IDEA_USAGE(9);
-  
+
   private int groupTypeId;
   
   private GroupTypeEnum(int groupTypeId) {

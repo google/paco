@@ -5,22 +5,7 @@ import java.util.logging.Logger;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import com.google.sampling.experiential.server.migration.jobs.CSInsertEventsJob;
-import com.google.sampling.experiential.server.migration.jobs.CSInsertOutputsJob;
-import com.google.sampling.experiential.server.migration.jobs.CatchUpDateRangeJob;
-import com.google.sampling.experiential.server.migration.jobs.CatchUpDateRangeJobOldVersion;
-import com.google.sampling.experiential.server.migration.jobs.ConvertEventV4ToV5Job;
-import com.google.sampling.experiential.server.migration.jobs.CopyExperimentFromDataStoreToCloudSqlJob;
-import com.google.sampling.experiential.server.migration.jobs.DeleteExperimentDataJob;
-import com.google.sampling.experiential.server.migration.jobs.EVGMigrationVerificationJob;
-import com.google.sampling.experiential.server.migration.jobs.EventStatsCounterMigrationJob;
-import com.google.sampling.experiential.server.migration.jobs.ExperimentHubMigrationJob;
-import com.google.sampling.experiential.server.migration.jobs.ExperimentJDOToDatastoreMigration;
-import com.google.sampling.experiential.server.migration.jobs.ExperimentMigrationDataPreCleanupJob;
-import com.google.sampling.experiential.server.migration.jobs.ExperimentSplitAndPersistJob;
-import com.google.sampling.experiential.server.migration.jobs.ExperimentTitleLowercaseMigrationJob;
-import com.google.sampling.experiential.server.migration.jobs.FeedbackTypeRepairMigration;
-import com.google.sampling.experiential.server.migration.jobs.TestJDODSCompat;
+import com.google.sampling.experiential.server.migration.jobs.*;
 import com.google.sampling.experiential.server.stats.usage.UsageStatsBackfillJob;
 
 public class MigrationLookupTable {
@@ -45,6 +30,7 @@ public class MigrationLookupTable {
     migrations.put("28", EVGMigrationVerificationJob.class);
     migrations.put("29", DeleteExperimentDataJob.class);
     migrations.put("100", ExperimentTitleLowercaseMigrationJob.class);
+    migrations.put("101", AddDesktopStudyGroupTypesJob.class);
   }
   
   public static MigrationJob getMigrationByName(String name) {

@@ -13,16 +13,43 @@
     
 
 	    <div layout="row" >
-	      <md-input-container ng-if="cue.cueCode === 3 || cue.cueCode === 4 || cue.cueCode === 5 || cue.cueCode === 18" flex=90>
+	      <md-input-container ng-if="cue.cueCode === 3" flex=90>
 	        <label>Source of Paco Action</label>
-	        <input type="text" ng-model="cue.cueSource" placeholder="Source Android Package name">
+	        <input type="text" ng-model="cue.cueSource">
 	      </md-input-container>
-      <paco-help tip="app-triggers" ng-if="cue.cueCode === 4 || cue.cueCode === 5 || cue.cueCode === 18" >
+
+            <md-input-container ng-if="cue.cueCode === 4 || cue.cueCode === 5" flex=90>
+                <label>Android package/activity to match</label>
+                <input type="text" ng-model="cue.cueSource" placeholder="com.example.pkg/com.example.Activity">
+            </md-input-container>
+
+            <md-input-container ng-if="cue.cueCode === 18 || cue.cueCode === 19" flex=90>
+                <label>Android package to match</label>
+                <input type="text" ng-model="cue.cueSource" placeholder="com.example.package">
+            </md-input-container>
+
+            <md-input-container ng-if="cue.cueCode === 28 || cue.cueCode === 29 || cue.cueCode === 30 || cue.cueCode === 31" flex=90>
+                <label>app value to match</label>
+                <input type="text" ng-model="cue.cueSource">
+            </md-input-container>
+
+            <paco-help tip="app-triggers" ng-if="cue.cueCode === 4 || cue.cueCode === 5 || cue.cueCode === 18 || cue.cueCode === 19 " >
         <span>Help: App Triggers</span>
       </paco-help>      
         </div>
 
-	    <div layout="column" ng-if="cue.cueCode === 21 || cue.cueCode === 22 || cue.cueCode === 25 || cue.cueCode === 27"  >      
+        <div layout="column" ng-if="cue.cueCode === 32"  >
+            <md-input-container ng-if="cue.cueCode === 32"  flex=30>
+                <label>IDE Event key to match</label>
+                <input type="text" ng-model="cue.cueKey">
+            </md-input-container>
+            <md-input-container ng-if="cue.cueCode === 32" flex=90>
+                <label>Value for key</label>
+                <input type="text" ng-model="cue.cueSource">
+            </md-input-container>
+        </div>
+
+        <div layout="column" ng-if="cue.cueCode === 21 || cue.cueCode === 22 || cue.cueCode === 25 || cue.cueCode === 27"  >
 	      <md-input-container ng-if="cue.cueCode === 21 || cue.cueCode === 22 || cue.cueCode === 25 || cue.cueCode === 27"  flex=30>
 	        <label>Android View Package Name (Optional)</label>
 	        <input type="text" ng-model="cue.cueSource">
@@ -37,6 +64,7 @@
 	        <label>Android View Content Descriptor Text (Optional)</label>
 	        <input type="text" ng-model="cue.cueAEContentDescription">
 	      </md-input-container>
+
       </div>
     </div>
       
