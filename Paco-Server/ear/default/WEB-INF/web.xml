@@ -49,7 +49,7 @@
     <url-pattern>/eventbloburl</url-pattern>
   </servlet-mapping>
   
-  <servlet>
+  <!-- <servlet>
     <servlet-name>ServerSearchServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.CloudSqlSearchServlet</servlet-class>
   </servlet>
@@ -57,7 +57,7 @@
     <servlet-name>ServerSearchServlet</servlet-name>
     <url-pattern>/csSearch</url-pattern>
   </servlet-mapping>
-  
+   -->
   <servlet>
     <servlet-name>usageServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.UsageServlet</servlet-class>
