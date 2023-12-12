@@ -168,7 +168,8 @@ public class ExperimentServlet extends HttpServlet {
                                                                                           selectedExperimentsParam)));
         }
       } else {
-        readExperimentDefinitions(req, resp);
+        //readExperimentDefinitions(req, resp);
+        resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(createErrorOutcome("No longer accepting new or edited experiments")));
       }
     }
   }
